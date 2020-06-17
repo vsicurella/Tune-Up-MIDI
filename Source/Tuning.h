@@ -15,6 +15,9 @@
 
 class Tuning
 {
+
+protected:
+
     Array<double> intervalSemitones;
     Array<double> intervalCents;
     
@@ -39,12 +42,12 @@ public:
     
     Array<double> getSemitoneTable() const;
     
-    double getNoteInSemitones(int midiNoteIn) const;
-    double getNoteInCents(int midiNoteIn) const;
+    virtual double getNoteInSemitones(int midiNoteIn) const;
+    virtual double getNoteInCents(int midiNoteIn) const;
     
     int getRootNote() const;
 
-	int closestNoteToSemitone(double semitoneIn) const;
+	virtual int closestNoteToSemitone(double semitoneIn) const;
 
     static double ratioToSemitones(double ratioIn);
     static double ratioToCents(double ratioIn);

@@ -6,6 +6,9 @@
               pluginFormats="buildVST">
   <MAINGROUP id="L9YdYm" name="Tune-Up MIDI!">
     <GROUP id="{6F056052-FDC6-DFD1-3175-1C32A5B87CD2}" name="Source">
+      <FILE id="h1k3Se" name="DynamicTuning.cpp" compile="1" resource="0"
+            file="Source/DynamicTuning.cpp"/>
+      <FILE id="hmtnxx" name="DynamicTuning.h" compile="0" resource="0" file="Source/DynamicTuning.h"/>
       <FILE id="HMWCpV" name="TuneUpMidiProcessor.cpp" compile="1" resource="0"
             file="Source/TuneUpMidiProcessor.cpp"/>
       <FILE id="HolkIJ" name="TuneUpMidiProcessor.h" compile="0" resource="0"
