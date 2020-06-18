@@ -164,8 +164,158 @@ TuneUpWindow::TuneUpWindow ()
     rootMidiNoteSld->setTextBoxStyle (Slider::TextBoxLeft, false, 80, 20);
     rootMidiNoteSld->addListener (this);
 
+    generateLbl.reset (new Label ("new label",
+                                  TRANS("Generate Tuning")));
+    addAndMakeVisible (generateLbl.get());
+    generateLbl->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
+    generateLbl->setJustificationType (Justification::centredLeft);
+    generateLbl->setEditable (false, false, false);
+    generateLbl->setColour (TextEditor::textColourId, Colours::black);
+    generateLbl->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
+    periodSlider.reset (new Slider ("periodSlider"));
+    addAndMakeVisible (periodSlider.get());
+    periodSlider->setRange (0.001, 100000, 0.001);
+    periodSlider->setSliderStyle (Slider::LinearHorizontal);
+    periodSlider->setTextBoxStyle (Slider::TextBoxLeft, false, 80, 20);
+    periodSlider->addListener (this);
+
+    genSlider.reset (new Slider ("new slider"));
+    addAndMakeVisible (genSlider.get());
+    genSlider->setRange (0.001, 10000, 0.001);
+    genSlider->setSliderStyle (Slider::LinearHorizontal);
+    genSlider->setTextBoxStyle (Slider::TextBoxLeft, false, 80, 20);
+    genSlider->addListener (this);
+
+    genMaxSld.reset (new Slider ("new slider"));
+    addAndMakeVisible (genMaxSld.get());
+    genMaxSld->setRange (0.001, 100000, 0.001);
+    genMaxSld->setSliderStyle (Slider::LinearHorizontal);
+    genMaxSld->setTextBoxStyle (Slider::TextBoxLeft, false, 80, 20);
+    genMaxSld->addListener (this);
+
+    rankNumSld.reset (new Slider ("new slider"));
+    addAndMakeVisible (rankNumSld.get());
+    rankNumSld->setRange (1, 2, 1);
+    rankNumSld->setSliderStyle (Slider::IncDecButtons);
+    rankNumSld->setTextBoxStyle (Slider::TextBoxLeft, false, 80, 20);
+    rankNumSld->addListener (this);
+
+    scaleSizeSld.reset (new Slider ("new slider"));
+    addAndMakeVisible (scaleSizeSld.get());
+    scaleSizeSld->setRange (1, 128, 1);
+    scaleSizeSld->setSliderStyle (Slider::IncDecButtons);
+    scaleSizeSld->setTextBoxStyle (Slider::TextBoxLeft, false, 80, 20);
+    scaleSizeSld->addListener (this);
+
+    genDownSld.reset (new Slider ("new slider"));
+    addAndMakeVisible (genDownSld.get());
+    genDownSld->setRange (0, 128, 1);
+    genDownSld->setSliderStyle (Slider::IncDecButtons);
+    genDownSld->setTextBoxStyle (Slider::TextBoxLeft, false, 80, 20);
+    genDownSld->addListener (this);
+
+    generateTuningBtn.reset (new TextButton ("new button"));
+    addAndMakeVisible (generateTuningBtn.get());
+    generateTuningBtn->setButtonText (TRANS("<< GENERATE!"));
+    generateTuningBtn->addListener (this);
+
+    pitchbendRangeSld.reset (new Slider ("new slider"));
+    addAndMakeVisible (pitchbendRangeSld.get());
+    pitchbendRangeSld->setRange (0, 96, 0.001);
+    pitchbendRangeSld->setSliderStyle (Slider::LinearHorizontal);
+    pitchbendRangeSld->setTextBoxStyle (Slider::TextBoxLeft, false, 80, 20);
+    pitchbendRangeSld->addListener (this);
+
+    periodGenLbl.reset (new Label ("new label",
+                                   TRANS("Period")));
+    addAndMakeVisible (periodGenLbl.get());
+    periodGenLbl->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
+    periodGenLbl->setJustificationType (Justification::centredLeft);
+    periodGenLbl->setEditable (false, false, false);
+    periodGenLbl->setColour (TextEditor::textColourId, Colours::black);
+    periodGenLbl->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
+    genGenLbl.reset (new Label ("new label",
+                                TRANS("Generator (Min)")));
+    addAndMakeVisible (genGenLbl.get());
+    genGenLbl->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
+    genGenLbl->setJustificationType (Justification::centredLeft);
+    genGenLbl->setEditable (false, false, false);
+    genGenLbl->setColour (TextEditor::textColourId, Colours::black);
+    genGenLbl->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
+    genGenMaxLbl.reset (new Label ("new label",
+                                   TRANS("Gen (Max)")));
+    addAndMakeVisible (genGenMaxLbl.get());
+    genGenMaxLbl->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
+    genGenMaxLbl->setJustificationType (Justification::centredLeft);
+    genGenMaxLbl->setEditable (false, false, false);
+    genGenMaxLbl->setColour (TextEditor::textColourId, Colours::black);
+    genGenMaxLbl->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
+    genDownLbl.reset (new Label ("new label",
+                                 TRANS("Gen\'s Down")));
+    addAndMakeVisible (genDownLbl.get());
+    genDownLbl->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
+    genDownLbl->setJustificationType (Justification::centredLeft);
+    genDownLbl->setEditable (false, false, false);
+    genDownLbl->setColour (TextEditor::textColourId, Colours::black);
+    genDownLbl->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
+    rankLbl.reset (new Label ("new label",
+                              TRANS("Rank")));
+    addAndMakeVisible (rankLbl.get());
+    rankLbl->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
+    rankLbl->setJustificationType (Justification::centredLeft);
+    rankLbl->setEditable (false, false, false);
+    rankLbl->setColour (TextEditor::textColourId, Colours::black);
+    rankLbl->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
+    sizeGenLbl.reset (new Label ("new label",
+                                 TRANS("Size")));
+    addAndMakeVisible (sizeGenLbl.get());
+    sizeGenLbl->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
+    sizeGenLbl->setJustificationType (Justification::centredLeft);
+    sizeGenLbl->setEditable (false, false, false);
+    sizeGenLbl->setColour (TextEditor::textColourId, Colours::black);
+    sizeGenLbl->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
+    rangeLbl.reset (new Label ("new label",
+                               TRANS("Pitchbend Range")));
+    addAndMakeVisible (rangeLbl.get());
+    rangeLbl->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
+    rangeLbl->setJustificationType (Justification::centredLeft);
+    rangeLbl->setEditable (false, false, false);
+    rangeLbl->setColour (TextEditor::textColourId, Colours::black);
+    rangeLbl->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
+    expCCNumSld.reset (new Slider ("new slider"));
+    addAndMakeVisible (expCCNumSld.get());
+    expCCNumSld->setRange (0, 128, 1);
+    expCCNumSld->setSliderStyle (Slider::IncDecButtons);
+    expCCNumSld->setTextBoxStyle (Slider::TextBoxLeft, false, 80, 20);
+    expCCNumSld->addListener (this);
+
+    ccnumLbl.reset (new Label ("new label",
+                               TRANS("Expression CC Channel")));
+    addAndMakeVisible (ccnumLbl.get());
+    ccnumLbl->setFont (Font (15.00f, Font::plain).withTypefaceStyle ("Regular"));
+    ccnumLbl->setJustificationType (Justification::centredLeft);
+    ccnumLbl->setEditable (false, false, false);
+    ccnumLbl->setColour (TextEditor::textColourId, Colours::black);
+    ccnumLbl->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
 
     //[UserPreSize]
+	periodSlider->setValue(1200);
+	genSlider->setValue(696.0);
+	genMaxSld->setValue(709.0);
+	genDownSld->setValue(1);
+	rankNumSld->setValue(2);
+	scaleSizeSld->setValue(12);
+	pitchbendRangeSld->setValue(48);
+	expCCNumSld->setValue(53);
     //[/UserPreSize]
 
     setSize (600, 400);
@@ -195,6 +345,24 @@ TuneUpWindow::~TuneUpWindow()
     fileNameText = nullptr;
     textButton = nullptr;
     rootMidiNoteSld = nullptr;
+    generateLbl = nullptr;
+    periodSlider = nullptr;
+    genSlider = nullptr;
+    genMaxSld = nullptr;
+    rankNumSld = nullptr;
+    scaleSizeSld = nullptr;
+    genDownSld = nullptr;
+    generateTuningBtn = nullptr;
+    pitchbendRangeSld = nullptr;
+    periodGenLbl = nullptr;
+    genGenLbl = nullptr;
+    genGenMaxLbl = nullptr;
+    genDownLbl = nullptr;
+    rankLbl = nullptr;
+    sizeGenLbl = nullptr;
+    rangeLbl = nullptr;
+    expCCNumSld = nullptr;
+    ccnumLbl = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -218,19 +386,37 @@ void TuneUpWindow::resized()
     //[UserPreResize] Add your own custom resize code here..
     //[/UserPreResize]
 
-    tuningText->setBounds (16, 104 + proportionOfHeight (0.1082f) - -8, proportionOfWidth (0.9662f), proportionOfHeight (0.7198f));
-    descText->setBounds (16, 104, proportionOfWidth (0.9662f), proportionOfHeight (0.1082f));
+    tuningText->setBounds (16, 104 + proportionOfHeight (0.1082f) - -8, proportionOfWidth (0.4925f), proportionOfHeight (0.7198f));
+    descText->setBounds (16, 104, proportionOfWidth (0.4925f), proportionOfHeight (0.1082f));
     viewModeMenu->setBounds (16, getHeight() - 30, 150, 24);
     descriptionLbl->setBounds (16, 76, proportionOfWidth (0.3251f), 24);
     numNotesLbl->setBounds (16, 48, proportionOfWidth (0.5038f), 24);
-    transposeSld->setBounds (16 + proportionOfWidth (0.9662f) - 152, 72, 154, 24);
-    periodSld->setBounds (16 + proportionOfWidth (0.9662f) - 152, 44, 154, 24);
-    transposeLbl->setBounds (16 + proportionOfWidth (0.9662f) - 248, 72, 86, 24);
-    periodLbl->setBounds (16 + proportionOfWidth (0.9662f) - 248, 44, 86, 24);
+    transposeSld->setBounds (16 + proportionOfWidth (0.4925f) - 152, 72, 154, 24);
+    periodSld->setBounds (16 + proportionOfWidth (0.4925f) - 152, 44, 154, 24);
+    transposeLbl->setBounds (16 + proportionOfWidth (0.4925f) - 248, 72, 86, 24);
+    periodLbl->setBounds (16 + proportionOfWidth (0.4925f) - 248, 44, 86, 24);
     comboBox->setBounds (getWidth() - 396, getHeight() - 30, 224, 24);
-    fileNameText->setBounds (216, 16, proportionOfWidth (0.8176f), 24);
+    fileNameText->setBounds (216, 16, proportionOfWidth (0.2042f), 24);
     textButton->setBounds (getWidth() - 156, getHeight() - 30, 128, 24);
     rootMidiNoteSld->setBounds (proportionOfWidth (0.2402f), 848, 150, 24);
+    generateLbl->setBounds (proportionOfWidth (0.5165f), 16, 120, 24);
+    periodSlider->setBounds (proportionOfWidth (0.5225f), 56, proportionOfWidth (0.1682f), 24);
+    genSlider->setBounds (proportionOfWidth (0.5225f), 104, proportionOfWidth (0.1622f), 24);
+    genMaxSld->setBounds (proportionOfWidth (0.7207f), 104, proportionOfWidth (0.1742f), 24);
+    rankNumSld->setBounds (proportionOfWidth (0.5225f), 160, proportionOfWidth (0.1126f), 24);
+    scaleSizeSld->setBounds (proportionOfWidth (0.5225f), 208, proportionOfWidth (0.1126f), 24);
+    genDownSld->setBounds (proportionOfWidth (0.7207f), 56, proportionOfWidth (0.1126f), 24);
+    generateTuningBtn->setBounds (proportionOfWidth (0.5225f), 272, proportionOfWidth (0.1126f), 24);
+    pitchbendRangeSld->setBounds (proportionOfWidth (0.5225f), 360, 150, 24);
+    periodGenLbl->setBounds (proportionOfWidth (0.5165f), 40, 64, 24);
+    genGenLbl->setBounds (proportionOfWidth (0.5225f), 88, 142, 24);
+    genGenMaxLbl->setBounds (proportionOfWidth (0.7207f), 80, 114, 26);
+    genDownLbl->setBounds (proportionOfWidth (0.7207f), 40, 96, 24);
+    rankLbl->setBounds (proportionOfWidth (0.5225f), 144, 64, 24);
+    sizeGenLbl->setBounds (proportionOfWidth (0.5225f), 192, 64, 24);
+    rangeLbl->setBounds (proportionOfWidth (0.5165f), 336, 145, 24);
+    expCCNumSld->setBounds (proportionOfWidth (0.5225f), 440, proportionOfWidth (0.1126f), 24);
+    ccnumLbl->setBounds (proportionOfWidth (0.5165f), 416, 176, 24);
     //[UserResized] Add your own custom resize handling here..
 
 	tuningText->setSize(proportionOfWidth(0.9670f), getHeight() - tuningText->getY() - viewModeMenu->getHeight() - 16);
@@ -282,6 +468,32 @@ void TuneUpWindow::buttonClicked (Button* buttonThatWasClicked)
         //[UserButtonCode_textButton] -- add your button handler code here..
         //[/UserButtonCode_textButton]
     }
+    else if (buttonThatWasClicked == generateTuningBtn.get())
+    {
+        //[UserButtonCode_generateTuningBtn] -- add your button handler code here..
+		DynamicTuning dynTun = DynamicTuning(
+			(int)rankNumSld->getValue(),
+			(int)scaleSizeSld->getValue(),
+			genSlider->getValue(),
+			periodSlider->getValue()
+		);
+
+		dynTun.setNumGeneratorsDown(genDownSld->getValue());
+
+		loadTuning((Tuning) dynTun);
+
+		setNumNotes(dynTun.getTuningSize());
+
+		String tunText = "";
+		for (auto c : dynTun.getIntervalCents())
+		{
+			tunText += String(c) + '\n';
+		}
+
+		tuningText->setText(tunText);
+
+        //[/UserButtonCode_generateTuningBtn]
+    }
 
     //[UserbuttonClicked_Post]
     //[/UserbuttonClicked_Post]
@@ -307,6 +519,46 @@ void TuneUpWindow::sliderValueChanged (Slider* sliderThatWasMoved)
         //[UserSliderCode_rootMidiNoteSld] -- add your slider handling code here..
         //[/UserSliderCode_rootMidiNoteSld]
     }
+    else if (sliderThatWasMoved == periodSlider.get())
+    {
+        //[UserSliderCode_periodSlider] -- add your slider handling code here..
+        //[/UserSliderCode_periodSlider]
+    }
+    else if (sliderThatWasMoved == genSlider.get())
+    {
+        //[UserSliderCode_genSlider] -- add your slider handling code here..
+        //[/UserSliderCode_genSlider]
+    }
+    else if (sliderThatWasMoved == genMaxSld.get())
+    {
+        //[UserSliderCode_genMaxSld] -- add your slider handling code here..
+        //[/UserSliderCode_genMaxSld]
+    }
+    else if (sliderThatWasMoved == rankNumSld.get())
+    {
+        //[UserSliderCode_rankNumSld] -- add your slider handling code here..
+        //[/UserSliderCode_rankNumSld]
+    }
+    else if (sliderThatWasMoved == scaleSizeSld.get())
+    {
+        //[UserSliderCode_scaleSizeSld] -- add your slider handling code here..
+        //[/UserSliderCode_scaleSizeSld]
+    }
+    else if (sliderThatWasMoved == genDownSld.get())
+    {
+        //[UserSliderCode_genDownSld] -- add your slider handling code here..
+        //[/UserSliderCode_genDownSld]
+    }
+    else if (sliderThatWasMoved == pitchbendRangeSld.get())
+    {
+        //[UserSliderCode_pitchbendRangeSld] -- add your slider handling code here..
+        //[/UserSliderCode_pitchbendRangeSld]
+    }
+    else if (sliderThatWasMoved == expCCNumSld.get())
+    {
+        //[UserSliderCode_expCCNumSld] -- add your slider handling code here..
+        //[/UserSliderCode_expCCNumSld]
+    }
 
     //[UsersliderValueChanged_Post]
     //[/UsersliderValueChanged_Post]
@@ -318,7 +570,7 @@ void TuneUpWindow::sliderValueChanged (Slider* sliderThatWasMoved)
 
 Tuning& TuneUpWindow::getTuning()
 {
-	return tuning;
+	return *tuning.get();
 }
 
 void TuneUpWindow::setViewMode(ViewMode modeIn)
@@ -392,8 +644,7 @@ void TuneUpWindow::onFileLoad()
 			fileReadout += String(c) + '\n';
 		}
 
-		tuning = Tuning(file.cents);
-		sendChangeMessage();
+		loadTuning(Tuning(file.cents));
 	}
 	else
 	{
@@ -401,6 +652,13 @@ void TuneUpWindow::onFileLoad()
 	}
 
 	tuningText->setText(fileReadout);
+}
+
+void TuneUpWindow::loadTuning(Tuning tuningIn)
+{
+	tuning.reset(new Tuning(tuningIn));
+
+	sendChangeMessage();
 }
 //[/MiscUserCode]
 
@@ -420,11 +678,11 @@ BEGIN_JUCER_METADATA
                  overlayOpacity="0.330" fixedSize="0" initialWidth="600" initialHeight="400">
   <BACKGROUND backgroundColour="ff323e44"/>
   <TEXTEDITOR name="tuningText" id="4aa03066541604" memberName="tuningText"
-              virtualName="" explicitFocusOrder="0" pos="16 -8R 96.622% 71.982%"
+              virtualName="" explicitFocusOrder="0" pos="16 -8R 49.249% 71.982%"
               posRelativeY="399cc76727f961ef" initialText="" multiline="1"
               retKeyStartsLine="1" readonly="0" scrollbars="1" caret="1" popupmenu="1"/>
   <TEXTEDITOR name="descText" id="399cc76727f961ef" memberName="descText" virtualName=""
-              explicitFocusOrder="0" pos="16 104 96.622% 10.82%" initialText=""
+              explicitFocusOrder="0" pos="16 104 49.249% 10.82%" initialText=""
               multiline="1" retKeyStartsLine="0" readonly="0" scrollbars="1"
               caret="1" popupmenu="1"/>
   <COMBOBOX name="viewModeMenu" id="cf506df3da600bde" memberName="viewModeMenu"
@@ -474,7 +732,7 @@ BEGIN_JUCER_METADATA
             layout="33" items="Multichannel MPE&#10;Round Robin MPE&#10;Scala KBM"
             textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <TEXTEDITOR name="fileNameText" id="dae9e1751dd6841e" memberName="fileNameText"
-              virtualName="" explicitFocusOrder="0" pos="216 16 81.757% 24"
+              virtualName="" explicitFocusOrder="0" pos="216 16 20.42% 24"
               initialText="" multiline="0" retKeyStartsLine="0" readonly="0"
               scrollbars="1" caret="1" popupmenu="1"/>
   <TEXTBUTTON name="new button" id="5d824f0479d00288" memberName="textButton"
@@ -485,6 +743,99 @@ BEGIN_JUCER_METADATA
           min="0.0" max="127.0" int="1.0" style="IncDecButtons" textBoxPos="TextBoxLeft"
           textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1.0"
           needsCallback="1"/>
+  <LABEL name="new label" id="ba2247d1aafe79b4" memberName="generateLbl"
+         virtualName="" explicitFocusOrder="0" pos="51.652% 16 120 24"
+         edTextCol="ff000000" edBkgCol="0" labelText="Generate Tuning"
+         editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
+         fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
+         italic="0" justification="33"/>
+  <SLIDER name="periodSlider" id="b52e05bcf7b7942f" memberName="periodSlider"
+          virtualName="" explicitFocusOrder="0" pos="52.252% 56 16.817% 24"
+          min="0.001" max="100000.0" int="0.001" style="LinearHorizontal"
+          textBoxPos="TextBoxLeft" textBoxEditable="1" textBoxWidth="80"
+          textBoxHeight="20" skewFactor="1.0" needsCallback="1"/>
+  <SLIDER name="new slider" id="e46f8473853dc4be" memberName="genSlider"
+          virtualName="" explicitFocusOrder="0" pos="52.252% 104 16.216% 24"
+          min="0.001" max="10000.0" int="0.001" style="LinearHorizontal"
+          textBoxPos="TextBoxLeft" textBoxEditable="1" textBoxWidth="80"
+          textBoxHeight="20" skewFactor="1.0" needsCallback="1"/>
+  <SLIDER name="new slider" id="de72a2111472c4c7" memberName="genMaxSld"
+          virtualName="" explicitFocusOrder="0" pos="72.072% 104 17.417% 24"
+          min="0.001" max="100000.0" int="0.001" style="LinearHorizontal"
+          textBoxPos="TextBoxLeft" textBoxEditable="1" textBoxWidth="80"
+          textBoxHeight="20" skewFactor="1.0" needsCallback="1"/>
+  <SLIDER name="new slider" id="8f480c0c789dffc3" memberName="rankNumSld"
+          virtualName="" explicitFocusOrder="0" pos="52.252% 160 11.261% 24"
+          min="1.0" max="2.0" int="1.0" style="IncDecButtons" textBoxPos="TextBoxLeft"
+          textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1.0"
+          needsCallback="1"/>
+  <SLIDER name="new slider" id="c5d1b24ac32dd291" memberName="scaleSizeSld"
+          virtualName="" explicitFocusOrder="0" pos="52.252% 208 11.261% 24"
+          min="1.0" max="128.0" int="1.0" style="IncDecButtons" textBoxPos="TextBoxLeft"
+          textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1.0"
+          needsCallback="1"/>
+  <SLIDER name="new slider" id="1a8e028bc9748f63" memberName="genDownSld"
+          virtualName="" explicitFocusOrder="0" pos="72.072% 56 11.261% 24"
+          min="0.0" max="128.0" int="1.0" style="IncDecButtons" textBoxPos="TextBoxLeft"
+          textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1.0"
+          needsCallback="1"/>
+  <TEXTBUTTON name="new button" id="8e2e7f811dcf8cfa" memberName="generateTuningBtn"
+              virtualName="" explicitFocusOrder="0" pos="52.252% 272 11.261% 24"
+              buttonText="&lt;&lt; GENERATE!" connectedEdges="0" needsCallback="1"
+              radioGroupId="0"/>
+  <SLIDER name="new slider" id="25e31ce31569133c" memberName="pitchbendRangeSld"
+          virtualName="" explicitFocusOrder="0" pos="52.252% 360 150 24"
+          min="0.0" max="96.0" int="0.001" style="LinearHorizontal" textBoxPos="TextBoxLeft"
+          textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1.0"
+          needsCallback="1"/>
+  <LABEL name="new label" id="3c7315c1d1d2350c" memberName="periodGenLbl"
+         virtualName="" explicitFocusOrder="0" pos="51.652% 40 64 24"
+         edTextCol="ff000000" edBkgCol="0" labelText="Period" editableSingleClick="0"
+         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
+         fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
+  <LABEL name="new label" id="8985c0a44322cef8" memberName="genGenLbl"
+         virtualName="" explicitFocusOrder="0" pos="52.252% 88 142 24"
+         edTextCol="ff000000" edBkgCol="0" labelText="Generator (Min)"
+         editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
+         fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
+         italic="0" justification="33"/>
+  <LABEL name="new label" id="5421c81a4dd96acc" memberName="genGenMaxLbl"
+         virtualName="" explicitFocusOrder="0" pos="72.072% 80 114 26"
+         edTextCol="ff000000" edBkgCol="0" labelText="Gen (Max)" editableSingleClick="0"
+         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
+         fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
+  <LABEL name="new label" id="b3fc87a02d06ccc1" memberName="genDownLbl"
+         virtualName="" explicitFocusOrder="0" pos="72.072% 40 96 24"
+         edTextCol="ff000000" edBkgCol="0" labelText="Gen's Down" editableSingleClick="0"
+         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
+         fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
+  <LABEL name="new label" id="d4a9aa0ea3fcc8cf" memberName="rankLbl" virtualName=""
+         explicitFocusOrder="0" pos="52.252% 144 64 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Rank" editableSingleClick="0" editableDoubleClick="0"
+         focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
+         kerning="0.0" bold="0" italic="0" justification="33"/>
+  <LABEL name="new label" id="bc23b87714b43f1b" memberName="sizeGenLbl"
+         virtualName="" explicitFocusOrder="0" pos="52.252% 192 64 24"
+         edTextCol="ff000000" edBkgCol="0" labelText="Size" editableSingleClick="0"
+         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
+         fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
+  <LABEL name="new label" id="848ebdbb1aace20d" memberName="rangeLbl"
+         virtualName="" explicitFocusOrder="0" pos="51.652% 336 145 24"
+         edTextCol="ff000000" edBkgCol="0" labelText="Pitchbend Range"
+         editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
+         fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
+         italic="0" justification="33"/>
+  <SLIDER name="new slider" id="e3df021e54656e8d" memberName="expCCNumSld"
+          virtualName="" explicitFocusOrder="0" pos="52.252% 440 11.261% 24"
+          min="0.0" max="128.0" int="1.0" style="IncDecButtons" textBoxPos="TextBoxLeft"
+          textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1.0"
+          needsCallback="1"/>
+  <LABEL name="new label" id="d9a9d6b84f4e63b2" memberName="ccnumLbl"
+         virtualName="" explicitFocusOrder="0" pos="51.652% 416 176 24"
+         edTextCol="ff000000" edBkgCol="0" labelText="Expression CC Channel"
+         editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
+         fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
+         italic="0" justification="33"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

@@ -3,7 +3,7 @@
 <JUCERPROJECT id="ocxSOI" name="Tune-Up MIDI!" projectType="audioplug" jucerVersion="5.4.7"
               pluginCharacteristicsValue="pluginIsMidiEffectPlugin,pluginProducesMidiOut,pluginWantsMidiIn"
               pluginChannelConfigs="{1, 1}, {2, 2},{16,16}" companyName="Everytone"
-              pluginFormats="buildVST">
+              pluginFormats="buildStandalone,buildVST">
   <MAINGROUP id="L9YdYm" name="Tune-Up MIDI!">
     <GROUP id="{6F056052-FDC6-DFD1-3175-1C32A5B87CD2}" name="Source">
       <FILE id="h1k3Se" name="DynamicTuning.cpp" compile="1" resource="0"
@@ -27,9 +27,6 @@
       <FILE id="rkvBfW" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
       <FILE id="QRULZJ" name="ChannelAssigner.h" compile="0" resource="0"
             file="Source/ChannelAssigner.h"/>
-      <FILE id="XeUjba" name="MidiProcessor.cpp" compile="0" resource="0"
-            file="Source/MidiProcessor.cpp"/>
-      <FILE id="ROsIQb" name="MidiProcessor.h" compile="0" resource="0" file="Source/MidiProcessor.h"/>
       <FILE id="hid6L0" name="TunedNoteInterpreter.cpp" compile="1" resource="0"
             file="Source/TunedNoteInterpreter.cpp"/>
       <FILE id="iPwKQb" name="TunedNoteInterpreter.h" compile="0" resource="0"

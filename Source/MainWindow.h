@@ -22,7 +22,7 @@
 //[Headers]     -- You can add your own extra header files here --
 #include <JuceHeader.h>
 #include "ScalaFileReader.h"
-#include "Tuning.h"
+#include "DynamicTuning.h"
 //[/Headers]
 
 
@@ -62,6 +62,7 @@ public:
 
 
 	void onFileLoad();
+	void loadTuning(Tuning tuningIn);
 
 	Tuning& getTuning();
 
@@ -93,7 +94,7 @@ private:
 	ScalaFileReader scalaFileReader;
 	ViewMode mode = ScaleFile;
 
-	Tuning tuning;
+	std::unique_ptr<Tuning> tuning;
 
     //[/UserVariables]
 
@@ -113,6 +114,24 @@ private:
     std::unique_ptr<TextEditor> fileNameText;
     std::unique_ptr<TextButton> textButton;
     std::unique_ptr<Slider> rootMidiNoteSld;
+    std::unique_ptr<Label> generateLbl;
+    std::unique_ptr<Slider> periodSlider;
+    std::unique_ptr<Slider> genSlider;
+    std::unique_ptr<Slider> genMaxSld;
+    std::unique_ptr<Slider> rankNumSld;
+    std::unique_ptr<Slider> scaleSizeSld;
+    std::unique_ptr<Slider> genDownSld;
+    std::unique_ptr<TextButton> generateTuningBtn;
+    std::unique_ptr<Slider> pitchbendRangeSld;
+    std::unique_ptr<Label> periodGenLbl;
+    std::unique_ptr<Label> genGenLbl;
+    std::unique_ptr<Label> genGenMaxLbl;
+    std::unique_ptr<Label> genDownLbl;
+    std::unique_ptr<Label> rankLbl;
+    std::unique_ptr<Label> sizeGenLbl;
+    std::unique_ptr<Label> rangeLbl;
+    std::unique_ptr<Slider> expCCNumSld;
+    std::unique_ptr<Label> ccnumLbl;
 
 
     //==============================================================================
