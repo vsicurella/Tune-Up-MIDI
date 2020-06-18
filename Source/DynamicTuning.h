@@ -44,11 +44,11 @@ public:
 
 public:
 
-	class Listener
+	class Listener : public Tuning::Listener
 	{
 	public:
 
-		~Listener() {};
+		virtual ~Listener() {};
 
 		virtual void periodChanged() {};
 		virtual void generatorChanged(int numGenerator) {};

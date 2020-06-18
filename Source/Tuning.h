@@ -29,6 +29,24 @@ protected:
     int rootMidiNote = 60;     // note tuning is centered on
 
 public:
+
+	class Listener
+	{
+	public:
+
+		virtual ~Listener() {};
+		virtual void tuningChanged() {};
+	};
+
+	void addListener(Listener* listenerIn) { listeners.add(listenerIn); }
+	void removeListener(Listener* listenerIn) { listeners.remove(listenerIn); }
+
+
+protected:
+
+	ListenerList<Listener> listeners;
+
+public:
     
     // unison tuning
     Tuning();    
