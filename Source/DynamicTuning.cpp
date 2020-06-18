@@ -11,7 +11,7 @@
 #include "DynamicTuning.h"
 
 DynamicTuning::DynamicTuning(int rankNumberIn, int tuningSizeIn, double generatorCentsIn, double periodCentsIn)
-	: rankNumber(rankNumber), generator(generatorCentsIn)
+	: rankNumber(rankNumberIn), generator(generatorCentsIn)
 {
 	tuningSize = tuningSizeIn;
 
@@ -26,6 +26,16 @@ DynamicTuning::DynamicTuning(int rankNumberIn, int tuningSizeIn, double generato
 	updateTuning();
 }
 
+DynamicTuning::DynamicTuning(const DynamicTuning& tuningToCopy)
+	: DynamicTuning(tuningToCopy.rankNumber, tuningToCopy.tuningSize, tuningToCopy.generator, tuningToCopy.periodCents)
+{
+	periodSemitones = tuningToCopy.periodSemitones;
+	generatorSemitones = tuningToCopy.generatorSemitones;
+	 
+	intervalCents = tuningToCopy.intervalCents;
+	intervalSemitones = tuningToCopy.intervalSemitones;
+}
+
 DynamicTuning::~DynamicTuning()
 {
 
@@ -33,7 +43,12 @@ DynamicTuning::~DynamicTuning()
 
 void DynamicTuning::updateTuning()
 {
-	intervalCents = getRank2TableCents(tuningSize, periodCents, generator, numGeneratorsDown);
+	if (rankNumber == 2)
+		intervalCents = getRank2TableCents(tuningSize, periodCents, generator, numGeneratorsDown);
+
+	else
+		intervalCents = { generator };
+
 	intervalSemitones.clear();
 	for (auto i : intervalCents)
 		intervalSemitones.add(i / 100.0);
@@ -90,11 +105,8 @@ int DynamicTuning::getRankNumber() const
 Array<double> DynamicTuning::getRank2TableCents(int size, double period, double generator, int generatorsDown)
 {
 	Array<double> intervals;
-
-	for (int i = 0, 
-		double cents = generator * -generatorsDown; 
-		i < size; 
-		i++, cents += generator)
+	double cents = generator * -generatorsDown;
+	for (int i = 0; i < size; i++)
 	{
 		if (cents < 0 || cents >= period)
 		{
@@ -102,6 +114,7 @@ Array<double> DynamicTuning::getRank2TableCents(int size, double period, double 
 		}
 
 		intervals.addIfNotAlreadyThere(cents);
+		cents += generator;
 	}
 
 	intervals.sort();

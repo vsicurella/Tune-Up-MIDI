@@ -48,7 +48,12 @@ void Tuning::setRootNote(int rootNoteIn)
 	rootMidiNote = rootNoteIn;
 }
 
-Array<double> Tuning::getSemitoneTable() const
+Array<double> Tuning::getIntervalCents() const
+{
+	return intervalCents;
+}
+
+Array<double> Tuning::getIntervalSemitones() const
 {
     return intervalSemitones;
 }

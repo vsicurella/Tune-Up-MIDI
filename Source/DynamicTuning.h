@@ -9,7 +9,6 @@
 */
 
 #pragma once
-#include <JuceHeader.h>
 #include "Tuning.h"
 
 class DynamicTuning : public Tuning
@@ -28,6 +27,7 @@ class DynamicTuning : public Tuning
 public:
 
 	DynamicTuning(int rankNumberIn = 2, int tuningSizeIn = 12, double generatorCentsIn = 700, double periodCentsIn = 1200);
+	DynamicTuning(const DynamicTuning& tuningToCopy);
 	~DynamicTuning();
 
 	void setRankNumber(int rankNumberIn);
@@ -53,9 +53,8 @@ public:
 		virtual void tuningChanged() {};
 	};
 
-	void addListener(Listener* listenerIn);
-	void removeListener(Listener* listenerIn);
-
+	void addListener(Listener* listenerIn) { listeners.add(listenerIn); }
+	void removeListener(Listener* listenerIn) { listeners.remove(listenerIn); }
 
 protected:
 

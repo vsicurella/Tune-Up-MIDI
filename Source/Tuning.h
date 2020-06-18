@@ -40,7 +40,8 @@ public:
     
     int getTuningSize() const;
     
-    Array<double> getSemitoneTable() const;
+	Array<double> getIntervalCents() const;
+    Array<double> getIntervalSemitones() const;
     
     virtual double getNoteInSemitones(int midiNoteIn) const;
     virtual double getNoteInCents(int midiNoteIn) const;
