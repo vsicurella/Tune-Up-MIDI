@@ -30,6 +30,8 @@ public:
 	DynamicTuning(const DynamicTuning& tuningToCopy);
 	~DynamicTuning();
 
+	const bool isDynamic = true;
+
 	void setRankNumber(int rankNumberIn);
 	void setNumGeneratorsDown(int numGeneratorsBelowRoot);
 

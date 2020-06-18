@@ -28,13 +28,14 @@ protected:
 	int tuningSize = 1;
     int rootMidiNote = 60;     // note tuning is centered on
 
-    
 public:
     
     // unison tuning
     Tuning();    
     Tuning(const Array<double>& centsTable, int rootIndex=0);
     ~Tuning();
+
+	const bool isDynamic = false;
 
 	void setRootNote(int rootNoteIn);
     
