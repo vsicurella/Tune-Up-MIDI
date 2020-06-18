@@ -13,7 +13,7 @@
 #include "TunedNoteInterpreter.h"
 #include "ChannelAssigner.h"
 
-class TuneUpMidiProcessor : public MidiInputCallback, public ChangeBroadcaster
+class TuneUpMidiProcessor : public MidiMessageCollector, public ChangeBroadcaster, private DynamicTuning::Listener
 {
 	MidiDeviceInfo inputDeviceInfo = MidiInput::getDefaultDevice();
 	std::unique_ptr<MidiInput> midiInput;
@@ -23,6 +23,9 @@ class TuneUpMidiProcessor : public MidiInputCallback, public ChangeBroadcaster
 
 	MidiBuffer inputBuffer;
 	int smplInput = 0;
+
+	MidiBuffer ccInput;
+	int ccSmpl = 0;
 
 	std::unique_ptr<MPEInstrument> mpeInst;
 	std::unique_ptr<MidiNoteTuner> retuner;
@@ -53,6 +56,25 @@ public:
 
 public:
 
+	class Listener
+	{
+	public:
+		virtual void ccValueChanged(int controlNumber, int controlValue) = 0;
+	};
+
+	void addListener(Listener* listenerIn) { listeners.add(listenerIn); }
+	void removeListener(Listener* listenerIn) { listeners.remove(listenerIn); }
+
+protected:
+
+	ListenerList<Listener> listeners;
+
+
+public:
+
+	// MidiInputCallback implementation
 	void handleIncomingMidiMessage(MidiInput* source, const MidiMessage& msg) override;
 
+	// Dynamic Tuning implementation
+	void tuningChanged() override;
 };

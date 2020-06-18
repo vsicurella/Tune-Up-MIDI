@@ -22,6 +22,7 @@ TuneUpMidiProcessor::TuneUpMidiProcessor()
 	//midiOutput = MidiInput::openDevice(outputDeviceInfo.name, this);
 
 	DBG("Midi Input opened: " + inputDeviceInfo.name);
+	midiInput->start();
 }
 
 TuneUpMidiProcessor::~TuneUpMidiProcessor()
@@ -138,7 +139,21 @@ void TuneUpMidiProcessor::processMidi(MidiBuffer& bufferIn)
 
 void TuneUpMidiProcessor::handleIncomingMidiMessage(MidiInput* source, const MidiMessage& msg)
 {
-	inputBuffer.addEvent(msg, ++smplInput);
+	if (msg.isNoteOnOrOff())
+		inputBuffer.addEvent(msg, smplInput++);
+	else
+	{
+		inputBuffer.addEvent(msg, ccSmpl++);
+		listeners.call(&Listener::ccValueChanged, msg.getControllerNumber(), msg.getControllerValue());
+	}
+}
+
+void TuneUpMidiProcessor::tuningChanged() 
+{
+	// store current notes
+	// calculate new tuning
+	// find pitchbend for each note
+	// send pitchbend out on appropriate channels
 }
 
 String* TuneUpMidiProcessor::getMidiInLog()
