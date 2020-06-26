@@ -10,12 +10,42 @@
 
 #include "Tuning.h"
 
+Identifier Tuning::tuningDefId = Identifier("TuningDefinition");
+Identifier Tuning::tuningSizeID = Identifier("TuningSize");
+Identifier Tuning::rootMidiNoteID = Identifier("RootNote");
+Identifier Tuning::generatorListID = Identifier("GeneratorList");
+Identifier Tuning::generatorOffsetsID = Identifier("GeneratorOffset");
+Identifier Tuning::generatorAmountsID = Identifier("GeneratorAmounts");
+Identifier Tuning::generatorID = Identifier("GeneratorCents");
+Identifier Tuning::centsTableID = Identifier("CentsTable");
+Identifier Tuning::intervalNodeID = Identifier("IntervalDesc");
+Identifier Tuning::intervalValueID = Identifier("IntervalValue");
+Identifier Tuning::tuningDescID = Identifier("Description");
+
 Tuning::Tuning()
 {
 
 }
 
-Tuning::Tuning(const Array<double>& centsTable, int rootIndex)
+Tuning::Tuning(ValueTree tuningPropertiesIn)
+{
+	DBG("Creating Tuning: \n" + tuningPropertiesIn.toXmlString());
+
+	tuningSize = (int) tuningPropertiesIn[tuningSizeID];
+	periodCents = (double) tuningPropertiesIn.getChildWithName(generatorListID)[generatorID];
+	periodSemitones = periodCents / 100.0;
+
+	for (auto child : tuningPropertiesIn.getChildWithName(centsTableID))
+	{
+		double cents = (double)child[intervalValueID];
+		intervalCents.add(cents);
+		intervalSemitones.add(cents / 100.0);
+	}
+
+	description = tuningPropertiesIn[tuningDescID];
+}
+
+Tuning::Tuning(const Array<double>& centsTable, int rootIndex, String description)
 {
 	tuningSize = centsTable.size();
 	
@@ -48,6 +78,11 @@ void Tuning::setRootNote(int rootNoteIn)
 	rootMidiNote = rootNoteIn;
 }
 
+void Tuning::setDescription(String descIn)
+{
+	description = descIn;
+}
+
 Array<double> Tuning::getIntervalCents() const
 {
 	return intervalCents;
@@ -60,7 +95,7 @@ Array<double> Tuning::getIntervalSemitones() const
 
 int Tuning::getTuningSize() const
 {
-    return intervalSemitones.size();
+    return tuningSize;
 }
 
 int Tuning::getRootNote() const
@@ -96,6 +131,21 @@ double Tuning::getNoteInCents(int midiNoteIn) const
 	}
 	
 	return midiNoteIn - (double) rootMidiNote * 100;
+}
+
+String Tuning::getDescription() const
+{
+	return description;
+}
+
+ValueTree Tuning::getTuningDefinition()
+{
+	if (!definition.isValid())
+	{
+		definition = createTuningDefinition(tuningSize, periodCents, intervalCents, description);
+	}
+	
+	return definition;
 }
 
 int Tuning::closestNoteToSemitone(double semitoneIn) const
@@ -136,4 +186,27 @@ double Tuning::ratioToCents(double ratioIn)
 double Tuning::centsToRatio(double centsIn)
 {
     return pow(2, centsIn / 1200.0);
+}
+
+ValueTree Tuning::createTuningDefinition(int tuningSize, double periodCents, Array<double> centsTable, String descriptionIn)
+{
+	ValueTree tree(tuningDefId);
+	tree.setProperty(tuningSizeID, tuningSize, nullptr);
+	
+	ValueTree generator(generatorListID);
+	generator.setProperty(generatorID, periodCents, nullptr);
+	tree.addChild(generator, -1, nullptr);
+
+	ValueTree cents(centsTableID);
+	for (auto c : centsTable)
+	{
+		ValueTree intervalNode(intervalNodeID);
+		intervalNode.setProperty(intervalValueID, c, nullptr);
+		cents.addChild(intervalNode, -1, nullptr);
+	}
+	tree.addChild(cents, -1, nullptr);
+
+	tree.setProperty(tuningDescID, descriptionIn, nullptr);
+
+	return tree;
 }

@@ -12,8 +12,12 @@
 #include "PluginEditor.h"
 
 //==============================================================================
-TuneupMidiAudioProcessorEditor::TuneupMidiAudioProcessorEditor (TuneupMidiAudioProcessor& p, TuneUpMidiProcessor& mp)
-    : AudioProcessorEditor (&p), processor (p), midiProcessor(&mp)
+TuneupMidiAudioProcessorEditor::TuneupMidiAudioProcessorEditor (
+	TuneupMidiAudioProcessor& p, 
+	TuneUpMidiProcessor& mp, 
+	TuneUpMidiState& ps
+)
+    : AudioProcessorEditor (&p), processor (p), midiProcessor(mp), pluginState(ps)
 {
     
 	gui.reset(new TuneUpWindow());
@@ -21,10 +25,22 @@ TuneupMidiAudioProcessorEditor::TuneupMidiAudioProcessorEditor (TuneupMidiAudioP
 
     setSize (600, 400);
 
-	gui->setLogs(midiProcessor->getMidiInLog(), midiProcessor->getMidiOutLog(), midiProcessor->getRetunerLog());
+	gui->setLogs(midiProcessor.getMidiInLog(), midiProcessor.getMidiOutLog(), midiProcessor.getRetunerLog());
 	gui->addChangeListener(this);
 
-	midiProcessor->addChangeListener(this);
+	pitchbendRange = gui->getPitchbendRange();
+	if (pitchbendRange)
+	{
+		pitchbendRange->addListener(this);
+	}
+
+	midiProcessor.addChangeListener(this);
+
+	if (pluginState.getTuning())
+	{
+		midiProcessor.setTuning(pluginState.getTuning());
+		gui->loadTuning(pluginState.getTuning());
+	}
 }
 
 TuneupMidiAudioProcessorEditor::~TuneupMidiAudioProcessorEditor()
@@ -44,12 +60,25 @@ void TuneupMidiAudioProcessorEditor::resized()
 
 void TuneupMidiAudioProcessorEditor::changeListenerCallback(ChangeBroadcaster* source)
 {
+	// Tuning defined
 	if (source == gui.get())
 	{
-		midiProcessor->setTuning(gui->getTuning());
+		pluginState.setTuning(gui->getTuning());
+		midiProcessor.setTuning(pluginState.getTuning());
+		gui->loadTuning(pluginState.getTuning());
 	}
-	else if (source == midiProcessor)
+
+	// MIDI Data happened
+	else if (source == &midiProcessor)
 	{
 		gui->updateText();
+	}
+}
+
+void TuneupMidiAudioProcessorEditor::valueChanged(Value& value)
+{
+	if (value.refersToSameSourceAs(*pitchbendRange))
+	{
+		midiProcessor.setPitchbendRange(pitchbendRange->getValue());
 	}
 }

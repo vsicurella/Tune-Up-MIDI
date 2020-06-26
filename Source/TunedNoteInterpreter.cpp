@@ -10,9 +10,10 @@
 
 #include "TunedNoteInterpreter.h"
 
-MidiNoteTuner::MidiNoteTuner(const Tuning* tuningToUse)
-	: newTuning(tuningToUse)
+MidiNoteTuner::MidiNoteTuner(const Tuning& defaultTuning, const Tuning& newTuningIn)
+	: originTuning(&defaultTuning), newTuning(&newTuningIn)
 {
+
 }
 
 MidiNoteTuner::~MidiNoteTuner()
@@ -20,14 +21,14 @@ MidiNoteTuner::~MidiNoteTuner()
 
 }
 
-void MidiNoteTuner::setOriginTuning(Tuning originTuningIn)
+void MidiNoteTuner::setOriginTuning(const Tuning& originTuningIn)
 {
-	originTuning = originTuningIn;
+	originTuning = &originTuningIn;
 }
 
-void MidiNoteTuner::setNewTuning(const Tuning* newTuningIn)
+void MidiNoteTuner::setNewTuning(const Tuning& newTuningIn)
 {
-	newTuning = newTuningIn;
+	newTuning = &newTuningIn;
 }
 
 Array<int> MidiNoteTuner::getPitchbendTable() const
@@ -60,7 +61,7 @@ double MidiNoteTuner::getDestinationRootFreq() const
     return destinationRootFreq;
 }
 
-void MidiNoteTuner::setPitchbendMax(int pitchbendMaxIn)
+void MidiNoteTuner::setPitchbendRange(int pitchbendMaxIn)
 {
     pitchbendRange = pitchbendMaxIn;
 }
@@ -88,9 +89,9 @@ void MidiNoteTuner::setDestinationRootFrequency(double freqIn)
 MPENote MidiNoteTuner::closestNote(int midiNoteIn)
 {
 	MPENote note;
-	note.initialNote = originTuning.closestNoteToSemitone(newTuning->getNoteInSemitones(midiNoteIn));
+	note.initialNote = originTuning->closestNoteToSemitone(newTuning->getNoteInSemitones(midiNoteIn));
 	note.pitchbend = MPEValue::from14BitInt(
-		semitonesToPitchbend(newTuning->getNoteInSemitones(midiNoteIn) - originTuning.getNoteInSemitones(note.initialNote))
+		semitonesToPitchbend(newTuning->getNoteInSemitones(midiNoteIn) - originTuning->getNoteInSemitones(note.initialNote))
 	);
 
 	return note;
@@ -103,7 +104,7 @@ int MidiNoteTuner::pitchbendFromNote(int midiNoteIn) const
 
 double MidiNoteTuner::semitonesFromNote(int midiNoteIn) const
 {
-	return newTuning->getNoteInSemitones(midiNoteIn) - originTuning.getNoteInSemitones(midiNoteIn);
+	return newTuning->getNoteInSemitones(midiNoteIn) - originTuning->getNoteInSemitones(midiNoteIn);
 }
 int MidiNoteTuner::semitonesToPitchbend(double semitonesIn) const
 {

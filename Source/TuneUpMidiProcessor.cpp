@@ -14,27 +14,41 @@
 TuneUpMidiProcessor::TuneUpMidiProcessor()
 //	: channelAssigner(nullptr) // TODO implement proper MPE instrument
 {
-	retuner.reset(new MidiNoteTuner(currentTuning));
 	noteChannels.resize(128);
 	noteChannels.fill(-1);
 
 	midiInput = MidiInput::openDevice(inputDeviceInfo.name, this);
+	if (midiInput.get())
+		midiInput->start();
+
 	//midiOutput = MidiInput::openDevice(outputDeviceInfo.name, this);
 
 	DBG("Midi Input opened: " + inputDeviceInfo.name);
-	midiInput->start();
 }
 
 TuneUpMidiProcessor::~TuneUpMidiProcessor()
 {
 	retuner = nullptr;
-	currentTuning = nullptr;
 }
 
-void TuneUpMidiProcessor::setTuning(const Tuning& tuningIn)
+const Array<int>& TuneUpMidiProcessor::getTuningNotesOn() const
 {
-	currentTuning = &tuningIn;
-	retuner->setNewTuning(currentTuning);
+	return tuningNotesOn;
+}
+
+void TuneUpMidiProcessor::setTuning(const Tuning* tuningIn)
+{
+	tuning = tuningIn;
+	retuner.reset(new MidiNoteTuner(standard, *tuningIn));
+	if (retuner.get())
+		retuner->setPitchbendRange(pitchbendRange);
+}
+
+void TuneUpMidiProcessor::setPitchbendRange(int pitchbendRangeIn)
+{
+	pitchbendRange = pitchbendRangeIn;
+	if (retuner.get())
+		retuner->setPitchbendRange(pitchbendRange);
 }
 
 void TuneUpMidiProcessor::processMidi(MidiBuffer& bufferIn)
@@ -58,7 +72,7 @@ void TuneUpMidiProcessor::processMidi(MidiBuffer& bufferIn)
 		int bendChannel = -1;
 
 		// remap and add pitchbend
-		if (retuner.get())
+		if (retuner.get() && tuning)
 		{	
 			MPENote note = retuner->closestNote(msg.getNoteNumber());
 
@@ -73,7 +87,7 @@ void TuneUpMidiProcessor::processMidi(MidiBuffer& bufferIn)
 				//bendChannel = channelAssigner.noteOn(msg.getNoteNumber(), note.pitchbend.as14BitInt());
 				bendChannel = channelAssigner.findMidiChannelForNewNote(bendChannel);
 
-				jassert(bendChannel >= 0 && bendChannel < 16);
+				//jassert(bendChannel >= 0 && bendChannel < 16);
 
 				if (bendChannel >= 0 && bendChannel < 16)
 				{
@@ -97,7 +111,8 @@ void TuneUpMidiProcessor::processMidi(MidiBuffer& bufferIn)
 			{
 				//bendChannel = channelAssigner.getChannelOfNote(msg.getNoteNumber(), note.pitchbend.as14BitInt());
 				bendChannel = noteChannels[msg.getNoteNumber()];
-				jassert(bendChannel >= 0 && bendChannel < 16);
+				channelAssigner.noteOff(msg.getNoteNumber());
+				//jassert(bendChannel >= 0 && bendChannel < 16);
 
 				if (bendChannel >= 0 && bendChannel < 16)
 				{

@@ -20,24 +20,27 @@ class MidiNoteTuner
 	// Origin Tuning Parameters
 	int originRootNote = 69;
 	double originRootFreq = 440;
-	Tuning originTuning;
+	Tuning const* originTuning;
 
 	// Destination Tuning Parameters
 	int destinationRootNote = 69;
 	double destinationRootFreq = 440;
-	const Tuning* newTuning;
+	Tuning const* newTuning;
 
 	bool cached = false;
 	Array<int> pitchbendTable;
 
+	Tuning standard;
+
 public:
     
-    MidiNoteTuner(const Tuning* tuningToUse=nullptr);
+	MidiNoteTuner(const Tuning& defaultTuning, const Tuning& newTuning);
+    //MidiNoteTuner(const Tuning* tuningToUse=nullptr);
     ~MidiNoteTuner();
 
-	void setOriginTuning(Tuning newOriginTuning);
+	void setOriginTuning(const Tuning& newOriginTuning);
     
-    void setNewTuning(const Tuning* newTuningIn);
+    void setNewTuning(const Tuning& newTuningIn);
     
     Array<int> getPitchbendTable() const;
 
@@ -49,7 +52,7 @@ public:
     int getDestinationRootNote() const;
     double getDestinationRootFreq() const;
     
-    void setPitchbendMax(int pitchBendMaxIn);
+    void setPitchbendRange(int pitchBendMaxIn);
 
 	void setOriginRootNote(int rootNoteIn);
 	void setOriginRootFreq(double freqIn);

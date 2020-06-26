@@ -10,23 +10,39 @@
 
 #pragma once
 
-#include "../JuceLibraryCode/JuceHeader.h"
+#include <JuceHeader.h>
 #include "CommonFunctions.h"
 
 class Tuning
 {
+
+public:
+
+	static Identifier tuningDefId;
+	static Identifier tuningSizeID;
+	static Identifier rootMidiNoteID;
+	static Identifier generatorListID;
+	static Identifier generatorOffsetsID;
+	static Identifier generatorAmountsID;
+	static Identifier generatorID;
+	static Identifier centsTableID;
+	static Identifier intervalNodeID;
+	static Identifier intervalValueID;
+	static Identifier tuningDescID;
 
 protected:
 
     Array<double> intervalSemitones;
     Array<double> intervalCents;
     
-    int midiNoteOffset = 0;
 	double periodCents = 1200;
 	double periodSemitones = 12;
 
 	int tuningSize = 1;
     int rootMidiNote = 60;     // note tuning is centered on
+
+	String description;
+	ValueTree definition;
 
 public:
 
@@ -49,13 +65,24 @@ protected:
 public:
     
     // unison tuning
-    Tuning();    
-    Tuning(const Array<double>& centsTable, int rootIndex=0);
+    Tuning();
+
+	/*
+		Expects a Scala-like interval table (no unison, ending with period)
+	*/
+    Tuning(const Array<double>& centsTable, int rootIndex = 0, String description = "");
+
+	/*
+		Expects a interval table starting with unison, and using first generator child as period
+	*/
+	Tuning(ValueTree tuningPropertiesIn);
     ~Tuning();
 
 	const bool isDynamic = false;
 
 	void setRootNote(int rootNoteIn);
+
+	void setDescription(String descIn);
     
     int getTuningSize() const;
     
@@ -67,9 +94,15 @@ public:
     
     int getRootNote() const;
 
+	String getDescription() const;
+
+	ValueTree getTuningDefinition();
+
 	virtual int closestNoteToSemitone(double semitoneIn) const;
 
     static double ratioToSemitones(double ratioIn);
     static double ratioToCents(double ratioIn);
     static double centsToRatio(double centsIn);
+
+	static ValueTree createTuningDefinition(int tuningSize, double periodCents, Array<double> centsTable, String descriptionIn = "");
 };

@@ -10,8 +10,8 @@
 
 #pragma once
 
-#include "../JuceLibraryCode/JuceHeader.h"
-#include "TuneUpMidiProcessor.h"
+#include <JuceHeader.h>
+#include "TuneUpMidiState.h"
 
 //==============================================================================
 /**
@@ -53,6 +53,11 @@ public:
     void changeProgramName (int index, const String& newName) override;
 
     //==============================================================================
+
+	TuneUpMidiState* getPluginState();
+
+	//==============================================================================
+
     void getStateInformation (MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
@@ -60,6 +65,7 @@ private:
 	//==============================================================================
 
 	std::unique_ptr<TuneUpMidiProcessor> midiProcessor;
+	std::unique_ptr<TuneUpMidiState> pluginState;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TuneupMidiAudioProcessor)

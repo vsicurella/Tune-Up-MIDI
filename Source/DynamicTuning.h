@@ -27,6 +27,7 @@ class DynamicTuning : public Tuning
 public:
 
 	DynamicTuning(int rankNumberIn = 2, int tuningSizeIn = 12, double generatorCentsIn = 700, double periodCentsIn = 1200);
+	DynamicTuning(ValueTree tuningProperties);
 	DynamicTuning(const DynamicTuning& tuningToCopy);
 	~DynamicTuning();
 
@@ -67,4 +68,6 @@ public:
 	static Array<double> getRank1TableCents(int size, double generator);
 
 	static Array<double> getRank2TableCents(int size, double period, double generator, int generatorsDown = 0);
+
+	static ValueTree dynamicTuningDefinition(int tuningSizeIn, Array<double> generatorsIn, Array<double> generatorAmtsIn, Array<double> generatorOffsetsIn, String descriptionIn = "");
 };

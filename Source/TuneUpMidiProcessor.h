@@ -12,6 +12,7 @@
 #include <JuceHeader.h>
 #include "TunedNoteInterpreter.h"
 #include "ChannelAssigner.h"
+#include "DynamicTuning.h"
 
 class TuneUpMidiProcessor : public MidiMessageCollector, public ChangeBroadcaster, private DynamicTuning::Listener
 {
@@ -38,16 +39,25 @@ class TuneUpMidiProcessor : public MidiMessageCollector, public ChangeBroadcaste
 	MPEInstrument mpeInstrument;
 	//TuneUpMidiChannelAssigner channelAssigner;
 	MPEChannelAssigner channelAssigner;
-	Array<int> noteChannels;
 
-	const Tuning* currentTuning = nullptr;
+	int pitchbendRange = 48;
+	
+	Array<int> noteChannels;
+	Array<int> tuningNotesOn;
+
+	const Tuning standard;
+	const Tuning* tuning = nullptr;
 
 public:
 
 	TuneUpMidiProcessor();
 	~TuneUpMidiProcessor();
 
-	void setTuning(const Tuning& tuningIn);
+	const Array<int>& getTuningNotesOn() const;
+
+	void setTuning(const Tuning* tuningIn);
+	void setPitchbendRange(int pitchbendRangeIn);
+
 	void processMidi(MidiBuffer& bufferIn);
 
 	String* getMidiInLog();

@@ -26,6 +26,30 @@ DynamicTuning::DynamicTuning(int rankNumberIn, int tuningSizeIn, double generato
 	updateTuning();
 }
 
+DynamicTuning::DynamicTuning(ValueTree tuningProperties)
+{
+	DBG("Creating Dynamic Tuning: \n" + tuningProperties.toXmlString());
+	rankNumber = tuningProperties.getChildWithName(generatorListID).getNumChildren();
+	tuningSize = 0;
+	for (auto child : tuningProperties.getChildWithName(generatorAmountsID))
+	{
+		tuningSize += (int)child["Value"];
+	}
+
+	// TODO implement more generators
+	periodCents = (double) tuningProperties.getChildWithName(generatorListID).getChild(0)[generatorID];
+	periodSemitones = periodCents / 100.0;
+
+	generator = (double) tuningProperties.getChildWithName(generatorListID).getChild(1)[generatorID];
+	generatorSemitones = generator / 100.0;
+
+	numGeneratorsDown = (int) tuningProperties.getChildWithName(generatorOffsetsID).getChild(1)["Value"];
+
+	description = tuningProperties[tuningDescID];
+
+	updateTuning();
+}
+
 DynamicTuning::DynamicTuning(const DynamicTuning& tuningToCopy)
 	: DynamicTuning(tuningToCopy.rankNumber, tuningToCopy.tuningSize, tuningToCopy.generator, tuningToCopy.periodCents)
 {
@@ -122,4 +146,41 @@ Array<double> DynamicTuning::getRank2TableCents(int size, double period, double 
 	intervals.add(period);
 
 	return intervals;
+}
+
+ValueTree DynamicTuning::dynamicTuningDefinition(int tuningSizeIn, Array<double> generatorsIn, Array<double> generatorAmtsIn, Array<double> generatorOffsetsIn, String descriptionIn)
+{
+	ValueTree tree(tuningDefId);
+	tree.setProperty(tuningSizeID, tuningSizeIn, nullptr);
+
+	ValueTree generators(generatorListID);
+	for (auto g : generatorsIn)
+	{
+		ValueTree generatorNode("GeneratorNode");
+		generatorNode.setProperty(generatorID, g, nullptr);
+		generators.addChild(generatorNode, -1, nullptr);
+	}
+	tree.addChild(generators, -1, nullptr);
+
+	ValueTree generatorSizes(generatorAmountsID);
+	for (auto amt : generatorAmtsIn)
+	{
+		ValueTree generatorNode("GenAmtNode");
+		generatorNode.setProperty("Value", amt, nullptr);
+		generatorSizes.addChild(generatorNode, -1, nullptr);
+	}
+	tree.addChild(generatorSizes, -1, nullptr);
+
+	ValueTree generatorOfs(generatorAmountsID);
+	for (auto ofs : generatorOffsetsIn)
+	{
+		ValueTree generatorNode("GenOfsNode");
+		generatorNode.setProperty("Value", ofs, nullptr);
+		generatorOfs.addChild(generatorNode, -1, nullptr);
+	}
+	tree.addChild(generatorOfs, -1, nullptr);
+
+	tree.setProperty(tuningDescID, descriptionIn, nullptr);
+
+	return tree;
 }

@@ -17,10 +17,10 @@
 //==============================================================================
 /**
 */
-class TuneupMidiAudioProcessorEditor  : public AudioProcessorEditor, public ChangeListener
+class TuneupMidiAudioProcessorEditor  : public AudioProcessorEditor, public ChangeListener, public Value::Listener
 {
 public:
-    TuneupMidiAudioProcessorEditor (TuneupMidiAudioProcessor&, TuneUpMidiProcessor&);
+    TuneupMidiAudioProcessorEditor (TuneupMidiAudioProcessor&, TuneUpMidiProcessor&, TuneUpMidiState&);
     ~TuneupMidiAudioProcessorEditor();
 
     //==============================================================================
@@ -29,13 +29,20 @@ public:
 
 	void changeListenerCallback(ChangeBroadcaster* source) override;
 
+	void valueChanged(Value& value) override;
+
+	//==============================================================================
+
 private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     TuneupMidiAudioProcessor& processor;
-	TuneUpMidiProcessor* midiProcessor;
+	TuneUpMidiProcessor& midiProcessor;
+	TuneUpMidiState& pluginState;
 
 	std::unique_ptr<TuneUpWindow> gui;
+
+	Value* pitchbendRange = nullptr;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TuneupMidiAudioProcessorEditor)
 };

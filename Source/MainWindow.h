@@ -62,9 +62,11 @@ public:
 
 
 	void onFileLoad();
-	void loadTuning(Tuning tuningIn);
+	void loadTuning(Tuning* tuningIn);
 
-	Tuning& getTuning();
+	ValueTree getTuning();
+
+	Value* getPitchbendRange();
 
 	void setViewMode(ViewMode modeIn);
 	void setLogs(String* inLog, String* outLog, String* retuneLog);
@@ -72,6 +74,9 @@ public:
 
 	void setNumNotes(int numNotesIn);
 	void setDescription(String descIn);
+
+	//==============================================================================
+
     //[/UserMethods]
 
     void paint (Graphics& g) override;
@@ -94,7 +99,9 @@ private:
 	ScalaFileReader scalaFileReader;
 	ViewMode mode = ScaleFile;
 
-	std::unique_ptr<Tuning> tuning;
+	ValueTree stagedTuning;
+
+	Value pitchbendRange = Value(var(48));
 
     //[/UserVariables]
 
