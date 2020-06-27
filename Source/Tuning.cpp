@@ -42,6 +42,18 @@ Tuning::Tuning(ValueTree tuningPropertiesIn)
 		intervalSemitones.add(cents / 100.0);
 	}
 
+	// Remove period
+	intervalCents.remove(tuningSize - 1);
+	intervalSemitones.remove(tuningSize - 1);
+
+	// Just in case
+	if (intervalCents[0] != 0.0)
+	{
+		// Add unision
+		intervalCents.insert(0, 0);
+		intervalSemitones.insert(0, 0);
+	}
+
 	description = tuningPropertiesIn[tuningDescID];
 }
 
@@ -63,9 +75,13 @@ Tuning::Tuning(const Array<double>& centsTable, int rootIndex, String descriptio
 	intervalCents.remove(tuningSize - 1);
 	intervalSemitones.remove(tuningSize - 1);
 
-	// Add unison
-	intervalCents.insert(0, 0);
-	intervalSemitones.insert(0, 0);
+	// Just in case
+	if (intervalCents[0] != 0.0)
+	{
+		// Add unision
+		intervalCents.insert(0, 0);
+		intervalSemitones.insert(0, 0);
+	}
 }
 
 Tuning::~Tuning()

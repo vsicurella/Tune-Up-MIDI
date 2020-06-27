@@ -142,8 +142,6 @@ Array<double> DynamicTuning::getRank2TableCents(int size, double period, double 
 	}
 
 	intervals.sort();
-	intervals.remove(0);
-	intervals.add(period);
 
 	return intervals;
 }
