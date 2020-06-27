@@ -97,9 +97,10 @@ void TuneUpMidiProcessor::processMidi(MidiBuffer& bufferIn)
 
 					pitchMsg = MidiMessage::pitchWheel(bendChannel, note.pitchbend.as14BitInt());
 					desc += "Retuner: Pitchbend value = " + String(pitchMsg.getPitchWheelValue()) + '\n';
-					bufferOut.addEvent(pitchMsg, smpl + smplOffset++);
-					bufferOut.addEvent(msg, smpl + smplOffset);
-					smplOffset++;
+					/*bufferOut.addEvent(pitchMsg, smpl + smplOffset++);
+					bufferOut.addEvent(msg, smpl + smplOffset);*/
+					bufferOut.addEvent(pitchMsg, smplOffset++);
+					bufferOut.addEvent(msg, smplOffset++);
 				}
 			}
 			else if (msg.isNoteOff())
@@ -113,11 +114,14 @@ void TuneUpMidiProcessor::processMidi(MidiBuffer& bufferIn)
 					msg.setChannel(bendChannel);
 					
 					//shortBuffer.addEvent(pitchMsg, smpl + smplOffset++);
-					bufferOut.addEvent(msg, smpl + smplOffset);
+					//bufferOut.addEvent(msg, smpl + smplOffset);
+					
+					bufferOut.addEvent(msg, smplOffset++);
 					
 					pitchMsg = MidiMessage::pitchWheel(bendChannel, 8192);
+					//bufferOut.addEvent(msg, smpl + ++smplOffset);
+					bufferOut.addEvent(msg, smplOffset++);
 					desc += pitchMsg.getDescription() + '\n';
-					smplOffset++;
 				}
 			}
 			else

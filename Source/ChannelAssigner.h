@@ -33,7 +33,7 @@ class TuneUpMidiChannelAssigner
 	Array<int>& notesOn; // Tuning degrees, not necessarily MIDI notes
 	Array<int> channelsOn;
 
-	Array<int> noteToChannelIndex; // index is noteOn index, value is channelsOn index
+	Array<int> channelsOfNotes; // index is tuning note, value is channel number
 
 	Array<int> channelsToSkip;
     

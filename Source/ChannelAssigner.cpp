@@ -18,8 +18,8 @@ TuneUpMidiChannelAssigner::TuneUpMidiChannelAssigner(MPEInstrument* mpeInstIn, A
 	pitchbendOfChannel.resize(16);
 	pitchbendOfChannel.fill(8192);
 
-	noteToChannelIndex.resize(128);
-	noteToChannelIndex.fill(-1);
+	channelsOfNotes.resize(128);
+	channelsOfNotes.fill(-1);
 }
 
 TuneUpMidiChannelAssigner::~TuneUpMidiChannelAssigner()
@@ -93,7 +93,7 @@ int TuneUpMidiChannelAssigner::noteOn(int noteIn, int pitchbendIn)
 			channelsOn.addUsingDefaultSort(channel);
 			pitchbendOfChannel.set(channel, pitchbendIn);
 
-			noteToChannelIndex.set(noteIn, channelsOn.indexOf(channel));
+			channelsOfNotes.set(noteIn, channel);
 		}
 	}
 
@@ -102,26 +102,26 @@ int TuneUpMidiChannelAssigner::noteOn(int noteIn, int pitchbendIn)
 
 int TuneUpMidiChannelAssigner::noteOff(int noteIn)
 {
-	int note, channel;
+	int note, channel = -1;
 	// Improve
 	for (int i = 0; i < notesOn.size(); i++)
 	{
 		note = notesOn[i];
-		channel = channelsOn[noteToChannelIndex[note]];
+		channel = channelsOfNotes[note];
 
 		if (note == noteIn)
 		{
 			notesOn.remove(i);
-			noteToChannelIndex.set(note, -1);
+			channelsOfNotes.set(note, -1);
 			numNotesOn = notesOn.size();
 
 			bool removeChannel = true;
 			if (!oneChannelPerNote)
 			{
-				// retuan channel if has other notes on it
-				for (auto chInd : noteToChannelIndex)
+				// retain channel if has other notes on it
+				for (auto ch : channelsOfNotes)
 				{
-					if (channel == channelsOn[chInd])
+					if (channel == channelsOn[ch])
 					{
 						removeChannel = false;
 						break;
@@ -156,7 +156,7 @@ bool TuneUpMidiChannelAssigner::isChannelFree(int channelIn) const
 
 int TuneUpMidiChannelAssigner::getChannelOfNote(int noteIn) const
 {
-	return noteToChannelIndex[noteIn];
+	return channelsOfNotes[noteIn];
 }
 
 int TuneUpMidiChannelAssigner::getPitchbendOfChannel(int channelIn) const
