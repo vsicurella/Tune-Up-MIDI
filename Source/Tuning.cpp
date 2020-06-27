@@ -16,7 +16,7 @@ Identifier Tuning::rootMidiNoteID = Identifier("RootNote");
 Identifier Tuning::generatorListID = Identifier("GeneratorList");
 Identifier Tuning::generatorOffsetsID = Identifier("GeneratorOffset");
 Identifier Tuning::generatorAmountsID = Identifier("GeneratorAmounts");
-Identifier Tuning::generatorID = Identifier("GeneratorCents");
+Identifier Tuning::generatorValueID = Identifier("GeneratorValue");
 Identifier Tuning::centsTableID = Identifier("CentsTable");
 Identifier Tuning::intervalNodeID = Identifier("IntervalDesc");
 Identifier Tuning::intervalValueID = Identifier("IntervalValue");
@@ -32,7 +32,7 @@ Tuning::Tuning(ValueTree tuningPropertiesIn)
 	DBG("Creating Tuning: \n" + tuningPropertiesIn.toXmlString());
 
 	tuningSize = (int) tuningPropertiesIn[tuningSizeID];
-	periodCents = (double) tuningPropertiesIn.getChildWithName(generatorListID)[generatorID];
+	periodCents = (double) tuningPropertiesIn.getChildWithName(generatorListID)[generatorValueID];
 	periodSemitones = periodCents / 100.0;
 
 	for (auto child : tuningPropertiesIn.getChildWithName(centsTableID))
@@ -194,7 +194,7 @@ ValueTree Tuning::createTuningDefinition(int tuningSize, double periodCents, Arr
 	tree.setProperty(tuningSizeID, tuningSize, nullptr);
 	
 	ValueTree generator(generatorListID);
-	generator.setProperty(generatorID, periodCents, nullptr);
+	generator.setProperty(generatorValueID, periodCents, nullptr);
 	tree.addChild(generator, -1, nullptr);
 
 	ValueTree cents(centsTableID);

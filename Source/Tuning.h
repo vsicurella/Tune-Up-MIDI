@@ -24,7 +24,7 @@ public:
 	static Identifier generatorListID;
 	static Identifier generatorOffsetsID;
 	static Identifier generatorAmountsID;
-	static Identifier generatorID;
+	static Identifier generatorValueID;
 	static Identifier centsTableID;
 	static Identifier intervalNodeID;
 	static Identifier intervalValueID;
