@@ -12,10 +12,8 @@
 
 
 TuneUpMidiProcessor::TuneUpMidiProcessor()
-//	: channelAssigner(nullptr) // TODO implement proper MPE instrument
+	: channelAssigner(nullptr, tuningNotesOn) // TODO implement proper MPE instrument
 {
-	noteChannels.resize(128);
-	noteChannels.fill(-1);
 
 	midiInput = MidiInput::openDevice(inputDeviceInfo.name, this);
 	if (midiInput.get())
@@ -84,19 +82,16 @@ void TuneUpMidiProcessor::processMidi(MidiBuffer& bufferIn)
 			// set channel
 			if (msg.isNoteOn())
 			{
-				//bendChannel = channelAssigner.noteOn(msg.getNoteNumber(), note.pitchbend.as14BitInt());
-				bendChannel = channelAssigner.findMidiChannelForNewNote(bendChannel);
+				bendChannel = channelAssigner.noteOn(msg.getNoteNumber(), note.pitchbend.as14BitInt()) + 1;
+				//bendChannel = channelAssigner.findMidiChannelForNewNote(bendChannel);
 
 				//jassert(bendChannel >= 0 && bendChannel < 16);
 
-				if (bendChannel >= 0 && bendChannel < 16)
+				if (bendChannel > 0 && bendChannel <= 16)
 				{
 					msg.setChannel(bendChannel);
 					msg.setNoteNumber(note.initialNote);
-					noteChannels.set(msg.getNoteNumber(), bendChannel);
 					
-					//pitchMsg = MidiMessage::pitchWheel(bendChannel, note.pitchbend.as14BitInt());
-					//desc += "Retuner: Pitchbend value = " + String(note.pitchbend.as14BitInt()) + '\n';
 
 					//shortBuffer.addEvent(msg, smpl);
 
@@ -109,24 +104,20 @@ void TuneUpMidiProcessor::processMidi(MidiBuffer& bufferIn)
 			}
 			else if (msg.isNoteOff())
 			{
-				//bendChannel = channelAssigner.getChannelOfNote(msg.getNoteNumber(), note.pitchbend.as14BitInt());
-				bendChannel = noteChannels[msg.getNoteNumber()];
+				bendChannel = channelAssigner.getChannelOfNote(msg.getNoteNumber()) + 1;
 				channelAssigner.noteOff(msg.getNoteNumber());
 				//jassert(bendChannel >= 0 && bendChannel < 16);
 
-				if (bendChannel >= 0 && bendChannel < 16)
+				if (bendChannel > 0 && bendChannel <= 16)
 				{
 					msg.setChannel(bendChannel);
-					noteChannels.set(msg.getNoteNumber(), -1);
 					
-					//pitchMsg = MidiMessage::pitchWheel(bendChannel, 8192);
-					//desc += pitchMsg.getDescription() + '\n';
-
-					//channelAssigner.noteOff(msg.getNoteNumber(), note.pitchbend.as14BitInt());
-
-					//smplOffset++;
 					//shortBuffer.addEvent(pitchMsg, smpl + smplOffset++);
 					bufferOut.addEvent(msg, smpl + smplOffset);
+					
+					pitchMsg = MidiMessage::pitchWheel(bendChannel, 8192);
+					desc += pitchMsg.getDescription() + '\n';
+					smplOffset++;
 				}
 			}
 			else

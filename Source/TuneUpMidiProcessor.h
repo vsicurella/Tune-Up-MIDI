@@ -37,12 +37,11 @@ class TuneUpMidiProcessor : public MidiMessageCollector, public ChangeBroadcaste
 	String retunerLog;
 
 	MPEInstrument mpeInstrument;
-	//TuneUpMidiChannelAssigner channelAssigner;
-	MPEChannelAssigner channelAssigner;
+	TuneUpMidiChannelAssigner channelAssigner;
+	//MPEChannelAssigner channelAssigner;
 
-	int pitchbendRange = 48;
+	int pitchbendRange = 48;	
 	
-	Array<int> noteChannels;
 	Array<int> tuningNotesOn;
 
 	const Tuning standard;

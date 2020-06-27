@@ -18,7 +18,7 @@ class TuneUpMidiState
 	MidiKeyboardState midiState;
 
 	TuneUpMidiProcessor* midiProcessor;
-	const Array<int>& tuningNotesOn;
+	const Array<int> tuningNotesOn;
 
 	ValueTree tuningDefinition;
 
