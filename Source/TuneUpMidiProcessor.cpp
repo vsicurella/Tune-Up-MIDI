@@ -118,9 +118,9 @@ void TuneUpMidiProcessor::processMidi(MidiBuffer& bufferIn)
 					
 					bufferOut.addEvent(msg, smplOffset++);
 					
-					pitchMsg = MidiMessage::pitchWheel(bendChannel, 8192);
+					//pitchMsg = MidiMessage::pitchWheel(bendChannel, 8192);
 					//bufferOut.addEvent(msg, smpl + ++smplOffset);
-					bufferOut.addEvent(msg, smplOffset++);
+					//bufferOut.addEvent(msg, smplOffset++);
 					desc += pitchMsg.getDescription() + '\n';
 				}
 			}

@@ -35,9 +35,11 @@ int TuneUpMidiChannelAssigner::findNextFreeChannel() const
 	{
 		if (roundRobinMode)
 		{
+			int i = 1;
 			do
 			{
-				freeChannel = (channelsOn[channelsOn.size() - 1] + 1) % 16;
+				freeChannel = (channelsOn[channelsOn.size() - 1] + i) % 16;
+				i++;
 			} while (channelsOn.contains(freeChannel) && !channelsToSkip.contains(freeChannel));
 		}
 

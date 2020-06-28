@@ -10,7 +10,7 @@
 
 #pragma once
 #include <JuceHeader.h>
-#include "TunedNoteInterpreter.h"
+#include "MidiNoteTuner.h"
 #include "ChannelAssigner.h"
 #include "DynamicTuning.h"
 

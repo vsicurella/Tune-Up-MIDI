@@ -40,7 +40,7 @@ class TuneUpMidiChannelAssigner
 	// allows channels to contain more than one note if pitchbend value is the same
 	// but per-note vibrato and other expression is limited
 	bool oneChannelPerNote = false;
-	bool roundRobinMode = false;
+	bool roundRobinMode = true;
     
     
 public:
