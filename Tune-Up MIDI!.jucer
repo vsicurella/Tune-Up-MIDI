@@ -46,6 +46,8 @@
       <FILE id="pgf8hQ" name="MidiFilter.h" compile="0" resource="0" file="Source/MidiFilter.h"/>
       <FILE id="Gvo59L" name="NoteMap.cpp" compile="0" resource="0" file="Source/NoteMap.cpp"/>
       <FILE id="fR6xqm" name="NoteMap.h" compile="0" resource="0" file="Source/NoteMap.h"/>
+      <FILE id="RjtDAC" name="MidiCCListener.h" compile="0" resource="0"
+            file="Source/MidiCCListener.h"/>
     </GROUP>
   </MAINGROUP>
   <EXPORTFORMATS>

@@ -10,11 +10,16 @@
 
 #pragma once
 #include <JuceHeader.h>
+#include "MidiCCListener.h"
 #include "MidiNoteTuner.h"
 #include "ChannelAssigner.h"
 #include "DynamicTuning.h"
 
-class TuneUpMidiProcessor : public MidiMessageCollector, public ChangeBroadcaster, private DynamicTuning::Listener
+class TuneUpMidiProcessor : 
+	public MidiMessageCollector, 
+	public MidiCCNotifier,
+	public ChangeBroadcaster, 
+	private DynamicTuning::Listener
 {
 	MidiDeviceInfo inputDeviceInfo = MidiInput::getDefaultDevice();
 	std::unique_ptr<MidiInput> midiInput;

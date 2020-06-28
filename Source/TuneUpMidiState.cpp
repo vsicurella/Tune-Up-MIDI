@@ -13,7 +13,14 @@
 TuneUpMidiState::TuneUpMidiState(TuneUpMidiProcessor* midiProcessorIn)
 	: midiProcessor(midiProcessorIn), notesInOn(midiProcessorIn->getTuningNotesOn())
 {
+	// TODO: Move this to MIDICCListener interface
+	// fill control change map with empty functions
+	for (int cc = 0; cc < 128; cc++)
+	{
+		controlChangeMap.emplace(cc, std::function<void(void)>());
+	}
 
+	midiProcessor->addControlListener(this);
 }
 
 TuneUpMidiState::~TuneUpMidiState()
@@ -57,4 +64,14 @@ void TuneUpMidiState::refreshTuning()
 	{
 		tuning.reset(new Tuning());
 	}
+}
+
+void TuneUpMidiState::setDynamicTuningPeriodController(int controlNumber)
+{
+	
+}
+
+void TuneUpMidiState::setDynamicTuningGeneratorController(int controlNumber)
+{
+
 }

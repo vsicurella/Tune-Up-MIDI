@@ -120,6 +120,7 @@ void TuneUpMidiProcessor::processMidi(MidiBuffer& bufferIn)
 		// Any other MIDI message
 		else
 		{
+			sendControlMessage(msg);
 			bufferOut.addEvent(msg, smplOffset++);
 		}
 
