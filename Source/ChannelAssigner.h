@@ -28,18 +28,18 @@ class TuneUpMidiChannelAssigner
     
     int voiceLimit = INT_MAX;
     int numNotesOn = 0;
+	int lastChannelOn = -1;
 
 	Array<MidiPitch> pitchesOn;
 	Array<int>& notesOn; // Tuning degrees, not necessarily MIDI notes
 	Array<int> channelsOn;
 
 	Array<int> channelsOfNotes; // index is tuning note, value is channel number
-
 	Array<int> channelsToSkip;
     
 	// allows channels to contain more than one note if pitchbend value is the same
 	// but per-note vibrato and other expression is limited
-	bool oneChannelPerNote = false;
+	bool oneChannelPerNote = true;
 	bool roundRobinMode = true;
     
     
@@ -47,6 +47,12 @@ public:
     
     TuneUpMidiChannelAssigner(MPEInstrument* mpeInstIn, Array<int>& notesOnIn);
     ~TuneUpMidiChannelAssigner();
+
+	bool isOneChannelPerNote() const;
+	bool isRoundRobinMode() const;
+
+	void setOneChannelPerNote(bool oneNoteEach);
+	void setRoundRobinMode(bool roundRobin);
 
 	/*
 		Returns midi channel 0 - 15
@@ -81,6 +87,10 @@ public:
 	*/
 
 	bool isChannelFree(int channelIn) const;
+
+	bool hasFreeChannels() const;
+
+	Array<int> getChannelsOn() const;
     
     int getChannelOfNote(int noteIn) const;
 

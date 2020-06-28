@@ -27,6 +27,27 @@ TuneUpMidiChannelAssigner::~TuneUpMidiChannelAssigner()
     
 }
 
+
+bool TuneUpMidiChannelAssigner::isOneChannelPerNote() const
+{
+	return oneChannelPerNote;
+}
+
+bool TuneUpMidiChannelAssigner::isRoundRobinMode() const
+{
+	return roundRobinMode;
+}
+
+void TuneUpMidiChannelAssigner::setOneChannelPerNote(bool oneNoteEach)
+{
+	oneChannelPerNote = oneChannelPerNote;
+}
+
+void TuneUpMidiChannelAssigner::setRoundRobinMode(bool roundRobin)
+{
+	roundRobinMode = roundRobin;
+}
+
 int TuneUpMidiChannelAssigner::findNextFreeChannel() const
 {
 	int freeChannel = -1;
@@ -38,7 +59,7 @@ int TuneUpMidiChannelAssigner::findNextFreeChannel() const
 			int i = 1;
 			do
 			{
-				freeChannel = (channelsOn[channelsOn.size() - 1] + i) % 16;
+				freeChannel = (lastChannelOn + i) % 16;
 				i++;
 			} while (channelsOn.contains(freeChannel) && !channelsToSkip.contains(freeChannel));
 		}
@@ -86,6 +107,7 @@ int TuneUpMidiChannelAssigner::noteOn(int noteIn, int pitchbendIn)
 	if (mpeInst && mpeInst->isMemberChannel(channel) || !mpeInst)
 	{
 		channel = getFreeOrExistingChannel(noteIn, pitchbendIn);
+		lastChannelOn = channel;
 		
 		if (!notesOn.contains(noteIn))
 		{
@@ -154,6 +176,16 @@ void TuneUpMidiChannelAssigner::allNotesOff()
 bool TuneUpMidiChannelAssigner::isChannelFree(int channelIn) const
 {
 	return channelsOn.indexOf(channelIn) < 0;
+}
+
+bool TuneUpMidiChannelAssigner::hasFreeChannels() const
+{
+	return channelsOn.size() + channelsToSkip.size() < 16;
+}
+
+Array<int> TuneUpMidiChannelAssigner::getChannelsOn() const
+{
+	return channelsOn;
 }
 
 int TuneUpMidiChannelAssigner::getChannelOfNote(int noteIn) const
