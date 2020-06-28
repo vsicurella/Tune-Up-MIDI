@@ -8,7 +8,7 @@
   ==============================================================================
 */
 
-#include "TunedNoteInterpreter.h"
+#include "MidiNoteTuner.h"
 
 MidiNoteTuner::MidiNoteTuner(const Tuning& defaultTuning, const Tuning& newTuningIn)
 	: originTuning(&defaultTuning), newTuning(&newTuningIn)
