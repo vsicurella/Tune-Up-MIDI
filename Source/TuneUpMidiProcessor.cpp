@@ -12,16 +12,18 @@
 
 
 TuneUpMidiProcessor::TuneUpMidiProcessor()
-	: channelAssigner(nullptr, tuningNotesOn) // TODO implement proper MPE instrument
+	: channelAssigner(nullptr, notesInOn) // TODO implement proper MPE instrument
 {
+	retuner.reset(new MidiNoteTuner(standard, standard));
 
 	midiInput = MidiInput::openDevice(inputDeviceInfo.name, this);
 	if (midiInput.get())
 		midiInput->start();
+	DBG("Midi Input opened: " + inputDeviceInfo.name);
+
 
 	//midiOutput = MidiInput::openDevice(outputDeviceInfo.name, this);
 
-	DBG("Midi Input opened: " + inputDeviceInfo.name);
 }
 
 TuneUpMidiProcessor::~TuneUpMidiProcessor()
@@ -31,15 +33,14 @@ TuneUpMidiProcessor::~TuneUpMidiProcessor()
 
 const Array<int>& TuneUpMidiProcessor::getTuningNotesOn() const
 {
-	return tuningNotesOn;
+	return notesInOn;
 }
 
 void TuneUpMidiProcessor::setTuning(const Tuning* tuningIn)
 {
 	tuning = tuningIn;
-	retuner.reset(new MidiNoteTuner(standard, *tuningIn));
-	if (retuner.get())
-		retuner->setPitchbendRange(pitchbendRange);
+	retuner->setNewTuning(*tuning);
+	tuningChanged();
 }
 
 void TuneUpMidiProcessor::setPitchbendRange(int pitchbendRangeIn)
@@ -61,90 +62,79 @@ void TuneUpMidiProcessor::processMidi(MidiBuffer& bufferIn)
 	
 	MidiBuffer bufferOut, shortBuffer;
 	MidiMessage msg, pitchMsg;
-	int smpl, smplOffset = 0;
+	int noteIn, smpl, smplOffset = 0;
 	while (events.getNextEvent(msg, smpl))
 	{
 		desc = msg.getDescription() + '\n';
 		midiInLog.append(desc, desc.length());
 		desc = "";
-		int bendChannel = -1;
 
 		// remap and add pitchbend
-		if (retuner.get() && tuning)
-		{	
-			MPENote note = retuner->closestNote(msg.getNoteNumber());
+		if (msg.isNoteOnOrOff())
+		{
+			noteIn = msg.getNoteNumber();
 
-			desc += "Retuner: New note semitone difference: " + String(retuner->semitonesFromNote(msg.getNoteNumber())) + '\n';
-			desc += "Retuner: Note shifted from " + String(msg.getNoteNumber()) + " to " + String(note.initialNote) + '\n';
+			int noteChannel = 0;
+			MPENote noteTuned = retuner->closestNote(noteIn);
 
-			msg.setNoteNumber(note.initialNote);
+			desc += "Retuner: New note semitone difference: " + String(retuner->semitonesFromNote(noteIn)) + '\n';
+			desc += "Retuner: Note shifted from " + String(noteIn) + " to " + String(noteTuned.initialNote) + '\n';
+
+			msg.setNoteNumber(noteTuned.initialNote);
 
 			// set channel
 			if (msg.isNoteOn())
 			{
-				bendChannel = channelAssigner.noteOn(msg.getNoteNumber(), note.pitchbend.as14BitInt()) + 1;
-				//bendChannel = channelAssigner.findMidiChannelForNewNote(bendChannel);
-
-				//jassert(bendChannel >= 0 && bendChannel < 16);
-
-				if (bendChannel > 0 && bendChannel <= 16)
+				if (channelAssigner.hasFreeChannels())
 				{
-					msg.setChannel(bendChannel);
-					msg.setNoteNumber(note.initialNote);
-					
+					noteChannel = channelAssigner.noteOn(noteIn, noteTuned.pitchbend.as14BitInt()) + 1;
+					jassert(noteChannel > 0 && noteChannel <= 16);
 
-					//shortBuffer.addEvent(msg, smpl);
+					msg.setChannel(noteChannel);
+					notesTunedOn.add(noteTuned.initialNote);
 
-					pitchMsg = MidiMessage::pitchWheel(bendChannel, note.pitchbend.as14BitInt());
+					pitchMsg = MidiMessage::pitchWheel(noteChannel, noteTuned.pitchbend.as14BitInt());
 					desc += "Retuner: Pitchbend value = " + String(pitchMsg.getPitchWheelValue()) + '\n';
-					/*bufferOut.addEvent(pitchMsg, smpl + smplOffset++);
-					bufferOut.addEvent(msg, smpl + smplOffset);*/
+
 					bufferOut.addEvent(pitchMsg, smplOffset++);
 					bufferOut.addEvent(msg, smplOffset++);
 				}
 			}
-			else if (msg.isNoteOff())
+			else
 			{
-				bendChannel = channelAssigner.getChannelOfNote(msg.getNoteNumber()) + 1;
-				channelAssigner.noteOff(msg.getNoteNumber());
+				noteChannel = channelAssigner.getChannelOfNote(noteIn) + 1;
 				//jassert(bendChannel >= 0 && bendChannel < 16);
 
-				if (bendChannel > 0 && bendChannel <= 16)
+				if (noteChannel > 0 && noteChannel <= 16)
 				{
-					msg.setChannel(bendChannel);
-					
-					//shortBuffer.addEvent(pitchMsg, smpl + smplOffset++);
-					//bufferOut.addEvent(msg, smpl + smplOffset);
+					msg.setChannel(noteChannel);
+					channelAssigner.noteOff(noteIn);
+					notesTunedOn.removeFirstMatchingValue(noteTuned.initialNote);
 					
 					bufferOut.addEvent(msg, smplOffset++);
-					
-					//pitchMsg = MidiMessage::pitchWheel(bendChannel, 8192);
-					//bufferOut.addEvent(msg, smpl + ++smplOffset);
-					//bufferOut.addEvent(msg, smplOffset++);
 					desc += pitchMsg.getDescription() + '\n';
 				}
 			}
-			else
-			{
-				bendChannel = -1;
-			}
 		}
-
-		//if (bendChannel > 0)
-		//{
-		//	pitchMsg = MidiMessage::pitchWheel(bendChannel, channelAssigner.getPitchbendOfChannel(bendChannel - 1));
-		//	desc += "Retuner: Pitchbend value = " + String(pitchMsg.getPitchWheelValue()) + '\n';
-		//	bufferOut.addEvent(pitchMsg, 0);
-		//}
-
-		//bufferOut.addEvents(shortBuffer, 0, -1, smplOffset);
-		//shortBuffer.clear();
+		
+		// Any other MIDI message
+		else
+		{
+			bufferOut.addEvent(msg, smplOffset++);
+		}
 
 		desc += msg.getDescription() + '\n';
 		midiOutLog.append(desc, desc.length());
 	}
 
 	bufferIn = bufferOut;
+}
+
+void TuneUpMidiProcessor::resetNotes()
+{
+	notesInOn.clear();
+	notesTunedOn.clear();
+	channelAssigner.allNotesOff();
 }
 
 void TuneUpMidiProcessor::handleIncomingMidiMessage(MidiInput* source, const MidiMessage& msg)
@@ -160,10 +150,20 @@ void TuneUpMidiProcessor::handleIncomingMidiMessage(MidiInput* source, const Mid
 
 void TuneUpMidiProcessor::tuningChanged() 
 {
-	// store current notes
-	// calculate new tuning
-	// find pitchbend for each note
-	// send pitchbend out on appropriate channels
+	// only works if strictly one channel per note is used
+	if (channelAssigner.isOneChannelPerNote())
+	{
+		for (int i = 0; i < notesInOn.size(); i++)
+		{
+			int nodeIn = notesInOn[i];
+			int noteOut = notesTunedOn[i];
+
+			inputBuffer.addEvent(MidiMessage::pitchWheel(
+				channelAssigner.getChannelOfNote(nodeIn) + 1,
+				retuner->pitchbendFromNote(noteOut, nodeIn)
+			), smplInput++);
+		}
+	}
 }
 
 String* TuneUpMidiProcessor::getMidiInLog()

@@ -38,11 +38,11 @@ class TuneUpMidiProcessor : public MidiMessageCollector, public ChangeBroadcaste
 
 	MPEInstrument mpeInstrument;
 	TuneUpMidiChannelAssigner channelAssigner;
-	//MPEChannelAssigner channelAssigner;
 
 	int pitchbendRange = 48;	
 	
-	Array<int> tuningNotesOn;
+	Array<int> notesInOn;
+	Array<int> notesTunedOn;
 
 	const Tuning standard;
 	const Tuning* tuning = nullptr;
@@ -58,6 +58,8 @@ public:
 	void setPitchbendRange(int pitchbendRangeIn);
 
 	void processMidi(MidiBuffer& bufferIn);
+
+	void resetNotes();
 
 	String* getMidiInLog();
 	String* getMidiOutLog();

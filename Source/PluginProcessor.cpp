@@ -103,8 +103,7 @@ void TuneupMidiAudioProcessor::prepareToPlay (double sampleRate, int samplesPerB
 
 void TuneupMidiAudioProcessor::releaseResources()
 {
-    // When playback stops, you can use this as an opportunity to free up any
-    // spare memory, etc.
+	midiProcessor->resetNotes();
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations

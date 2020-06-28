@@ -102,6 +102,11 @@ int MidiNoteTuner::pitchbendFromNote(int midiNoteIn) const
     return semitonesToPitchbend(pitchbendRange, semitonesFromNote(midiNoteIn));
 } 
 
+int MidiNoteTuner::pitchbendFromNote(int oldTuningNote, int newTuningNote) const
+{
+	return semitonesToPitchbend(pitchbendRange, newTuning->getNoteInSemitones(newTuningNote) - originTuning->getNoteInSemitones(oldTuningNote));
+}
+
 double MidiNoteTuner::semitonesFromNote(int midiNoteIn) const
 {
 	return newTuning->getNoteInSemitones(midiNoteIn) - originTuning->getNoteInSemitones(midiNoteIn);

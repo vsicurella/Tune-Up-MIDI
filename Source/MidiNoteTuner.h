@@ -89,6 +89,12 @@ public:
 
 	int pitchbendFromNote(int midiNoteIn) const;
 
+	/*
+		Returns the total amount of pitchbend to get from one note in the original tuning
+		to a different note in the new tuning
+	*/
+	int pitchbendFromNote(int oldTuningNote, int newTuningNote) const;
+
 
 	/******************
 

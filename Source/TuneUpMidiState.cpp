@@ -11,7 +11,7 @@
 #include "TuneUpMidiState.h"
 
 TuneUpMidiState::TuneUpMidiState(TuneUpMidiProcessor* midiProcessorIn)
-	: midiProcessor(midiProcessorIn), tuningNotesOn(midiProcessorIn->getTuningNotesOn())
+	: midiProcessor(midiProcessorIn), notesInOn(midiProcessorIn->getTuningNotesOn())
 {
 
 }
