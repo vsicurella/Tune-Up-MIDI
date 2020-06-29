@@ -89,9 +89,10 @@ void MidiNoteTuner::setDestinationRootFrequency(double freqIn)
 MPENote MidiNoteTuner::closestNote(int midiNoteIn)
 {
 	MPENote note;
-	note.initialNote = originTuning->closestNoteToSemitone(newTuning->getNoteInSemitones(midiNoteIn));
+	double newSemitones = newTuning->getNoteInSemitones(midiNoteIn);
+	note.initialNote = originTuning->closestNoteToSemitone(newSemitones);
 	note.pitchbend = MPEValue::from14BitInt(
-		semitonesToPitchbend(newTuning->getNoteInSemitones(midiNoteIn) - originTuning->getNoteInSemitones(note.initialNote))
+		semitonesToPitchbend(newSemitones - originTuning->getNoteInSemitones(note.initialNote))
 	);
 
 	return note;
@@ -123,7 +124,7 @@ double MidiNoteTuner::pitchbendToSemitones(int pitchbendIn) const
 
 int MidiNoteTuner::ratioToPitchbend(double ratioIn) const
 {
-    return semitonesToPitchbend(pitchbendRange, Tuning::ratioToSemitones(ratioIn));
+    return semitonesToPitchbend(pitchbendRange, ratioToSemitones(ratioIn));
 }
 
 int MidiNoteTuner::pitchbendAmount(int pitchbendRange, double semitonesFrom, double semitonesTo)
@@ -143,5 +144,5 @@ double MidiNoteTuner::pitchbendToSemitones(int pitchbendRange, int pitchbendIn)
 
 int MidiNoteTuner::ratioToPitchbend(int pitchbendRange, double ratioIn)
 {
-	return semitonesToPitchbend(pitchbendRange, Tuning::ratioToSemitones(ratioIn));
+	return semitonesToPitchbend(pitchbendRange, ratioToSemitones(ratioIn));
 }

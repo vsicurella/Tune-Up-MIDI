@@ -11,6 +11,7 @@
 #pragma once
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "CommonFunctions.h"
+#include "TuningMath.h"
 #include "Tuning.h"
 
 class MidiNoteTuner
