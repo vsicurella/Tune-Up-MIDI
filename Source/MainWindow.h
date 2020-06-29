@@ -22,7 +22,7 @@
 //[Headers]     -- You can add your own extra header files here --
 #include <JuceHeader.h>
 #include "ScalaFileReader.h"
-#include "DynamicTuning.h"
+#include "TuningDefinition.h"
 //[/Headers]
 
 

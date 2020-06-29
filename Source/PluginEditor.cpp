@@ -63,8 +63,7 @@ void TuneupMidiAudioProcessorEditor::changeListenerCallback(ChangeBroadcaster* s
 	// Tuning defined
 	if (source == gui.get())
 	{
-		pluginState.setTuning(gui->getTuning());
-		midiProcessor.setTuning(pluginState.getTuning());
+		pluginState.setNewTuning(gui->getTuning());
 		gui->loadTuning(pluginState.getTuning());
 	}
 

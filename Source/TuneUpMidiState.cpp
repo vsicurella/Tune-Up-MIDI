@@ -13,12 +13,15 @@
 TuneUpMidiState::TuneUpMidiState(TuneUpMidiProcessor* midiProcessorIn)
 	: midiProcessor(midiProcessorIn), notesInOn(midiProcessorIn->getTuningNotesOn())
 {
+	renderTuning();
+	tuningDefinition.addListener(midiProcessor);
+
 	// TODO: Move this to MIDICCListener interface
 	// fill control change map with empty functions
-	for (int cc = 0; cc < 128; cc++)
-	{
-		controlChangeMap.emplace(cc, std::function<void(void)>());
-	}
+	//for (int cc = 0; cc < 128; cc++)
+	//{
+	//	controlChangeMap.emplace(cc, std::function<void(void)>());
+	//}
 
 	midiProcessor->addControlListener(this);
 }
@@ -26,6 +29,11 @@ TuneUpMidiState::TuneUpMidiState(TuneUpMidiProcessor* midiProcessorIn)
 TuneUpMidiState::~TuneUpMidiState()
 {
 	tuning = nullptr;
+}
+
+ValueTree TuneUpMidiState::getTuningDefinition()
+{
+	return tuningDefinition.getDefinition();
 }
 
 Tuning* TuneUpMidiState::getTuning()
@@ -38,32 +46,19 @@ const MidiKeyboardState& TuneUpMidiState::getMidiKeyboardState()
 	return midiState;
 }
 
-void TuneUpMidiState::setTuning(ValueTree tuningDefinitionIn)
+void TuneUpMidiState::setNewTuning(ValueTree tuningDefinitionIn)
 {
 	if (tuningDefinitionIn.isValid())
 	{
-		tuningDefinition = tuningDefinitionIn;
-		refreshTuning();
+		tuningDefinition.setDefinition(tuningDefinitionIn, false);
+		renderTuning();
 	}
 }
 
-void TuneUpMidiState::refreshTuning()
+void TuneUpMidiState::renderTuning()
 {
-	if (tuningDefinition.isValid())
-	{
-		if (tuningDefinition.getChildWithName(Tuning::centsTableID).isValid())
-		{
-			tuning.reset(new Tuning(tuningDefinition));
-		}
-		else
-		{
-			tuning.reset(new DynamicTuning(tuningDefinition));
-		}
-	}
-	else
-	{
-		tuning.reset(new Tuning());
-	}
+	tuning.reset(new Tuning(tuningDefinition.render()));
+	midiProcessor->setTuning(tuning.get());
 }
 
 void TuneUpMidiState::setDynamicTuningPeriodController(int controlNumber)
@@ -72,6 +67,11 @@ void TuneUpMidiState::setDynamicTuningPeriodController(int controlNumber)
 }
 
 void TuneUpMidiState::setDynamicTuningGeneratorController(int controlNumber)
+{
+
+}
+
+void TuneUpMidiState::controlValueChanged(int controlNumber, int controlValue)
 {
 
 }

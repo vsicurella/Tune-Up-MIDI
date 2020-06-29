@@ -316,6 +316,7 @@ TuneUpWindow::TuneUpWindow ()
 	scaleSizeSld->setValue(12);
 	pitchbendRangeSld->setValue(48);
 	expCCNumSld->setValue(53);
+	rootMidiNoteSld->setValue(60);
     //[/UserPreSize]
 
     setSize (600, 400);
@@ -471,12 +472,15 @@ void TuneUpWindow::buttonClicked (Button* buttonThatWasClicked)
     else if (buttonThatWasClicked == generateTuningBtn.get())
     {
         //[UserButtonCode_generateTuningBtn] -- add your button handler code here..
-		stagedTuning = DynamicTuning::dynamicTuningDefinition(
-			scaleSizeSld->getValue(),
+		stagedTuning = TuningDefinition::createRegularTemperamentDefinition(
 			{ periodSlider->getValue(), genSlider->getValue() },
-			{ 0, scaleSizeSld->getValue() },
-			{ 0, 0 }
+			{ 1, scaleSizeSld->getValue() },
+			{ 0, genDownSld->getValue() },
+			rootMidiNoteSld->getValue(),
+			"Regular temperament using generators [" + String(periodSlider->getValue()) + ", " + String(genSlider->getValue()) + "]"
 		);
+
+		DBG("Staged Tuning: \n" + stagedTuning.toXmlString());
 
 		sendChangeMessage();
         //[/UserButtonCode_generateTuningBtn]
@@ -627,7 +631,8 @@ void TuneUpWindow::onFileLoad()
 	if (success)
 	{
 		ScalaFile file = scalaFileReader.getScalaFile();
-		stagedTuning = Tuning::createTuningDefinition(file.numNotes, file.periodCents, file.cents, file.description);
+		stagedTuning = TuningDefinition::createStaticTuningDefinition(file.cents, rootMidiNoteSld->getValue(), file.description);
+		DBG("Staged Tuning: \n" + stagedTuning.toXmlString());
 		sendChangeMessage();
 	}
 	else

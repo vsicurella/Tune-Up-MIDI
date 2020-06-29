@@ -168,14 +168,12 @@ void TuneupMidiAudioProcessor::getStateInformation (MemoryBlock& destData)
     // as intermediaries to make it easy to save and load complex data.
 
 	MemoryOutputStream mos;
-	if (pluginState->getTuning())
+
+	ValueTree definition = pluginState->getTuningDefinition();
+	if (definition.isValid())
 	{
-		ValueTree definition = pluginState->getTuning()->getTuningDefinition();
-		if (definition.isValid())
-		{
-			definition.writeToStream(mos);
-		}
-	}
+		definition.writeToStream(mos);
+	}	
 	
 	destData.replaceWith(mos.getData(), mos.getDataSize());
 }
@@ -187,7 +185,7 @@ void TuneupMidiAudioProcessor::setStateInformation (const void* data, int sizeIn
 
 	MemoryInputStream mis(data, sizeInBytes, false);
 	ValueTree tuningDefinition = ValueTree::readFromStream(mis);
-	pluginState->setTuning(tuningDefinition);
+	pluginState->setNewTuning(tuningDefinition);
 }
 
 //==============================================================================

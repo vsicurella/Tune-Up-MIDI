@@ -13,13 +13,13 @@
 #include "MidiCCListener.h"
 #include "MidiNoteTuner.h"
 #include "ChannelAssigner.h"
-#include "DynamicTuning.h"
+#include "TuningDefinition.h"
 
 class TuneUpMidiProcessor : 
 	public MidiMessageCollector, 
 	public MidiCCNotifier,
 	public ChangeBroadcaster, 
-	private DynamicTuning::Listener
+	public TuningDefinition::Listener
 {
 	MidiDeviceInfo inputDeviceInfo = MidiInput::getDefaultDevice();
 	std::unique_ptr<MidiInput> midiInput;
