@@ -314,7 +314,7 @@ TuneUpWindow::TuneUpWindow ()
 	genDownSld->setValue(1);
 	rankNumSld->setValue(2);
 	scaleSizeSld->setValue(12);
-	pitchbendRangeSld->setValue(48);
+	pitchbendRangeSld->setValue(2);
 	expCCNumSld->setValue(53);
 	rootMidiNoteSld->setValue(60);
     //[/UserPreSize]

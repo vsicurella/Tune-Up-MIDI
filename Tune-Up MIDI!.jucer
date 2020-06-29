@@ -3,7 +3,8 @@
 <JUCERPROJECT id="ocxSOI" name="Tune-Up MIDI!" projectType="audioplug" jucerVersion="5.4.7"
               pluginCharacteristicsValue="pluginIsMidiEffectPlugin,pluginProducesMidiOut,pluginWantsMidiIn"
               pluginChannelConfigs="{1, 1}, {2, 2},{16,16}" companyName="Everytone"
-              pluginFormats="buildStandalone,buildVST">
+              pluginFormats="buildStandalone,buildVST3" companyCopyright="MIT License"
+              companyWebsite="everytone.zone">
   <MAINGROUP id="L9YdYm" name="Tune-Up MIDI!">
     <GROUP id="{6F056052-FDC6-DFD1-3175-1C32A5B87CD2}" name="Source">
       <FILE id="VKHJqi" name="TuningDefinition.cpp" compile="1" resource="0"
@@ -60,19 +61,16 @@
       <MODULEPATHS>
         <MODULEPATH id="juce_audio_basics" path="../../../Programming-Resources/JUCE/modules"/>
         <MODULEPATH id="juce_audio_devices" path="../../../Programming-Resources/JUCE/modules"/>
-        <MODULEPATH id="juce_audio_formats" path="../../../Programming-Resources/JUCE/modules"/>
         <MODULEPATH id="juce_audio_plugin_client" path="../../../Programming-Resources/JUCE/modules"/>
         <MODULEPATH id="juce_audio_processors" path="../../../Programming-Resources/JUCE/modules"/>
-        <MODULEPATH id="juce_audio_utils" path="../../../Programming-Resources/JUCE/modules"/>
         <MODULEPATH id="juce_core" path="../../../Programming-Resources/JUCE/modules"/>
-        <MODULEPATH id="juce_cryptography" path="../../../Programming-Resources/JUCE/modules"/>
         <MODULEPATH id="juce_data_structures" path="../../../Programming-Resources/JUCE/modules"/>
         <MODULEPATH id="juce_events" path="../../../Programming-Resources/JUCE/modules"/>
         <MODULEPATH id="juce_graphics" path="../../../Programming-Resources/JUCE/modules"/>
         <MODULEPATH id="juce_gui_basics" path="../../../Programming-Resources/JUCE/modules"/>
         <MODULEPATH id="juce_gui_extra" path="../../../Programming-Resources/JUCE/modules"/>
-        <MODULEPATH id="juce_opengl" path="../../../Programming-Resources/JUCE/modules"/>
-        <MODULEPATH id="juce_video" path="../../../Programming-Resources/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_utils" path="Z:/Programming-Resources/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="Z:/Programming-Resources/JUCE/modules"/>
       </MODULEPATHS>
     </XCODE_MAC>
     <LINUX_MAKE targetFolder="Builds/LinuxMakefile">
@@ -83,42 +81,36 @@
       <MODULEPATHS>
         <MODULEPATH id="juce_audio_basics" path="../../../Programming-Resources/JUCE/modules"/>
         <MODULEPATH id="juce_audio_devices" path="../../../Programming-Resources/JUCE/modules"/>
-        <MODULEPATH id="juce_audio_formats" path="../../../Programming-Resources/JUCE/modules"/>
         <MODULEPATH id="juce_audio_plugin_client" path="../../../Programming-Resources/JUCE/modules"/>
         <MODULEPATH id="juce_audio_processors" path="../../../Programming-Resources/JUCE/modules"/>
-        <MODULEPATH id="juce_audio_utils" path="../../../Programming-Resources/JUCE/modules"/>
         <MODULEPATH id="juce_core" path="../../../Programming-Resources/JUCE/modules"/>
-        <MODULEPATH id="juce_cryptography" path="../../../Programming-Resources/JUCE/modules"/>
         <MODULEPATH id="juce_data_structures" path="../../../Programming-Resources/JUCE/modules"/>
         <MODULEPATH id="juce_events" path="../../../Programming-Resources/JUCE/modules"/>
         <MODULEPATH id="juce_graphics" path="../../../Programming-Resources/JUCE/modules"/>
         <MODULEPATH id="juce_gui_basics" path="../../../Programming-Resources/JUCE/modules"/>
         <MODULEPATH id="juce_gui_extra" path="../../../Programming-Resources/JUCE/modules"/>
-        <MODULEPATH id="juce_opengl" path="../../../Programming-Resources/JUCE/modules"/>
-        <MODULEPATH id="juce_video" path="../../../Programming-Resources/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_utils" path="Z:/Programming-Resources/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="Z:/Programming-Resources/JUCE/modules"/>
       </MODULEPATHS>
     </LINUX_MAKE>
     <VS2019 targetFolder="Builds/VisualStudio2019">
       <CONFIGURATIONS>
-        <CONFIGURATION isDebug="1" name="Debug"/>
+        <CONFIGURATION isDebug="1" name="Debug" enableIncrementalLinking="1"/>
         <CONFIGURATION isDebug="0" name="Release"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
-        <MODULEPATH id="juce_video"/>
-        <MODULEPATH id="juce_opengl"/>
         <MODULEPATH id="juce_gui_extra"/>
         <MODULEPATH id="juce_gui_basics"/>
         <MODULEPATH id="juce_graphics"/>
         <MODULEPATH id="juce_events"/>
         <MODULEPATH id="juce_data_structures"/>
-        <MODULEPATH id="juce_cryptography"/>
         <MODULEPATH id="juce_core"/>
-        <MODULEPATH id="juce_audio_utils"/>
         <MODULEPATH id="juce_audio_processors"/>
         <MODULEPATH id="juce_audio_plugin_client"/>
-        <MODULEPATH id="juce_audio_formats"/>
         <MODULEPATH id="juce_audio_devices"/>
         <MODULEPATH id="juce_audio_basics"/>
+        <MODULEPATH id="juce_audio_utils" path="Z:/Programming-Resources/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="Z:/Programming-Resources/JUCE/modules"/>
       </MODULEPATHS>
     </VS2019>
   </EXPORTFORMATS>
@@ -131,14 +123,11 @@
     <MODULE id="juce_audio_processors" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_audio_utils" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_core" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
-    <MODULE id="juce_cryptography" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_events" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
-    <MODULE id="juce_opengl" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
-    <MODULE id="juce_video" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
   </MODULES>
   <LIVE_SETTINGS>
     <WINDOWS/>
