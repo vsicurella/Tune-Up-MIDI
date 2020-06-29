@@ -10,127 +10,6 @@
 
 #pragma once
 #include "JuceHeader.h"
-//#include "PluginIDs.h"
-//#include "Structures/OwnedHashMap.h"
-
-//struct ScaleSizeSorter
-//{
-//	// Scale first, then mode, then family
-//
-//	static int compareElements(const ValueTree t1, const ValueTree t2)
-//	{
-//		if ((t1.hasType(IDs::modePresetNode) || t1.hasType(IDs::presetNode)) &&
-//		   (t2.hasType(IDs::modePresetNode) || t2.hasType(IDs::presetNode)))
-//		{
-//			int sz1 = (int) t1[IDs::scaleSize];
-//			int sz2 = (int) t2[IDs::scaleSize];
-//
-//			int m1 = (int) t1[IDs::modeSize];
-//			int m2 = (int) t2[IDs::modeSize];
-//
-//			String f1 = t1[IDs::family];
-//			String f2 = t2[IDs::family];
-//
-//			if (sz1 < sz2) return -1;
-//			else if (sz1 > sz2) return 1;
-//			else
-//			{
-//				if (m1 < m2) return -1;
-//				else if (m1 > m2) return 1;
-//				else
-//				{
-//					if (f1 < f2) return  -1;
-//					else if (f1 > f2) return 1;
-//					else return 0;
-//				}
-//			}
-//		}
-//		else
-//			return 0;
-//	}
-//};
-//
-//struct ModeSizeSorter
-//{
-//	// Mode first, then scale, then family
-//
-//	static int compareElements(const ValueTree t1, const ValueTree t2)
-//	{
-//		if ((t1.hasType(IDs::modePresetNode) || t1.hasType(IDs::presetNode)) &&
-//			(t2.hasType(IDs::modePresetNode) || t2.hasType(IDs::presetNode)))
-//		{
-//			int sz1 = (int) t1[IDs::scaleSize];
-//			int sz2 = (int) t2[IDs::scaleSize];
-//
-//			int m1 = (int) t1[IDs::modeSize];
-//			int m2 = (int) t2[IDs::modeSize];
-//
-//			String f1 = t1[IDs::family];
-//			String f2 = t2[IDs::family];
-//
-//			if (m1 < m2) return -1;
-//			else if (m1 > m2) return 1;
-//			else
-//			{
-//				if (sz1 < sz2) return -1;
-//				else if (sz1 > sz2) return 1;
-//				else
-//				{
-//					if (f1 < f2) return  -1;
-//					else if (f1 > f2) return 1;
-//					else return 0;
-//				}
-//			}
-//		}
-//		return 0;
-//	}
-//};
-//
-//struct FamilyNameSorter
-//{
-//	// Family first, then scale, then mode
-//
-//	static int compareElements(const ValueTree t1, const ValueTree t2)
-//	{
-//		if ((t1.hasType(IDs::modePresetNode) || t1.hasType(IDs::presetNode)) &&
-//			(t2.hasType(IDs::modePresetNode) || t2.hasType(IDs::presetNode)))
-//		{
-//			int sz1 = (int) t1[IDs::scaleSize];
-//			int sz2 = (int) t2[IDs::scaleSize];
-//
-//			int m1 = (int) t1[IDs::modeSize];
-//			int m2 = (int) t2[IDs::modeSize];
-//
-//			String f1 = t1[IDs::family];
-//			String f2 = t2[IDs::family];
-//
-//			if (f1 < f2) return -1;
-//			else if (f1 > f2) return 1;
-//			else
-//			{
-//				if (sz1 < sz2) return -1;
-//				else if (sz1 > sz2) return 1;
-//				else
-//				{
-//					if (m1 < m2) return  -1;
-//					else if (m1 > m2) return 1;
-//					else return 0;
-//				}
-//			}
-//		}
-//		return 0;
-//	}
-//};
-//
-//struct IDasStringHash
-//{
-//    static int generateHash (const Identifier& key, int upperLimit) noexcept
-//    {
-//        return DefaultHashFunctions::generateHash(key.toString(), upperLimit);
-//    }
-//};
-//
-//typedef OwnedHashMap<Identifier, RangedAudioParameter, IDasStringHash> SvkParameters;
 
 template <class T, class U>
 struct Pair
@@ -269,110 +148,31 @@ static Array<ValueTree> extractNodes(ValueTree nodeOrigin, Identifier nodeType)
 }
 
 template <class T>
-static void add_array_to_node(ValueTree nodeIn, const Array<T>& arrayIn, Identifier arrayID, Identifier itemId)
+static ValueTree arrayToTree(const Array<T>& arrayIn, Identifier arrayId, Identifier valueNodeId, Identifier valuePropertyId)
 {
-	ValueTree arrayTree = ValueTree(arrayID);
+	ValueTree arrayTree = ValueTree(arrayId);
 	ValueTree item;
 
 	for (int i = 0; i < arrayIn.size(); i++)
 	{
-		item = ValueTree(itemId);
-		item.setProperty("Value", arrayIn[i], nullptr);
+		item = ValueTree(valueNodeId);
+		item.setProperty(valuePropertyId, arrayIn[i], nullptr);
 		arrayTree.addChild(item, i, nullptr);
 	}
 
-	nodeIn.addChild(arrayTree, -1, nullptr);
+	return arrayTree;
 }
 
 template <class T>
-static void get_array_from_node(const ValueTree nodeIn, Array<T>& arrayIn, Identifier arrayID)
+static void treeToArray(Array<T>& arrayOut, ValueTree arrayNodeIn, Identifier valueNodeId, Identifier valuePropertyId)
 {
-	ValueTree childArray = nodeIn.getChildWithName(arrayID);
-
-	if (childArray.isValid())
+	if (arrayNodeIn.isValid())
 	{
-		for (int i = 0; i < childArray.getNumChildren(); i++)
+		for (auto child : arrayNodeIn)
 		{
-			arrayIn.add(childArray.getChild(i).getProperty("Value"));
+			if (child.hasType(valueNodeId))
+				arrayOut.add(child[valuePropertyId]);
 		}
-	}
-}
-
-/* Adds a Colour array reduced to nontrivial items to a node represented in a ValueTree structure */
-
-static void add_array_to_node(ValueTree nodeIn, const Array<Colour>& arrayIn, Identifier arrayID, Identifier itemId)
-{
-	ValueTree arrayTree = ValueTree(arrayID);
-	ValueTree item;
-
-	for (int i = 0; i < arrayIn.size(); i++)
-	{
-		if (arrayIn[i].isOpaque())
-		{
-			item = ValueTree(itemId);
-			item.setProperty("Key", i, nullptr);
-			item.setProperty("Value", arrayIn[i].toString(), nullptr);
-			arrayTree.addChild(item, i, nullptr);
-		}
-	}
-
-	nodeIn.addChild(arrayTree, -1, nullptr);
-}
-
-static void add_array_as_property(ValueTree& nodeIn, const Array<Colour>& arrayIn, Identifier itemId)
-{	
-	String array = "";
-
-	for (int i = 0; i < arrayIn.size(); i++)
-	{
-		array += arrayIn[i].toString();
-		array += '\n';
-	}
-
-	nodeIn.setProperty(itemId, array, nullptr);
-}
-
-static void get_array_from_node(const ValueTree& nodeIn, Array<Colour>& arrayIn, Identifier arrayID)
-{
-	String array = nodeIn[arrayID];
-	String value = "";
-	int charsRead = 0;
-
-	Colour c = Colours::transparentWhite;
-
-	while (charsRead < array.length())
-	{
-		value += array[charsRead];
-
-		if (charsRead + 1 < array.length())
-		{
-			if (array[charsRead + 1] == '\n')
-				c = Colour::fromString(value);
-		}
-
-		if (c != Colours::transparentWhite)
-		{
-			arrayIn.add(c);
-			c = Colours::transparentWhite;
-		}
-	}
-}
-
-/* Creates a Colour array from a node, and populates trivial and nontrivial keys */
-
-static void get_array_from_node(const ValueTree nodeIn, Array<Colour>& arrayIn, Identifier arrayID, int arraySizeOut)
-{
-	ValueTree arrayNode;
-	ValueTree item;
-
-	arrayIn.resize(arraySizeOut);
-
-	arrayNode = nodeIn.getChildWithName(arrayID);
-
-	for (int i = 0; i < arrayNode.getNumChildren(); i++)
-	{
-		item = arrayNode.getChild(i);
-		arrayIn.set(item["Key"], Colour::fromString(item["Value"].toString()));
 	}
 }
 
