@@ -240,6 +240,16 @@ static int modulo(int numIn, int mod)
 }
 
 template <class T>
+static T sumArray(Array<T> arrayIn)
+{
+	T sum = 0;
+	for (auto i : arrayIn)
+		sum += i;
+
+	return sum;
+}
+
+template <class T>
 static T sumUpToIndex(Array<T> arrayIn, int indexIn)
 {
 	indexIn = modulo(indexIn, arrayIn.size());
