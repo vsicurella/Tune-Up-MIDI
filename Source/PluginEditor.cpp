@@ -23,9 +23,8 @@ TuneupMidiAudioProcessorEditor::TuneupMidiAudioProcessorEditor (
 	gui.reset(new TuneUpWindow());
 	addAndMakeVisible(gui.get());
 
-    setSize (600, 400);
+    setSize (500, 200);
 
-	gui->setLogs(midiProcessor.getMidiInLog(), midiProcessor.getMidiOutLog(), midiProcessor.getRetunerLog());
 	gui->addChangeListener(this);
 
 	pitchbendRange = gui->getPitchbendRange();
@@ -34,7 +33,7 @@ TuneupMidiAudioProcessorEditor::TuneupMidiAudioProcessorEditor (
 		pitchbendRange->addListener(this);
 	}
 
-	midiProcessor.addChangeListener(this);
+	//midiProcessor.addChangeListener(this);
 
 	if (pluginState.getTuning())
 	{
@@ -65,12 +64,6 @@ void TuneupMidiAudioProcessorEditor::changeListenerCallback(ChangeBroadcaster* s
 	{
 		pluginState.setNewTuning(gui->getTuning());
 		gui->loadTuning(pluginState.getTuning());
-	}
-
-	// MIDI Data happened
-	else if (source == &midiProcessor)
-	{
-		gui->updateText();
 	}
 }
 

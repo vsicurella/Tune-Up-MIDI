@@ -42,6 +42,9 @@ public:
 	void setDescription(String descIn);
 
     int getTuningSize() const;
+
+	double getPeriodCents() const;
+	double getPeriodSemitones() const;
 	
 	Array<double> getIntervalCents() const;
     Array<double> getIntervalSemitones() const;

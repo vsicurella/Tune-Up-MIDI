@@ -18,7 +18,6 @@
 class TuneUpMidiProcessor : 
 	public MidiMessageCollector, 
 	public MidiCCNotifier,
-	public ChangeBroadcaster, 
 	public TuningDefinition::Listener
 {
 	MidiDeviceInfo inputDeviceInfo = MidiInput::getDefaultDevice();

@@ -50,6 +50,16 @@ void Tuning::setDescription(String descIn)
 	description = descIn;
 }
 
+double Tuning::getPeriodCents() const
+{
+	return periodCents;
+}
+
+double Tuning::getPeriodSemitones() const
+{
+	return periodSemitones;
+}
+
 Array<double> Tuning::getIntervalCents() const
 {
 	return intervalCents;
