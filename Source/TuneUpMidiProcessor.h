@@ -43,7 +43,7 @@ class TuneUpMidiProcessor :
 	MPEInstrument mpeInstrument;
 	TuneUpMidiChannelAssigner channelAssigner;
 
-	int pitchbendRange = 48;	
+	int pitchbendRange = 2;	
 	
 	Array<int> notesInOn;
 	Array<int> notesTunedOn;

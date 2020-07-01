@@ -15,6 +15,7 @@ TuneUpMidiProcessor::TuneUpMidiProcessor()
 	: channelAssigner(nullptr, notesInOn) // TODO implement proper MPE instrument
 {
 	retuner.reset(new MidiNoteTuner(standard, standard));
+	retuner->setPitchbendRange(pitchbendRange);
 
 	midiInput = MidiInput::openDevice(inputDeviceInfo.name, this);
 	if (midiInput.get())

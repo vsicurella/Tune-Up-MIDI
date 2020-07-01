@@ -27,12 +27,6 @@ TuneupMidiAudioProcessorEditor::TuneupMidiAudioProcessorEditor (
 
 	gui->addChangeListener(this);
 
-	pitchbendRange = gui->getPitchbendRange();
-	if (pitchbendRange)
-	{
-		pitchbendRange->addListener(this);
-	}
-
 	//midiProcessor.addChangeListener(this);
 
 	if (pluginState.getTuning())
