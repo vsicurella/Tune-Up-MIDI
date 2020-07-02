@@ -31,7 +31,8 @@ public:
 	static Identifier centsTableID;
 	static Identifier intervalNodeID;
 	static Identifier intervalValueID;
-	static Identifier tuningDescID;
+	static Identifier tuningNameId;
+	static Identifier tuningDescriptionId;
 
 	class Listener
 	{
@@ -94,23 +95,42 @@ public:
 	static ValueTree createStaticTuningDefinition(
 		Array<double> centsTable, 
 		int midiRootNote = 60, 
+		String nameIn = "",
 		String descriptionIn = ""
 	);
 
 	/*
 		Creates a functional tuning definition for an equal temperament using a cent value as the period.
 	*/
-	static ValueTree createEqualTemperamentDefinition(int numberOfDivisions, double periodInCents, int midiRootNote = 60, String description = "");
+	static ValueTree createEqualTemperamentDefinition(
+		int numberOfDivisions, 
+		double periodInCents, 
+		int midiRootNote = 60, 
+		String nameIn = "", 
+		String description = ""
+	);
 
 	/*
 		Creates a functional tuning definition for an equal temperament using a ratio as the period.
 	*/
-	static ValueTree createEqualTemperamentDefinition(int numberOfDivisions, float periodAsRatio, int midiRootNote = 60, String description = "");
+	static ValueTree createEqualTemperamentDefinition(
+		int numberOfDivisions, 
+		float periodAsRatio, 
+		int midiRootNote = 60, 
+		String nameIn = "", 
+		String description = ""
+	);
 
 	/*
 		Creates a functional tuning definition for an equal temperament using a written pitch as the period, which will be parsed by Scala standards.
 	*/
-	static ValueTree createEqualTemperamentDefinition(int numberOfDivisions, String periodValue, int midiRootNote = 60, String description = "");
+	static ValueTree createEqualTemperamentDefinition(
+		int numberOfDivisions, 
+		String periodValue, 
+		int midiRootNote = 60, 
+		String nameIn = "",
+		String description = ""
+	);
 
 	/*
 		Creates a functional tuning definition for a regular temperament, allowing for dynamic tonality.
@@ -121,6 +141,7 @@ public:
 		Array<int> generatorAmounts,
 		Array<int> generatorsDown,
 		int midiRootNote = 60,
+		String nameIn = "",
 		String descriptionIn = ""
 	);
 
@@ -133,6 +154,7 @@ public:
 		Array<int> generatorAmounts,
 		Array<int> generatorsDown,
 		int midiRootNote = 60,
+		String nameIn = "",
 		String descriptionIn = ""
 	);
 

@@ -33,8 +33,6 @@ public:
 
 	ValueTree getTuning();
 
-	Value* getPitchbendRange();
-
 	void setScaleNameLabel(String scaleNameIn);
 	void setScaleSizeLabel(int numNotesIn);
 	void setScalePeriodLabel(double periodIn);
@@ -50,14 +48,9 @@ public:
 private:
 	File loadedFile;
 
-	String scaleName;
-	String scaleDescription;
-
 	ScalaFileReader scalaFileReader;
 
 	ValueTree stagedTuning;
-
-	Value pitchbendRange = Value(var(48));
 
 	// Helpers
 

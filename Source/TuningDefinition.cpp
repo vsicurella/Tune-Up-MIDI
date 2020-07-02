@@ -22,7 +22,8 @@ Identifier TuningDefinition::generatorPropertyId = Identifier("GeneratorValue");
 Identifier TuningDefinition::centsTableID = Identifier("CentsTable");
 Identifier TuningDefinition::intervalNodeID = Identifier("IntervalDesc");
 Identifier TuningDefinition::intervalValueID = Identifier("IntervalValue");
-Identifier TuningDefinition::tuningDescID = Identifier("Description");
+Identifier TuningDefinition::tuningNameId = Identifier("Name");
+Identifier TuningDefinition::tuningDescriptionId = Identifier("Description");
 
 /*
 	Renders standard tuning.
@@ -166,12 +167,14 @@ int TuningDefinition::determineTuningDefinitionSize(ValueTree tuningDefinitionIn
 ValueTree TuningDefinition::createStaticTuningDefinition(
 	Array<double> centsTable, 
 	int midiRootNote, 
+	String nameIn,
 	String descriptionIn)
 {
 	ValueTree definitionOut(tuningDefId);
 	definitionOut.setProperty(functionalID, false, nullptr);
 	definitionOut.setProperty(rootMidiNoteID, midiRootNote, nullptr);
-	definitionOut.setProperty(tuningDescID, descriptionIn, nullptr); // TODO: default description?
+	definitionOut.setProperty(tuningNameId, nameIn, nullptr);
+	definitionOut.setProperty(tuningDescriptionId, descriptionIn, nullptr); // TODO: default description?
 
 	definitionOut.addChild(
 		arrayToTree(centsTable, centsTableID, intervalNodeID, intervalValueID),
@@ -190,6 +193,7 @@ ValueTree TuningDefinition::createEqualTemperamentDefinition(
 	int numberOfDivisions, 
 	double periodInCents, 
 	int midiRootNote, 
+	String nameIn,
 	String description)
 {
 	ValueTree definitionOut;
@@ -200,10 +204,15 @@ ValueTree TuningDefinition::createEqualTemperamentDefinition(
 		definitionOut.setProperty(functionalID, true, nullptr);
 		definitionOut.setProperty(rootMidiNoteID, midiRootNote, nullptr);
 
+		if (nameIn.length() == 0)
+			nameIn = String(numberOfDivisions) + "-ED " + String(periodInCents) + "cents";
+		
+		definitionOut.setProperty(tuningNameId, nameIn, nullptr);
+
 		if (description.length() == 0)
 			description = String(numberOfDivisions) + " equal divisions of " + String(periodInCents) + " cents.";
-
-		definitionOut.setProperty(tuningDescID, description, nullptr);
+		
+		definitionOut.setProperty(tuningDescriptionId, description, nullptr);
 		definitionOut.setProperty(tuningSizeID, 1, nullptr);
 
 		definitionOut.addChild(
@@ -218,19 +227,35 @@ ValueTree TuningDefinition::createEqualTemperamentDefinition(
 /*
 	Creates a functional tuning definition for an equal temperament using a ratio as the period.
 */
-ValueTree TuningDefinition::createEqualTemperamentDefinition(int numberOfDivisions, float periodAsRatio, int midiRootNote, String description)
+ValueTree TuningDefinition::createEqualTemperamentDefinition(
+	int numberOfDivisions, 
+	float periodAsRatio, 
+	int midiRootNote, 
+	String nameIn,
+	String description)
 {
+	if (nameIn.length() == 0)
+		nameIn = String(numberOfDivisions) + "-ED" + String(periodAsRatio);
+
 	if (description.length() == 0)
 		description = String(numberOfDivisions) + " equal divisions of the ratio " + String(periodAsRatio);
 
-	return createEqualTemperamentDefinition(numberOfDivisions, ratioToCents(periodAsRatio), midiRootNote, description);
+	return createEqualTemperamentDefinition(numberOfDivisions, ratioToCents(periodAsRatio), midiRootNote, nameIn, description);
 }
 
 /*
 	Creates a functional tuning definition for an equal temperament using a written pitch as the period, which will be parsed by Scala standards.
 */
-ValueTree TuningDefinition::createEqualTemperamentDefinition(int numberOfDivisions, String periodValue, int midiRootNote, String description)
+ValueTree TuningDefinition::createEqualTemperamentDefinition(
+	int numberOfDivisions, 
+	String periodValue, 
+	int midiRootNote, 
+	String nameIn,
+	String description)
 {
+	if (nameIn.length() == 0)
+		nameIn = String(numberOfDivisions) + "-ED(" + periodValue + ")";
+
 	if (description.length() == 0)
 		description = String(numberOfDivisions) + " equal divisions of " + periodValue;
 
@@ -238,8 +263,9 @@ ValueTree TuningDefinition::createEqualTemperamentDefinition(int numberOfDivisio
 
 	// TODO: implement comma and NofEDO types
 
+	String name = String(numberOfDivisions) + "-EDO";
 	double periodCents = convertInterval(type, IntervalType::Cents, periodValue);
-	return createEqualTemperamentDefinition(numberOfDivisions, periodCents, midiRootNote, description);
+	return createEqualTemperamentDefinition(numberOfDivisions, periodCents, midiRootNote, nameIn, description);
 }
 
 /*
@@ -251,18 +277,26 @@ ValueTree TuningDefinition::createRegularTemperamentDefinition(
 	Array<int> generatorAmounts,
 	Array<int> generatorsDown,
 	int midiRootNote,
+	String nameIn,
 	String descriptionIn)
 {
 	ValueTree definitionOut(tuningDefId);
 	definitionOut.setProperty(functionalID, true, nullptr);
 	definitionOut.setProperty(rootMidiNoteID, midiRootNote, nullptr);
 
+	if (nameIn.length() == 0)
+	{
+		nameIn = "New Rank-" + String(generatorCents.size()) + " Regular Temperament";
+	}
+
+	definitionOut.setProperty(tuningNameId, nameIn, nullptr);
+
 	if (descriptionIn.length() == 0)
 	{
 		// TODO: default regular temperament definition
 	}
 
-	definitionOut.setProperty(tuningDescID, descriptionIn, nullptr);
+	definitionOut.setProperty(tuningDescriptionId, descriptionIn, nullptr);
 
 	// TODO: wrap all generator values into one node
 	definitionOut.addChild(
@@ -296,6 +330,7 @@ Tuning TuningDefinition::renderFunctionalTuning(
 	Array<int> generatorAmounts,
 	Array<int> generatorsDown,
 	int midiRootNote,
+	String nameIn,
 	String descriptionIn)
 {
 	Array<double> centsTable = generateRegularTemperament(
@@ -304,7 +339,10 @@ Tuning TuningDefinition::renderFunctionalTuning(
 		generatorsDown
 	);
 
-	return Tuning(centsTable, midiRootNote, descriptionIn);
+	if (nameIn.length() == 0)
+		nameIn = "New Regular Temperament";
+
+	return Tuning(centsTable, midiRootNote, nameIn, descriptionIn);
 }
 
 Tuning TuningDefinition::renderTuningDefinition(ValueTree tuningDefinitionIn)
@@ -331,7 +369,8 @@ Tuning TuningDefinition::renderTuningDefinition(ValueTree tuningDefinitionIn)
 				generatorAmounts,
 				generatorOffsets,
 				tuningDefinitionIn[rootMidiNoteID],
-				tuningDefinitionIn[tuningDescID]
+				tuningDefinitionIn[tuningNameId],
+				tuningDefinitionIn[tuningDescriptionId]
 			);
 		}
 
@@ -343,7 +382,8 @@ Tuning TuningDefinition::renderTuningDefinition(ValueTree tuningDefinitionIn)
 		return Tuning(
 			centsTable,
 			tuningDefinitionIn[rootMidiNoteID],
-			tuningDefinitionIn[tuningDescID]
+			tuningDefinitionIn[tuningNameId],
+			tuningDefinitionIn[tuningDescriptionId]
 		);
 	}
 

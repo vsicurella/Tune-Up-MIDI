@@ -78,7 +78,6 @@ TuneUpWindow::TuneUpWindow ()
 	//scaleNameLabel->setColour(Label::ColourIds::outlineColourId, Colours::red);
 	//scaleSizeLabel->setColour(Label::ColourIds::outlineColourId, Colours::red);
 	//scalePeriodLabel->setColour(Label::ColourIds::outlineColourId, Colours::red);
-
 }
 
 TuneUpWindow::~TuneUpWindow()
@@ -147,11 +146,6 @@ ValueTree TuneUpWindow::getTuning()
 	return stagedTuning;
 }
 
-Value* TuneUpWindow::getPitchbendRange()
-{
-	return &pitchbendRange;
-}
-
 void TuneUpWindow::setScaleNameLabel(String scaleNameIn)
 {
 	scaleNameLabel->setText(scaleTrans + ": " + scaleNameIn, dontSendNotification);
@@ -179,10 +173,8 @@ void TuneUpWindow::onFileLoad()
 	if (success)
 	{
 		ScalaFile file = scalaFileReader.getScalaFile();
-		scaleName = file.name;
-		scaleDescription = file.description;
 
-		stagedTuning = TuningDefinition::createStaticTuningDefinition(file.cents, 60, file.description);
+		stagedTuning = TuningDefinition::createStaticTuningDefinition(file.cents, 60, file.name, file.description);
 		DBG("Staged Tuning: \n" + stagedTuning.toXmlString());
 		
 		sendChangeMessage();
@@ -192,8 +184,8 @@ void TuneUpWindow::onFileLoad()
 
 void TuneUpWindow::loadTuning(Tuning* tuningIn)
 {
-	setScaleNameLabel(scaleName);
+	setScaleNameLabel(tuningIn->getName());
 	setScaleSizeLabel(tuningIn->getTuningSize());
 	setScalePeriodLabel(tuningIn->getPeriodCents());
-	setDescription(scaleDescription);
+	setDescription(tuningIn->getDescription());
 }

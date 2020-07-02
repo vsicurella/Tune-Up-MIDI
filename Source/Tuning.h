@@ -26,6 +26,7 @@ protected:
 	int tuningSize = 12;
     int rootMidiNote = 60; // note tuning is centered on
 
+	String name;
 	String description;
 
 public:
@@ -36,7 +37,7 @@ public:
 	/*
 		Expects a full interval table in cents, ending with period. May or may not include unison.
 	*/
-	Tuning(const Array<double>& intervalCentsIn, int rootMidiNoteIn = 60, String description = "");
+	Tuning(const Array<double>& intervalCentsIn, int rootMidiNoteIn = 60, String nameIn = "", String descriptionIn = "");
 
 	void setRootNote(int rootNoteIn);
 	void setDescription(String descIn);
@@ -53,6 +54,8 @@ public:
     virtual double getNoteInCents(int midiNoteIn) const;
     
     int getRootNote() const;
+
+	String getName() const;
 	String getDescription() const;
 
 	int closestNoteToSemitone(double semitoneIn) const;

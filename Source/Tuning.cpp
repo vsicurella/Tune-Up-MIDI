@@ -10,7 +10,7 @@
 
 #include "Tuning.h"
 
-Tuning::Tuning(const Array<double>& centsTable, int rootMidiNoteIn, String description)
+Tuning::Tuning(const Array<double>& centsTable, int rootMidiNoteIn, String nameIn, String descriptionIn)
 {
 	tuningSize = centsTable.size();
 	rootMidiNote = rootMidiNoteIn;
@@ -38,6 +38,9 @@ Tuning::Tuning(const Array<double>& centsTable, int rootMidiNoteIn, String descr
 	}
 
 	tuningSize = intervalCents.size();
+
+	name = nameIn;
+	description = descriptionIn;
 }
 
 void Tuning::setRootNote(int rootNoteIn)
@@ -108,6 +111,11 @@ double Tuning::getNoteInCents(int midiNoteIn) const
 	}
 	
 	return midiNoteIn - (double) rootMidiNote * 100;
+}
+
+String Tuning::getName() const
+{
+	return name;
 }
 
 String Tuning::getDescription() const
