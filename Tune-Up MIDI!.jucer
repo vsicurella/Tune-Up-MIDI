@@ -4,7 +4,7 @@
               pluginCharacteristicsValue="pluginIsMidiEffectPlugin,pluginProducesMidiOut,pluginWantsMidiIn"
               pluginChannelConfigs="{1, 1}, {2, 2},{16,16}" companyName="Everytone"
               pluginFormats="buildStandalone,buildVST3" companyCopyright="MIT License"
-              companyWebsite="everytone.zone">
+              companyWebsite="everytone.zone" displaySplashScreen="1">
   <MAINGROUP id="L9YdYm" name="Tune-Up MIDI!">
     <GROUP id="{6F056052-FDC6-DFD1-3175-1C32A5B87CD2}" name="Source">
       <FILE id="VKHJqi" name="TuningDefinition.cpp" compile="1" resource="0"

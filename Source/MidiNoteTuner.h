@@ -16,7 +16,7 @@
 
 class MidiNoteTuner
 {
-	int pitchbendRange = 12; // total range of pitchbend in semitones
+	int pitchbendRange = 2; // total range of pitchbend in semitones
 
 	// Origin Tuning Parameters
 	int originRootNote = 69;
