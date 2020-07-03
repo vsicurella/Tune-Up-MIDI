@@ -7,6 +7,11 @@
               companyWebsite="everytone.zone" displaySplashScreen="1">
   <MAINGROUP id="L9YdYm" name="Tune-Up MIDI!">
     <GROUP id="{6F056052-FDC6-DFD1-3175-1C32A5B87CD2}" name="Source">
+      <GROUP id="{A64A6C41-3A46-2909-27EC-14AB349A9B53}" name="UI">
+        <FILE id="EI3rXL" name="ButtonBar.h" compile="0" resource="0" file="Source/UI/ButtonBar.h"/>
+        <FILE id="liynHA" name="MainWindow.cpp" compile="1" resource="0" file="Source/UI/MainWindow.cpp"/>
+        <FILE id="rrZt9I" name="MainWindow.h" compile="0" resource="0" file="Source/UI/MainWindow.h"/>
+      </GROUP>
       <FILE id="VKHJqi" name="TuningDefinition.cpp" compile="1" resource="0"
             file="Source/TuningDefinition.cpp"/>
       <FILE id="w778Tg" name="TuningDefinition.h" compile="0" resource="0"
@@ -22,8 +27,6 @@
       <FILE id="nmKHoW" name="TuningMath.h" compile="1" resource="0" file="Source/TuningMath.h"/>
       <FILE id="t79mdi" name="ScalaFileReader.h" compile="1" resource="0"
             file="Source/ScalaFileReader.h"/>
-      <FILE id="X9joka" name="MainWindow.cpp" compile="1" resource="0" file="Source/MainWindow.cpp"/>
-      <FILE id="feHBrP" name="MainWindow.h" compile="0" resource="0" file="Source/MainWindow.h"/>
       <FILE id="lYrjKv" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
       <FILE id="x96bfr" name="PluginProcessor.h" compile="0" resource="0"

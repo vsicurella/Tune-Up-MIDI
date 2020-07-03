@@ -15,41 +15,27 @@
 TuneUpWindow::TuneUpWindow ()
 {
 
-	newScaleButton.reset(new TextButton("newScaleButton"));
+	newScaleButton.reset(new TextButton("New"));
 	addAndMakeVisible(newScaleButton.get());
 	newScaleButton->setButtonText(TRANS("New"));
 	newScaleButton->addListener(this);
 
-	loadScaleButton.reset(new TextButton("loadScaleButton"));
+	loadScaleButton.reset(new TextButton("Load"));
 	addAndMakeVisible(loadScaleButton.get());
 	loadScaleButton->setButtonText(TRANS("Load"));
 	loadScaleButton->addListener(this);
 
-	viewButton.reset(new TextButton("viewButton"));
+	viewButton.reset(new TextButton("View"));
 	addAndMakeVisible(viewButton.get());
 	viewButton->setButtonText(TRANS("View"));
 	viewButton->addListener(this);
 
-	optionsButton.reset(new TextButton("optionsButton"));
+	optionsButton.reset(new TextButton("Options"));
 	addAndMakeVisible(optionsButton.get());
 	optionsButton->setButtonText(TRANS("Options"));
 	optionsButton->addListener(this);
 
-	loadScaleButton.reset(new TextButton("loadScaleButton"));
-	addAndMakeVisible(loadScaleButton.get());
-	loadScaleButton->setButtonText(TRANS("Load"));
-	loadScaleButton->addListener(this);
-
-	scaleNameLabel.reset(new Label(scaleTrans));
-	addAndMakeVisible(scaleNameLabel.get());
-	
-	scaleSizeLabel.reset(new Label(sizeTrans));
-	addAndMakeVisible(scaleSizeLabel.get());
-
-	scalePeriodLabel.reset(new Label(periodTrans));
-	addAndMakeVisible(scalePeriodLabel.get());
-
-	dynamicToggleButton.reset(new TextButton("dynamicToggleButton"));
+	dynamicToggleButton.reset(new TextButton("Dynamic"));
 	addAndMakeVisible(dynamicToggleButton.get());
 	dynamicToggleButton->setButtonText(TRANS("Dynamic"));
 	dynamicToggleButton->setConnectedEdges(Button::ConnectedEdgeFlags::ConnectedOnRight);
@@ -60,6 +46,15 @@ TuneUpWindow::TuneUpWindow ()
 	dynamicOptionsButton->setButtonText("O");
 	dynamicOptionsButton->setConnectedEdges(Button::ConnectedEdgeFlags::ConnectedOnLeft);
 	dynamicOptionsButton->addListener(this);
+
+	scaleNameLabel.reset(new Label(scaleTrans));
+	addAndMakeVisible(scaleNameLabel.get());
+
+	scaleSizeLabel.reset(new Label(sizeTrans));
+	addAndMakeVisible(scaleSizeLabel.get());
+
+	scalePeriodLabel.reset(new Label(periodTrans));
+	addAndMakeVisible(scalePeriodLabel.get());
 	
     descriptionTextBox.reset (new TextEditor ("descriptionTextBox"));
     addAndMakeVisible (descriptionTextBox.get());
@@ -70,6 +65,14 @@ TuneUpWindow::TuneUpWindow ()
     descriptionTextBox->setCaretVisible (true);
     descriptionTextBox->setPopupMenuEnabled (true);  
     descriptionTextBox->setText (String());
+
+	btnBar.setGapSize(stdGap);
+	btnBar.addComponent(newScaleButton.get());
+	btnBar.addComponent(loadScaleButton.get());
+	btnBar.addComponent(viewButton.get());
+	btnBar.addComponent(optionsButton.get(), 5);
+	btnBar.addComponent(dynamicToggleButton.get(), 5);
+	btnBar.addComponent(dynamicOptionsButton.get(), 2);
 
 	// TEMP
 	dynamicToggleButton->setEnabled(false);
@@ -107,13 +110,14 @@ void TuneUpWindow::paint (Graphics& g)
 void TuneUpWindow::resized()
 {
 	btnBarWidth = getWidth() - stdGap * 4 - stdBorder * 2;
+	btnBar.setBounds(8, proportionOfHeight(1 / 12.0f), btnBarWidth, proportionOfHeight(1 / 6.0f));
 
-	newScaleButton->setBounds(stdBorder, proportionOfHeight(1 / 12.0f), btnBarWidth * btnUnit[0] / btnUnitDenom, proportionOfHeight(1 / 6.0f));
-	loadScaleButton->setBounds(newScaleButton->getRight() + stdGap, proportionOfHeight(1 / 12.0f), btnBarWidth * btnUnit[1] / btnUnitDenom, proportionOfHeight(1 / 6.0f));
-	viewButton->setBounds(loadScaleButton->getRight() + stdGap, proportionOfHeight(1 / 12.0f), btnBarWidth * btnUnit[2] / btnUnitDenom, proportionOfHeight(1 / 6.0f));
-	optionsButton->setBounds(viewButton->getRight() + stdGap, proportionOfHeight(1 / 12.0f), btnBarWidth * btnUnit[3] / btnUnitDenom, proportionOfHeight(1 / 6.0f));
-	dynamicToggleButton->setBounds(optionsButton->getRight() + stdGap, proportionOfHeight(1 / 12.0f), btnBarWidth * btnUnit[4] / btnUnitDenom, proportionOfHeight(1 / 6.0f));
-	dynamicOptionsButton->setBounds(dynamicToggleButton->getRight(), proportionOfHeight(1 / 12.0f), btnBarWidth * btnUnit[5] / btnUnitDenom, proportionOfHeight(1 / 6.0f));
+	newScaleButton->setBounds(btnBar.getComponentBounds(newScaleButton.get()).toNearestInt());
+	loadScaleButton->setBounds(btnBar.getComponentBounds(loadScaleButton.get()).toNearestInt());
+	viewButton->setBounds(btnBar.getComponentBounds(viewButton.get()).toNearestInt());
+	optionsButton->setBounds(btnBar.getComponentBounds(optionsButton.get()).toNearestInt());
+	dynamicToggleButton->setBounds(btnBar.getComponentBounds(dynamicToggleButton.get()).toNearestInt());
+	dynamicOptionsButton->setBounds(btnBar.getComponentBounds(dynamicOptionsButton.get(), false).toNearestInt());
 
 	labelSectHeight = proportionOfHeight(0.5f) - stdGap;
 

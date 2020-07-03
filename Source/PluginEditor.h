@@ -12,7 +12,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "PluginProcessor.h"
-#include "MainWindow.h"
+#include "UI/MainWindow.h"
 
 //==============================================================================
 /**

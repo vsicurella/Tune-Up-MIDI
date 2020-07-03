@@ -13,6 +13,7 @@
 #include <JuceHeader.h>
 #include "ScalaFileReader.h"
 #include "TuningDefinition.h"
+#include "UI/ButtonBar.h"
 
 
 class TuneUpWindow  : public Component,
@@ -53,13 +54,11 @@ private:
 	ValueTree stagedTuning;
 
 	// Helpers
-
+	ButtonBar btnBar;
 	int btnBarWidth;
 	int labelSectHeight;
 	int stdGap = 8;
 	int stdBorder = 8;
-	Array<int> btnUnit = { 3, 4, 4, 5, 5, 2 };
-	int btnUnitDenom = sumArray(btnUnit);
 
 	const String scaleTrans = TRANS("Scale");
 	const String sizeTrans = TRANS("Size");
