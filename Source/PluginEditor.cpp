@@ -20,24 +20,29 @@ TuneupMidiAudioProcessorEditor::TuneupMidiAudioProcessorEditor (
     : AudioProcessorEditor (&p), processor (p), midiProcessor(mp), pluginState(ps)
 {
     
-	gui.reset(new TuneUpWindow());
-	addAndMakeVisible(gui.get());
+	mainWindow.reset(new TuneUpWindow());
+	addAndMakeVisible(mainWindow.get());
+	mainWindow->addListener(this);
+
+	createScaleWindow.reset(new CreateScaleWindow());
+	addChildComponent(createScaleWindow.get());
+	createScaleWindow->addListener(this);
 
     setSize (500, 200);
-
-	gui->addChangeListener(this);
 
 	//midiProcessor.addChangeListener(this);
 
 	if (pluginState.getTuning())
 	{
 		midiProcessor.setTuning(pluginState.getTuning());
-		gui->loadTuning(pluginState.getTuning());
+		mainWindow->loadTuning(pluginState.getTuning());
 	}
 }
 
 TuneupMidiAudioProcessorEditor::~TuneupMidiAudioProcessorEditor()
 {
+	mainWindow = nullptr;
+	createScaleWindow = nullptr;
 }
 
 //==============================================================================
@@ -48,23 +53,57 @@ void TuneupMidiAudioProcessorEditor::paint (Graphics& g)
 
 void TuneupMidiAudioProcessorEditor::resized()
 {
-	gui->setBounds(getBounds());
+	mainWindow->setBounds(getBounds());
+	createScaleWindow->setBounds(getBounds());
 }
 
-void TuneupMidiAudioProcessorEditor::changeListenerCallback(ChangeBroadcaster* source)
+void TuneupMidiAudioProcessorEditor::scaleLoaded(ValueTree tuningDefinition)
 {
-	// Tuning defined
-	if (source == gui.get())
-	{
-		pluginState.setNewTuning(gui->getTuning());
-		gui->loadTuning(pluginState.getTuning());
-	}
+	pluginState.setNewTuning(tuningDefinition);
+	mainWindow->loadTuning(pluginState.getTuning());
 }
 
-void TuneupMidiAudioProcessorEditor::valueChanged(Value& value)
+void TuneupMidiAudioProcessorEditor::newButtonClicked()
 {
-	if (value.refersToSameSourceAs(*pitchbendRange))
-	{
-		midiProcessor.setPitchbendRange(pitchbendRange->getValue());
-	}
+	// backup current scale definition
+	lastTuningDefinition = pluginState.getTuningDefinition();
+
+	mainWindow->setVisible(false);
+	createScaleWindow->setVisible(true);
 }
+
+void TuneupMidiAudioProcessorEditor::optionsButtonClicked()
+{
+
+}
+
+void TuneupMidiAudioProcessorEditor::dynamicOptionsClicked()
+{
+
+}
+
+
+// CreateNewScale Listener
+void TuneupMidiAudioProcessorEditor::scaleUpdated(ValueTree tuningDefinition)
+{
+	pluginState.setNewTuning(tuningDefinition);
+}
+
+void TuneupMidiAudioProcessorEditor::saveButtonClicked()
+{
+	// Confirm tuning
+	mainWindow->loadTuning(pluginState.getTuning());
+
+	createScaleWindow->setVisible(false);
+	mainWindow->setVisible(true);
+}
+
+void TuneupMidiAudioProcessorEditor::backButtonClicked()
+{
+	// Reset tuning
+	pluginState.setNewTuning(lastTuningDefinition);
+
+	createScaleWindow->setVisible(false);
+	mainWindow->setVisible(true);
+}
+

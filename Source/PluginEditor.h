@@ -13,11 +13,14 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "PluginProcessor.h"
 #include "UI/MainWindow.h"
+#include "UI/CreateScaleWindow.h"
 
 //==============================================================================
 /**
 */
-class TuneupMidiAudioProcessorEditor  : public AudioProcessorEditor, public ChangeListener, public Value::Listener
+class TuneupMidiAudioProcessorEditor  :	public AudioProcessorEditor, 
+										private TuneUpWindow::Listener,
+										private CreateScaleWindow::Listener
 {
 public:
     TuneupMidiAudioProcessorEditor (TuneupMidiAudioProcessor&, TuneUpMidiProcessor&, TuneUpMidiState&);
@@ -27,11 +30,18 @@ public:
     void paint (Graphics&) override;
     void resized() override;
 
-	void changeListenerCallback(ChangeBroadcaster* source) override;
-
-	void valueChanged(Value& value) override;
-
 	//==============================================================================
+
+	// TuneUpWindow Listener
+	void scaleLoaded(ValueTree tuningDefinition) override;
+	void newButtonClicked() override;
+	void optionsButtonClicked() override;
+	void dynamicOptionsClicked() override;
+
+	// CreateNewScale Listener
+	void scaleUpdated(ValueTree tuningDefinition) override;
+	void saveButtonClicked() override;
+	void backButtonClicked() override;
 
 private:
     // This reference is provided as a quick way for your editor to
@@ -40,9 +50,10 @@ private:
 	TuneUpMidiProcessor& midiProcessor;
 	TuneUpMidiState& pluginState;
 
-	std::unique_ptr<TuneUpWindow> gui;
+	std::unique_ptr<TuneUpWindow> mainWindow;
+	std::unique_ptr<CreateScaleWindow> createScaleWindow;
 
-	Value* pitchbendRange = nullptr;
+	ValueTree lastTuningDefinition;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TuneupMidiAudioProcessorEditor)
 };

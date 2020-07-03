@@ -121,10 +121,11 @@ void TuneUpWindow::resized()
 
 	labelSectHeight = proportionOfHeight(0.5f) - stdGap;
 
+	descriptionTextBox->setBounds(proportionOfWidth(0.5f), proportionOfHeight(1 / 3.0f), proportionOfWidth(0.5f) - 8, labelSectHeight);
+
 	scaleNameLabel->setBounds(stdBorder, proportionOfHeight(1 / 3.0f), proportionOfWidth(0.5f) - 8, labelSectHeight / 3.0f);
 	scaleSizeLabel->setBounds(stdBorder, proportionOfHeight(1 / 3.0f) + labelSectHeight / 3.0f, proportionOfWidth(0.5f) - 8, labelSectHeight / 3.0f);
 	scalePeriodLabel->setBounds(stdBorder, proportionOfHeight(1 / 3.0f) + labelSectHeight * 2 / 3.0f, proportionOfWidth(0.5f) - 8, labelSectHeight / 3.0f);
-	descriptionTextBox->setBounds(proportionOfWidth(0.5f), proportionOfHeight(1 / 3.0f), proportionOfWidth(0.5f) - 8, labelSectHeight);
 }
 
 void TuneUpWindow::buttonClicked (Button* buttonThatWasClicked)
@@ -137,13 +138,12 @@ void TuneUpWindow::buttonClicked (Button* buttonThatWasClicked)
 
 		onFileLoad();
     }
+
+	else if (buttonThatWasClicked == newScaleButton.get())
+	{
+		listeners.call(&TuneUpWindow::Listener::newButtonClicked);
+	}
 }
-
-void TuneUpWindow::sliderValueChanged (Slider* sliderThatWasMoved)
-{
-
-}
-
 
 ValueTree TuneUpWindow::getTuning()
 {
@@ -177,11 +177,16 @@ void TuneUpWindow::onFileLoad()
 	if (success)
 	{
 		ScalaFile file = scalaFileReader.getScalaFile();
-
-		stagedTuning = TuningDefinition::createStaticTuningDefinition(file.cents, 60, file.name, file.description);
-		DBG("Staged Tuning: \n" + stagedTuning.toXmlString());
+		ValueTree definition = TuningDefinition::createStaticTuningDefinition(file.cents, 60, file.name, file.description);
 		
-		sendChangeMessage();
+		DBG("Staged Tuning: \n" + definition.toXmlString());
+		listeners.call(&TuneUpWindow::Listener::scaleLoaded, definition);
+	}
+	else
+	{
+		//DialogWindow::LaunchOptions errorDialog;
+		//errorDialog.content = OptionalScopedPointer<Component>(Label("msg", "Error loading scale file"));
+		//errorDialog.launchAsync();
 	}
 
 }

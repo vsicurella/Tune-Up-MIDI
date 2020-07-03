@@ -11,15 +11,13 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "ScalaFileReader.h"
-#include "TuningDefinition.h"
-#include "UI/ButtonBar.h"
+#include "../ScalaFileReader.h"
+#include "../TuningDefinition.h"
+#include "ButtonBar.h"
 
 
 class TuneUpWindow  : public Component,
-                      public ChangeBroadcaster,
-                      public Button::Listener,
-                      public Slider::Listener
+                      public Button::Listener
 {
 public:
     //==============================================================================
@@ -44,7 +42,36 @@ public:
     void paint (Graphics& g) override;
     void resized() override;
     void buttonClicked (Button* buttonThatWasClicked) override;
-    void sliderValueChanged (Slider* sliderThatWasMoved) override;
+
+	//==============================================================================
+
+	class Listener
+	{
+	public:
+
+		virtual void scaleLoaded(ValueTree tuningDefinition) = 0;
+		virtual void newButtonClicked() = 0;
+		virtual void optionsButtonClicked() = 0;
+		virtual void dynamicOptionsClicked() = 0;
+	};
+
+	void addListener(Listener* listenerIn)
+	{
+		listeners.add(listenerIn);
+	}
+
+	void removeListener(Listener* listenerIn)
+	{
+		listeners.remove(listenerIn);
+	}
+
+
+protected:
+
+	ListenerList<Listener> listeners;
+
+	//==============================================================================
+
 
 private:
 	File loadedFile;
