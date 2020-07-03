@@ -75,7 +75,12 @@ Array<double> Tuning::getIntervalSemitones() const
 
 int Tuning::getTuningSize() const
 {
-    return tuningSize;
+	if (tuningSize > 0)
+		return tuningSize;
+
+	// For ET's
+	else
+		return 1;
 }
 
 int Tuning::getRootNote() const
