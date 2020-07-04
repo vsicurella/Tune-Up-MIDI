@@ -16,7 +16,7 @@
 #include "UnitGrid.h"
 
 class CreateScaleWindow :	public Component,
-							public ChangeBroadcaster,
+							public ChangeListener,
 							private Button::Listener,
 							private Label::Listener,
 							private Slider::Listener,
@@ -44,6 +44,8 @@ public:
 	void labelTextChanged(Label* labelThatChanged) override;
 	void sliderValueChanged(Slider* sliderThatChanged) override;
 	void comboBoxChanged(ComboBox* comboBoxThatChanged) override;
+
+	void changeListenerCallback(ChangeBroadcaster* source) override;
 
 	//==========================================================================
 

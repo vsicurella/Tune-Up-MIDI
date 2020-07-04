@@ -89,6 +89,16 @@ public:
 	static int determineTuningDefinitionSize(ValueTree tuningDefinitionIn);
 
 	/*
+		Extracts generator properties and adds values to arrays input
+	*/
+	static void extractGeneratorProperties(
+		ValueTree tuningDefinitionIn,
+		Array<double>& generatorValuesOut,
+		Array<int>& generatorAmountsOut,
+		Array<int>& generatorOffsetsOut
+	);
+
+	/*
 		Creates a static tuning definition containing a tuning table, where the last value is interpreted as the period.
 		Unison will be handled whether or not provided.
 	*/

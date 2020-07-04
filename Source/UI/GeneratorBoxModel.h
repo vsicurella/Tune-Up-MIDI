@@ -14,6 +14,7 @@
 
 class GeneratorTable :	public Component, 
 						public TableListBoxModel,
+						public ChangeBroadcaster,
 						private Label::Listener,
 						private TextButton::Listener
 {
@@ -30,7 +31,7 @@ public:
 
 public:
 
-	GeneratorTable(ValueTree generatorListNodeIn);
+	GeneratorTable(ValueTree tuningDefinitionIn);
 	~GeneratorTable();
 
 	void resized() override;
@@ -47,7 +48,7 @@ public:
 
 	Component* refreshComponentForCell(int rowNumber, int columnId, bool isRowSelected, Component* existingComponentToUpdate) override;
 
-	//int getColumnAutoSizeWidth(int columnId) override;
+	int getColumnAutoSizeWidth(int columnId) override;
 
 	String getCellTooltip(int rowNumber, int columnId) override;
 
@@ -69,21 +70,26 @@ public:
 
 	//=============================================================================
 
-	void addNewGenerator();
+	void addNewGenerator(int rowNumber = -1);
 
 	void removeGenerator(int rowNumber);
 
 	//=============================================================================
 
-	void setGeneratorList(ValueTree generatorListNodeIn);
+	void updateDefinition(ValueTree tuningDefinitionIn);
 
 	void updateContent();
 
 	void setTableColour(int colourId, Colour colour);
 
+	ValueTree getDefinition() const;
+
 private:
 
-	ValueTree generatorListNode;
+	int numGenerators = 1;
+	Array<double> generatorValues;
+	Array<int> generatorAmounts;
+	Array<int> generatorOffsets;
 
 	Font font = Font(11, Font::plain);
 	TableListBox table = { {}, this };

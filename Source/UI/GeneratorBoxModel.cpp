@@ -10,12 +10,17 @@
 
 #include "GeneratorBoxModel.h"
 
-GeneratorTable::GeneratorTable(ValueTree generatorListNodeIn)
+GeneratorTable::GeneratorTable(ValueTree tuningDefinitionIn)
 {
-	generatorListNode = generatorListNodeIn;
+	TuningDefinition::extractGeneratorProperties(
+		tuningDefinitionIn,
+		generatorValues,
+		generatorAmounts,
+		generatorOffsets
+	);
+	numGenerators = generatorValues.size();
 
 	header = &table.getHeader();
-
 	header->addColumn("#", GeneratorNumber, font.getStringWidth("10"), font.getStringWidth("0"));
 	header->addColumn("Gen", GeneratorValue, font.getStringWidth("1200.0"), font.getStringWidth("120"));
 	header->addColumn("Amt", GeneratorAmt, font.getStringWidth("128"), font.getStringWidth("10"));
@@ -31,7 +36,7 @@ GeneratorTable::GeneratorTable(ValueTree generatorListNodeIn)
 
 GeneratorTable::~GeneratorTable()
 {
-
+	removeAllChangeListeners();
 }
 
 void GeneratorTable::resized()
@@ -43,7 +48,7 @@ void GeneratorTable::resized()
 int GeneratorTable::getNumRows()
 {
 	// Force having at least one generator with an extra row
-	return jmax(1, generatorListNode.getNumChildren()) + 1;
+	return jmax(1, numGenerators) + 1;
 }
 
 void GeneratorTable::paintRowBackground(Graphics& g, int rowNumber, int w, int h, bool rowIsSelected)
@@ -54,11 +59,11 @@ void GeneratorTable::paintRowBackground(Graphics& g, int rowNumber, int w, int h
 
 void GeneratorTable::paintCell(Graphics& g, int rowNumber, int columnId, int w, int h, bool isSelected)
 {
-	if (columnId == 1)
+	if (columnId == 1 && rowNumber < numGenerators)
 	{
 		g.setColour(table.findColour(TableListBox::ColourIds::textColourId));
 		g.setFont(font);
-		g.drawText(String(rowNumber), Rectangle<float>(0, 0, w, h), Justification::centred);
+		g.drawText(String(rowNumber + 1), Rectangle<float>(0, 0, w, h), Justification::centred);
 	}
 }
 
@@ -69,26 +74,28 @@ Component* GeneratorTable::refreshComponentForCell(int rowNumber, int columnId, 
 
 	else if (columnId < GeneratorToggle)
 	{
-		if (rowNumber < getNumRows() - 1)
+		if (rowNumber < numGenerators)
 		{
-			Identifier id;
+			var value;
 
 			switch (columnId)
 			{
 			case GeneratorValue:
-				id = TuningDefinition::generatorValueId;
+				// Round for display
+				value = roundf((double)generatorValues[rowNumber] * 1000) / 1000.0f;
 				break;
 
 			case GeneratorAmt:
-				id = TuningDefinition::generatorAmountId;
+				value = generatorAmounts[rowNumber];
 				break;
 
 			case GeneratorOffset:
-				id = TuningDefinition::generatorOffsetId;
+				value = generatorOffsets[rowNumber];
 				break;
 			}
 
-			ValueTree generatorNode = generatorListNode.getChild(rowNumber);
+			if (value.isVoid())
+				value = 0;
 
 			auto* generatorLabel = static_cast<TableLabel*> (existingComponentToUpdate);
 			if (generatorLabel == nullptr)
@@ -100,19 +107,14 @@ Component* GeneratorTable::refreshComponentForCell(int rowNumber, int columnId, 
 
 			generatorLabel->setRowNumber(rowNumber);
 			generatorLabel->setColumnId(columnId);
-
-			var value = generatorNode.getProperty(id);
-
-			if (value.isVoid())
-				value = 0;
-
-			// Round generator to three decimal places for display
-			if (columnId == 2)
-				value = roundf((double)value * 1000) / 1000.0;
-
 			generatorLabel->setText(value.toString(), dontSendNotification);
 
 			return generatorLabel;
+		}
+		else
+		{
+			// don't understand why I have to do this
+			delete existingComponentToUpdate;
 		}
 	}
 
@@ -130,13 +132,10 @@ Component* GeneratorTable::refreshComponentForCell(int rowNumber, int columnId, 
 		button->setRowNumber(rowNumber);
 		button->setColumnId(columnId);
 
-		ValueTree generatorNode = generatorListNode.getChild(rowNumber);
-
-		if (generatorNode.isValid())
+		if (rowNumber < numGenerators)
 			button->setButtonText("-");
 		else
 			button->setButtonText("+");
-		
 
 		return button;
 	}
@@ -144,11 +143,60 @@ Component* GeneratorTable::refreshComponentForCell(int rowNumber, int columnId, 
 	return nullptr;
 }
 
+int GeneratorTable::getColumnAutoSizeWidth(int columnId)
+{
+	switch (columnId)
+	{
+	case GeneratorNumber:
+	{
+		return font.getStringWidth("10");
+	}
 
-//int GeneratorBoxModel::getColumnAutoSizeWidth(int columnId)
-//{
-//
-//}
+	case GeneratorValue:
+	{
+		String genStr, maxGen = "";
+		for (auto gen : generatorValues)
+		{
+			genStr = String(gen);
+			if (genStr.length() > maxGen.length())
+				maxGen = genStr;
+		}
+
+		return font.getStringWidth(maxGen);
+	}
+
+	case GeneratorAmt:
+	{
+		String genStr, maxGen = "";
+		for (auto gen : generatorAmounts)
+		{
+			genStr = String(gen);
+			if (genStr.length() > maxGen.length())
+				maxGen = genStr;
+		}
+
+		return font.getStringWidth(maxGen);
+	}
+
+	case GeneratorOffset:
+	{
+		String genStr, maxGen = "";
+		for (auto gen : generatorOffsets)
+		{
+			genStr = String(gen);
+			if (genStr.length() > maxGen.length())
+				maxGen = genStr;
+		}
+
+		return font.getStringWidth(maxGen);
+	}
+
+	case GeneratorToggle:
+	{
+		return font.getStringWidth("XX");
+	}
+	}
+}
 
 String GeneratorTable::getCellTooltip(int rowNumber, int columnId)
 {
@@ -176,15 +224,13 @@ String GeneratorTable::getCellTooltip(int rowNumber, int columnId)
 
 void GeneratorTable::deleteKeyPressed(int lastRowSelected)
 {
-	if (lastRowSelected != 0 && lastRowSelected < generatorListNode.getNumChildren())
-	{
+	if (lastRowSelected > 1 && lastRowSelected < numGenerators)
 		removeGenerator(lastRowSelected);
-	}
 }
 
 void GeneratorTable::returnKeyPressed(int lastRowSelected)
 {
-	addNewGenerator();
+	addNewGenerator(lastRowSelected);
 }
 
 
@@ -194,12 +240,12 @@ void GeneratorTable::editorShown(Label* source, TextEditor& editor)
 
 	TableLabel* tl = static_cast<TableLabel*>(source);
 
-	ValueTree node = generatorListNode.getChild(tl->getRowNumber());
 	int col = tl->getColumnId();
 
 	if (col == GeneratorValue)
 	{
-		editor.setText(node[TuningDefinition::generatorValueId].toString(), false);
+		editor.setText(String(generatorValues[tl->getRowNumber()]), false);
+		editor.selectAll();
 	}
 }
 
@@ -207,7 +253,6 @@ void GeneratorTable::labelTextChanged(Label* source)
 {
 	TableLabel* tl = static_cast<TableLabel*>(source);
 	
-	ValueTree node = generatorListNode.getChild(tl->getRowNumber());
 	int col = tl->getColumnId();
 
 	switch (col)
@@ -215,33 +260,28 @@ void GeneratorTable::labelTextChanged(Label* source)
 	case GeneratorValue:
 	{
 		double genValue = source->getText().getDoubleValue();
-		node.setProperty(TuningDefinition::generatorValueId, genValue, nullptr);
+		generatorValues.set(tl->getRowNumber(), genValue);
 		source->setText(String(round(genValue * 1000) / 1000.0), dontSendNotification); // round for display
-
 		break;
 	}
 	case GeneratorAmt:
-		node.setProperty(TuningDefinition::generatorAmountId, source->getText().getIntValue(), nullptr);
+		generatorAmounts.set(tl->getRowNumber(), source->getText().getIntValue());
 		break;
 
 	case GeneratorOffset:
-		node.setProperty(TuningDefinition::generatorOffsetId, source->getText().getIntValue(), nullptr);
+		generatorOffsets.set(tl->getRowNumber(), source->getText().getIntValue());
 		break;
-
 	}
 
-	DBG("LABEL CHANGED, LIST IS:\n" + generatorListNode.toXmlString());
-
 	table.updateContent();
+	sendChangeMessage();
 }
 
 void GeneratorTable::buttonClicked(Button* button)
 {
 	TableButton* tb = static_cast<TableButton*>(button);
 
-	DBG("TABLEBUTTON " + String(tb->getRowNumber()) + " CLICKED");
-
-	if (tb->getRowNumber() == generatorListNode.getNumChildren())
+	if (tb->getRowNumber() == numGenerators)
 	{
 		addNewGenerator();
 	}
@@ -251,26 +291,43 @@ void GeneratorTable::buttonClicked(Button* button)
 	}
 }
 
-void GeneratorTable::addNewGenerator()
+void GeneratorTable::addNewGenerator(int rowNumber)
 {	
-	ValueTree newNode = ValueTree(TuningDefinition::generatorNodeId);
-	newNode.setProperty(TuningDefinition::generatorValueId, 0, nullptr);
-	newNode.setProperty(TuningDefinition::generatorAmountId, 0, nullptr);
-	newNode.setProperty(TuningDefinition::generatorOffsetId, 0, nullptr);
+	numGenerators++;
 
-	generatorListNode.addChild(newNode, generatorListNode.getNumChildren(), nullptr);
+	if (rowNumber == -1)
+		rowNumber = numGenerators;
+
+	generatorValues.insert(rowNumber, 0);
+	generatorAmounts.insert(rowNumber, 0);
+	generatorOffsets.insert(rowNumber, 0);
+	
 	table.updateContent();
 }
 
 void GeneratorTable::removeGenerator(int rowNumber)
 {
-	generatorListNode.removeChild(rowNumber, nullptr);
+	numGenerators--;
+
+	generatorValues.remove(rowNumber);
+	generatorAmounts.remove(rowNumber);
+	generatorOffsets.remove(rowNumber);
+
 	table.updateContent();
+	sendChangeMessage();
 }
 
-void GeneratorTable::setGeneratorList(ValueTree generatorListNodeIn)
+void GeneratorTable::updateDefinition(ValueTree tuningDefinitionIn)
 {
-	generatorListNode = generatorListNodeIn;
+	TuningDefinition::extractGeneratorProperties(
+		tuningDefinitionIn,
+		generatorValues,
+		generatorAmounts,
+		generatorOffsets
+	);
+
+	numGenerators = generatorValues.size();
+	table.updateContent();
 }
 
 void GeneratorTable::updateContent()
@@ -281,4 +338,13 @@ void GeneratorTable::updateContent()
 void GeneratorTable::setTableColour(int colourId, Colour colour)
 {
 	table.setColour(colourId, colour);
+}
+
+ValueTree GeneratorTable::getDefinition() const
+{
+	return TuningDefinition::createRegularTemperamentDefinition(
+		generatorValues,
+		generatorAmounts,
+		generatorOffsets
+	);
 }

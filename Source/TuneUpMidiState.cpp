@@ -48,8 +48,11 @@ const MidiKeyboardState& TuneUpMidiState::getMidiKeyboardState()
 
 void TuneUpMidiState::setNewTuning(ValueTree tuningDefinitionIn)
 {
+	DBG("PLUGINSTATE RECEIVED TUNING:\n" + tuningDefinitionIn.toXmlString());
+
 	if (tuningDefinitionIn.isValid())
 	{
+		DBG("NEW TUNING SET");
 		tuningDefinition.setDefinition(tuningDefinitionIn, false);
 		renderTuning();
 	}

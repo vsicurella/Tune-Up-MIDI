@@ -68,6 +68,7 @@ CreateScaleWindow::CreateScaleWindow(ValueTree tuningDefinitionIn)
 
 	generatorTable.reset(new GeneratorTable(tuningDefinition));
 	addChildComponent(generatorTable.get());
+	generatorTable->addChangeListener(this);
 
 	// TODO: generators
 
@@ -145,6 +146,7 @@ void CreateScaleWindow::buttonClicked(Button* buttonClicked)
 
 	else if (buttonClicked == saveButton.get())
 	{
+		updateTuning();
 		listeners.call(&CreateScaleWindow::Listener::saveButtonClicked);
 	}
 
@@ -181,6 +183,14 @@ void CreateScaleWindow::comboBoxChanged(ComboBox* comboBoxThatChanged)
 	setMode(ScaleMode(modeBox->getSelectedId()));
 }
 
+void CreateScaleWindow::changeListenerCallback(ChangeBroadcaster* source)
+{
+	if (source == generatorTable.get())
+	{
+		updateTuning();
+	}
+}
+
 void CreateScaleWindow::setMode(ScaleMode modeIn)
 {
 	mode = modeIn;
@@ -208,18 +218,22 @@ void CreateScaleWindow::updateTuning()
 			scaleNameBox->getText(),
 			descriptionBox->getText()
 		);
+
+		generatorTable->updateDefinition(tuningDefinition);
 	}
 
 	else if (mode == RegularTemperament)
 	{
-		tuningDefinition.setProperty(TuningDefinition::tuningNameId, scaleNameBox->getText(), nullptr);
-		tuningDefinition.setProperty(TuningDefinition::tuningDescriptionId, descriptionBox->getText(), nullptr);
-	}
+		tuningDefinition = generatorTable->getDefinition();
 
-	DBG("Current Scale:\n" + tuningDefinition.toXmlString());
-	
-	generatorTable->setGeneratorList(tuningDefinition.getChildWithName(TuningDefinition::generatorListId));
-	generatorTable->updateContent();
+		String name = scaleNameBox->getText();
+		if (name.length() > 0)
+			tuningDefinition.setProperty(TuningDefinition::tuningNameId, name, nullptr);
+
+		String desc = descriptionBox->getText();
+		if (desc.length() > 0)
+			tuningDefinition.setProperty(TuningDefinition::tuningDescriptionId, desc, nullptr);
+	}
 	
 	listeners.call(&CreateScaleWindow::Listener::scaleUpdated, tuningDefinition);
 }

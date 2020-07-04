@@ -68,8 +68,11 @@ void TuneupMidiAudioProcessorEditor::scaleLoaded(ValueTree tuningDefinition)
 	mainWindow->loadTuning(pluginState.getTuning());
 }
 
+// TuneUpWindow Listener
 void TuneupMidiAudioProcessorEditor::newButtonClicked()
 {
+	midiProcessor.resetNotes();
+
 	// backup current scale definition
 	lastTuningDefinition = pluginState.getTuningDefinition().createCopy();
 
@@ -87,18 +90,14 @@ void TuneupMidiAudioProcessorEditor::dynamicOptionsClicked()
 
 }
 
-
 // CreateNewScale Listener
 void TuneupMidiAudioProcessorEditor::scaleUpdated(ValueTree tuningDefinition)
 {
-	pluginState.setNewTuning(tuningDefinition);
+	scaleLoaded(tuningDefinition);
 }
 
 void TuneupMidiAudioProcessorEditor::saveButtonClicked()
 {
-	// Confirm tuning
-	mainWindow->loadTuning(pluginState.getTuning());
-
 	createScaleWindow->setVisible(false);
 	mainWindow->setVisible(true);
 }
@@ -106,7 +105,7 @@ void TuneupMidiAudioProcessorEditor::saveButtonClicked()
 void TuneupMidiAudioProcessorEditor::backButtonClicked()
 {
 	// Reset tuning
-	pluginState.setNewTuning(lastTuningDefinition);
+	scaleLoaded(lastTuningDefinition);
 
 	createScaleWindow->setVisible(false);
 	mainWindow->setVisible(true);
