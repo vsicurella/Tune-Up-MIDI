@@ -13,6 +13,7 @@
 
 //==============================================================================
 TuneUpWindow::TuneUpWindow ()
+	: unitGrid(2, 13)
 {
 
 	newScaleButton.reset(new TextButton("New"));
@@ -100,17 +101,15 @@ TuneUpWindow::~TuneUpWindow()
 //==============================================================================
 void TuneUpWindow::paint (Graphics& g)
 {
-    g.fillAll (Colour (0xff323e44));
 
-	// bottom bar background
-	g.setColour(Colour(0xff323e44).darker(0.75f));
-	g.fillRect(0, proportionOfHeight(5 / 6.0f), getWidth(), proportionOfHeight(1 / 6.0f));
 }
 
 void TuneUpWindow::resized()
 {
-	btnBarWidth = getWidth() - stdGap * 4 - stdBorder * 2;
-	btnBar.setBounds(8, proportionOfHeight(1 / 12.0f), btnBarWidth, proportionOfHeight(1 / 6.0f));
+	unitGrid.setSize(getWidth(), getHeight());
+
+	btnBarWidth = getWidth() - stdGap * 4;
+	btnBar.setBounds(0, 0, btnBarWidth, unitGrid.getY(2));
 
 	newScaleButton->setBounds(btnBar.getComponentBounds(newScaleButton.get()).toNearestInt());
 	loadScaleButton->setBounds(btnBar.getComponentBounds(loadScaleButton.get()).toNearestInt());
@@ -119,13 +118,13 @@ void TuneUpWindow::resized()
 	dynamicToggleButton->setBounds(btnBar.getComponentBounds(dynamicToggleButton.get()).toNearestInt());
 	dynamicOptionsButton->setBounds(btnBar.getComponentBounds(dynamicOptionsButton.get(), false).toNearestInt());
 
-	labelSectHeight = proportionOfHeight(0.5f) - stdGap;
+	//labelSectHeight = proportionOfHeight(0.5f) - stdGap;
 
-	descriptionTextBox->setBounds(proportionOfWidth(0.5f), proportionOfHeight(1 / 3.0f), proportionOfWidth(0.5f) - 8, labelSectHeight);
+	descriptionTextBox->setBounds(unitGrid.getX(1), unitGrid.getY(3), unitGrid.getX(1), unitGrid.getY(8));
 
-	scaleNameLabel->setBounds(stdBorder, proportionOfHeight(1 / 3.0f), proportionOfWidth(0.5f) - 8, labelSectHeight / 3.0f);
-	scaleSizeLabel->setBounds(stdBorder, proportionOfHeight(1 / 3.0f) + labelSectHeight / 3.0f, proportionOfWidth(0.5f) - 8, labelSectHeight / 3.0f);
-	scalePeriodLabel->setBounds(stdBorder, proportionOfHeight(1 / 3.0f) + labelSectHeight * 2 / 3.0f, proportionOfWidth(0.5f) - 8, labelSectHeight / 3.0f);
+	scaleNameLabel->setBounds(0, unitGrid.getY(3), unitGrid.getX(1) - stdGap, unitGrid.getY(2) - stdGap);
+	scaleSizeLabel->setBounds(0, unitGrid.getY(6), unitGrid.getX(1) - stdGap, unitGrid.getY(2) - stdGap);
+	scalePeriodLabel->setBounds(0, unitGrid.getY(9), unitGrid.getX(1) - stdGap, unitGrid.getY(2) - stdGap);
 }
 
 void TuneUpWindow::buttonClicked (Button* buttonThatWasClicked)

@@ -17,7 +17,8 @@ TuneupMidiAudioProcessorEditor::TuneupMidiAudioProcessorEditor (
 	TuneUpMidiProcessor& mp, 
 	TuneUpMidiState& ps
 )
-    : AudioProcessorEditor (&p), processor (p), midiProcessor(mp), pluginState(ps)
+    : AudioProcessorEditor (&p), processor (p), midiProcessor(mp), pluginState(ps),
+	unitGrid(2, 13)
 {
     
 	mainWindow.reset(new TuneUpWindow());
@@ -48,13 +49,17 @@ TuneupMidiAudioProcessorEditor::~TuneupMidiAudioProcessorEditor()
 //==============================================================================
 void TuneupMidiAudioProcessorEditor::paint (Graphics& g)
 {
-	
+	// bottom bar background
+	g.setColour(Colour(0xff323e44).darker(0.75f));
+	g.fillRect(0, unitGrid.getY(11), getWidth(), unitGrid.getY(2));
 }
 
 void TuneupMidiAudioProcessorEditor::resized()
 {
-	mainWindow->setBounds(getBounds());
-	createScaleWindow->setBounds(getBounds());
+	unitGrid.setSize(getWidth(), getHeight());
+
+	mainWindow->setBoundsInset(BorderSize<int>(8));
+	createScaleWindow->setBoundsInset(BorderSize<int>(8));
 }
 
 void TuneupMidiAudioProcessorEditor::scaleLoaded(ValueTree tuningDefinition)

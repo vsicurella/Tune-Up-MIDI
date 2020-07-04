@@ -14,6 +14,7 @@
 #include "PluginProcessor.h"
 #include "UI/MainWindow.h"
 #include "UI/CreateScaleWindow.h"
+#include "UI/UnitGrid.h"
 
 //==============================================================================
 /**
@@ -54,6 +55,8 @@ private:
 	std::unique_ptr<CreateScaleWindow> createScaleWindow;
 
 	ValueTree lastTuningDefinition;
+
+	UnitGrid unitGrid;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TuneupMidiAudioProcessorEditor)
 };

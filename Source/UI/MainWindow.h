@@ -14,6 +14,7 @@
 #include "../ScalaFileReader.h"
 #include "../TuningDefinition.h"
 #include "ButtonBar.h"
+#include "UnitGrid.h"
 
 
 class TuneUpWindow  : public Component,
@@ -81,11 +82,11 @@ private:
 	ValueTree stagedTuning;
 
 	// Helpers
+	UnitGrid unitGrid;
 	ButtonBar btnBar;
 	int btnBarWidth;
-	int labelSectHeight;
+	//int labelSectHeight;
 	int stdGap = 8;
-	int stdBorder = 8;
 
 	const String scaleTrans = TRANS("Scale");
 	const String sizeTrans = TRANS("Size");
