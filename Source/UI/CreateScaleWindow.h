@@ -12,6 +12,7 @@
 #include <JuceHeader.h>
 #include "../TuningDefinition.h"
 #include "ButtonBar.h"
+#include "GeneratorBoxModel.h"
 
 class CreateScaleWindow :	public Component,
 							public ChangeBroadcaster,
@@ -30,7 +31,7 @@ public:
 
 public:
 
-	CreateScaleWindow(/* TODO some recall */);
+	CreateScaleWindow(ValueTree tuningDefinitionIn /* TODO some recall */);
 	~CreateScaleWindow();
 
 	void paint(Graphics& g) override;
@@ -102,8 +103,7 @@ private:
 	std::unique_ptr<Label> etPeriodBox;
 
 	// Regular Temperament Controls
-	std::unique_ptr<Label> generatorsLabel;
-	std::unique_ptr<TableListBox> generatorTableBox;
+	std::unique_ptr<GeneratorTable> generatorTable;
 
 	ValueTree tuningDefinition;
 

@@ -24,7 +24,7 @@ TuneupMidiAudioProcessorEditor::TuneupMidiAudioProcessorEditor (
 	addAndMakeVisible(mainWindow.get());
 	mainWindow->addListener(this);
 
-	createScaleWindow.reset(new CreateScaleWindow());
+	createScaleWindow.reset(new CreateScaleWindow(pluginState.getTuningDefinition()));
 	addChildComponent(createScaleWindow.get());
 	createScaleWindow->addListener(this);
 
@@ -66,7 +66,7 @@ void TuneupMidiAudioProcessorEditor::scaleLoaded(ValueTree tuningDefinition)
 void TuneupMidiAudioProcessorEditor::newButtonClicked()
 {
 	// backup current scale definition
-	lastTuningDefinition = pluginState.getTuningDefinition();
+	lastTuningDefinition = pluginState.getTuningDefinition().createCopy();
 
 	mainWindow->setVisible(false);
 	createScaleWindow->setVisible(true);

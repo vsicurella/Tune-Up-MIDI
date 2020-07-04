@@ -10,7 +10,7 @@
 
 #include "CreateScaleWindow.h"
 
-CreateScaleWindow::CreateScaleWindow()
+CreateScaleWindow::CreateScaleWindow(ValueTree tuningDefinitionIn)
 {
 	backButton.reset(new TextButton(backTrans));
 	addAndMakeVisible(backButton.get());
@@ -65,9 +65,8 @@ CreateScaleWindow::CreateScaleWindow()
 	etPeriodBox->setEditable(true);
 	etPeriodBox->addListener(this);
 
-
-	generatorsLabel.reset(new Label("generatorsLabel", generatorTrans + ':'));
-	addChildComponent(generatorsLabel.get());
+	generatorTable.reset(new GeneratorTable(tuningDefinition));
+	addChildComponent(generatorTable.get());
 
 	// TODO: generators
 
@@ -77,6 +76,7 @@ CreateScaleWindow::CreateScaleWindow()
 	btnBar.addComponent(modeBox.get(), 11);
 
 	modeBox->setSelectedId(1);
+	tuningDefinition = tuningDefinitionIn;
 }
 
 CreateScaleWindow::~CreateScaleWindow()
@@ -92,8 +92,7 @@ CreateScaleWindow::~CreateScaleWindow()
 	etNotesSlider = nullptr;
 	etPeriodLabel = nullptr;
 	etPeriodBox = nullptr;
-	generatorsLabel = nullptr;
-	generatorTableBox = nullptr;
+	generatorTable = nullptr;
 }
 
 
@@ -129,7 +128,7 @@ void CreateScaleWindow::resized()
 	etPeriodLabel->setBounds(borderGap, proportionOfHeight(1 / 3.0f) + labelSectHeight * 2 / 3, Font().getStringWidth(periodTrans) + 2 * stdGap, labelSectHeight / 3.0f);
 	etPeriodBox->setBounds(etPeriodLabel->getRight(), etPeriodLabel->getY(), descriptionBox->getX() - etPeriodLabel->getRight() - stdGap, labelSectHeight / 3.0f);
 
-	generatorsLabel->setBounds(borderGap, proportionOfHeight(1 / 3.0f) + labelSectHeight / 3, Font().getStringWidth(generatorTrans) + 2 * stdGap, labelSectHeight / 3.0f);
+	generatorTable->setBounds(borderGap, proportionOfHeight(1 / 3.0f) + labelSectHeight / 3, proportionOfWidth(0.5f) - borderGap - stdGap, proportionOfHeight(1 / 3.0f));
 }
 
 void CreateScaleWindow::visibilityChanged()
@@ -191,8 +190,7 @@ void CreateScaleWindow::setMode(ScaleMode modeIn)
 
 void CreateScaleWindow::updateModeComponents()
 {
-	generatorsLabel->setVisible(mode == RegularTemperament);
-	//generatorTableBox->setVisible(mode == RegularTemperament);
+	generatorTable->setVisible(mode == RegularTemperament);
 
 	etNotesLabel->setVisible(mode == EqualTemperament);
 	etNotesSlider->setVisible(mode == EqualTemperament);
@@ -215,9 +213,15 @@ void CreateScaleWindow::updateTuning()
 
 	else if (mode == RegularTemperament)
 	{
-
+		tuningDefinition.setProperty(TuningDefinition::tuningNameId, scaleNameBox->getText(), nullptr);
+		tuningDefinition.setProperty(TuningDefinition::tuningDescriptionId, descriptionBox->getText(), nullptr);
 	}
 
+	DBG("Current Scale:\n" + tuningDefinition.toXmlString());
+	
+	generatorTable->setDefinition(tuningDefinition);
+	generatorTable->updateContent();
+	
 	listeners.call(&CreateScaleWindow::Listener::scaleUpdated, tuningDefinition);
 }
 

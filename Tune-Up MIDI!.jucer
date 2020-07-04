@@ -13,6 +13,10 @@
               file="Source/UI/CreateScaleWindow.cpp"/>
         <FILE id="ckTCEB" name="CreateScaleWindow.h" compile="0" resource="0"
               file="Source/UI/CreateScaleWindow.h"/>
+        <FILE id="wEWQzU" name="GeneratorBoxModel.cpp" compile="1" resource="0"
+              file="Source/UI/GeneratorBoxModel.cpp"/>
+        <FILE id="y5hWGD" name="GeneratorBoxModel.h" compile="0" resource="0"
+              file="Source/UI/GeneratorBoxModel.h"/>
         <FILE id="liynHA" name="MainWindow.cpp" compile="1" resource="0" file="Source/UI/MainWindow.cpp"/>
         <FILE id="rrZt9I" name="MainWindow.h" compile="0" resource="0" file="Source/UI/MainWindow.h"/>
       </GROUP>
