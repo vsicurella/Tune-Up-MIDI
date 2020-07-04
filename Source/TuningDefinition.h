@@ -23,11 +23,11 @@ public:
 	static Identifier functionalID;
 	static Identifier tuningSizeID;
 	static Identifier rootMidiNoteID;
-	static Identifier generatorListID; // TODO wrap all generator values types into one node
-	static Identifier generatorOffsetsID;
-	static Identifier generatorAmountsID;
+	static Identifier generatorListId; // TODO wrap all generator values types into one node
+	static Identifier generatorOffsetId;
+	static Identifier generatorAmountId;
 	static Identifier generatorNodeId;
-	static Identifier generatorPropertyId;
+	static Identifier generatorValueId;
 	static Identifier centsTableID;
 	static Identifier intervalNodeID;
 	static Identifier intervalValueID;

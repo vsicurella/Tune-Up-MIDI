@@ -14,11 +14,11 @@ Identifier TuningDefinition::tuningDefId = Identifier("TuningDefinition");
 Identifier TuningDefinition::functionalID = Identifier("TuningIsFunctional");
 Identifier TuningDefinition::tuningSizeID = Identifier("TuningSize");
 Identifier TuningDefinition::rootMidiNoteID = Identifier("RootNote");
-Identifier TuningDefinition::generatorListID = Identifier("GeneratorList");
-Identifier TuningDefinition::generatorOffsetsID = Identifier("GeneratorOffset");
-Identifier TuningDefinition::generatorAmountsID = Identifier("GeneratorAmounts");
+Identifier TuningDefinition::generatorListId = Identifier("GeneratorList");
 Identifier TuningDefinition::generatorNodeId = Identifier("GeneratorNode");
-Identifier TuningDefinition::generatorPropertyId = Identifier("GeneratorValue");
+Identifier TuningDefinition::generatorOffsetId = Identifier("GeneratorOffset");
+Identifier TuningDefinition::generatorAmountId = Identifier("GeneratorAmount");
+Identifier TuningDefinition::generatorValueId = Identifier("GeneratorValue");
 Identifier TuningDefinition::centsTableID = Identifier("CentsTable");
 Identifier TuningDefinition::intervalNodeID = Identifier("IntervalDesc");
 Identifier TuningDefinition::intervalValueID = Identifier("IntervalValue");
@@ -116,12 +116,11 @@ int TuningDefinition::determineTuningDefinitionSize(ValueTree tuningDefinitionIn
 			// functional tuning
 			else
 			{
-				ValueTree generatorNode = tuningDefinitionIn.getChildWithName(generatorListID);
-				ValueTree sizesNode = tuningDefinitionIn.getChildWithName(generatorAmountsID);
+				ValueTree generatorList = tuningDefinitionIn.getChildWithName(generatorListId);
 
-				if (generatorNode.isValid() && sizesNode.isValid())
+				if (generatorList.isValid())
 				{
-					double period = generatorNode.getChild(0)[generatorPropertyId];
+					double period = generatorList.getChild(0)[generatorValueId];
 
 					if (period != 0.0)
 					{
@@ -130,9 +129,10 @@ int TuningDefinition::determineTuningDefinitionSize(ValueTree tuningDefinitionIn
 						double gen, factor;
 
 						// skip first generator (period) because it will always be 1
-						for (int i = 1; i < generatorNode.getNumChildren(); i++)
+						for (int i = 1; i < generatorList.getNumChildren(); i++)
 						{
-							gen = generatorNode.getChild(i)[generatorPropertyId];
+							ValueTree node = generatorList.getChild(i);
+							gen = node[generatorValueId];
 
 							// check the generator is a factor of the period
 							factor = period / gen;
@@ -146,7 +146,7 @@ int TuningDefinition::determineTuningDefinitionSize(ValueTree tuningDefinitionIn
 							}
 							else
 							{
-								determinedSize += (int) sizesNode.getChild(i)[generatorPropertyId];
+								determinedSize += (int) node[generatorAmountId];
 							}
 						}
 					}
@@ -215,10 +215,15 @@ ValueTree TuningDefinition::createEqualTemperamentDefinition(
 		definitionOut.setProperty(tuningDescriptionId, description, nullptr);
 		definitionOut.setProperty(tuningSizeID, 1, nullptr);
 
-		definitionOut.addChild(
-			arrayToTree(Array<double>(periodInCents / numberOfDivisions), generatorListID, generatorNodeId, generatorPropertyId),
-			-1, nullptr
-		);
+		ValueTree generatorList(generatorListId);
+		ValueTree node(generatorNodeId);
+
+		node.setProperty(generatorValueId, periodInCents / numberOfDivisions, nullptr);
+		node.setProperty(generatorAmountId, 1, nullptr);
+		node.setProperty(generatorOffsetId, 0, nullptr);
+
+		generatorList.addChild(node, 0, nullptr);
+		definitionOut.addChild(generatorList, 0, nullptr);
 	}
 
 	return definitionOut;
@@ -298,21 +303,19 @@ ValueTree TuningDefinition::createRegularTemperamentDefinition(
 
 	definitionOut.setProperty(tuningDescriptionId, descriptionIn, nullptr);
 
-	// TODO: wrap all generator values into one node
-	definitionOut.addChild(
-		arrayToTree(generatorCents, generatorListID, generatorNodeId, generatorPropertyId),
-		-1, nullptr
-	);
-	
-	definitionOut.addChild(
-		arrayToTree(generatorAmounts, generatorAmountsID, generatorNodeId, generatorPropertyId),
-		-1, nullptr
-	);
+	ValueTree generatorList(generatorListId);
+	for (int i = 0; i < generatorCents.size(); i++)
+	{
+		ValueTree node(generatorListId);
 
-	definitionOut.addChild(
-		arrayToTree(generatorsDown, generatorOffsetsID, generatorNodeId, generatorPropertyId),
-		-1, nullptr
-	);
+		node.setProperty(generatorValueId, generatorCents[i], nullptr);
+		node.setProperty(generatorAmountId, generatorAmounts[i], nullptr);
+		node.setProperty(generatorOffsetId, generatorsDown[i], nullptr);
+
+		generatorList.addChild(node, i, nullptr);
+	}
+
+	definitionOut.addChild(generatorList, 0, nullptr);
 
 	// TODO: do this without packing into ValueTree?
 	definitionOut.setProperty(tuningSizeID, determineTuningDefinitionSize(definitionOut), nullptr);
@@ -355,10 +358,14 @@ Tuning TuningDefinition::renderTuningDefinition(ValueTree tuningDefinitionIn)
 			Array<double> generators;
 			Array<int> generatorAmounts, generatorOffsets;
 
-			// TODO wrap all generator values types into one node
-			treeToArray(generators, tuningDefinitionIn.getChildWithName(generatorListID), generatorNodeId, generatorPropertyId);
-			treeToArray(generatorAmounts, tuningDefinitionIn.getChildWithName(generatorAmountsID), generatorNodeId, generatorPropertyId);
-			treeToArray(generatorOffsets, tuningDefinitionIn.getChildWithName(generatorOffsetsID), generatorNodeId, generatorPropertyId);
+			ValueTree generatorList = tuningDefinitionIn.getChildWithName(generatorListId);
+			for (int i = 0; i < generatorList.getNumChildren(); i++)
+			{
+				ValueTree gen = generatorList.getChild(i);
+				generators.set(i, gen[generatorValueId]);
+				generatorAmounts.set(i, gen[generatorAmountId]);
+				generatorOffsets.set(i, gen[generatorOffsetId]);
+			}
 
 			// Normalize period
 			generatorAmounts.set(0, 1);
