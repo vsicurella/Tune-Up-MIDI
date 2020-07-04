@@ -219,7 +219,7 @@ void CreateScaleWindow::updateTuning()
 
 	DBG("Current Scale:\n" + tuningDefinition.toXmlString());
 	
-	generatorTable->setDefinition(tuningDefinition);
+	generatorTable->setGeneratorList(tuningDefinition.getChildWithName(TuningDefinition::generatorListId));
 	generatorTable->updateContent();
 	
 	listeners.call(&CreateScaleWindow::Listener::scaleUpdated, tuningDefinition);
