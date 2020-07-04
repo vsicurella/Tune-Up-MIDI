@@ -122,9 +122,9 @@ void TuneUpWindow::resized()
 
 	descriptionTextBox->setBounds(unitGrid.getX(1), unitGrid.getY(3), unitGrid.getX(1), unitGrid.getY(8));
 
-	scaleNameLabel->setBounds(0, unitGrid.getY(3), unitGrid.getX(1) - stdGap, unitGrid.getY(2) - stdGap);
-	scaleSizeLabel->setBounds(0, unitGrid.getY(6), unitGrid.getX(1) - stdGap, unitGrid.getY(2) - stdGap);
-	scalePeriodLabel->setBounds(0, unitGrid.getY(9), unitGrid.getX(1) - stdGap, unitGrid.getY(2) - stdGap);
+	scaleNameLabel->setBounds(0, unitGrid.getY(3), unitGrid.getX(1) - stdGap, unitGrid.getY(2));
+	scaleSizeLabel->setBounds(0, unitGrid.getY(6), unitGrid.getX(1) - stdGap, unitGrid.getY(2));
+	scalePeriodLabel->setBounds(0, unitGrid.getY(9), unitGrid.getX(1) - stdGap, unitGrid.getY(2));
 }
 
 void TuneUpWindow::buttonClicked (Button* buttonThatWasClicked)

@@ -13,6 +13,7 @@
 #include "../TuningDefinition.h"
 #include "ButtonBar.h"
 #include "GeneratorBoxModel.h"
+#include "UnitGrid.h"
 
 class CreateScaleWindow :	public Component,
 							public ChangeBroadcaster,
@@ -110,9 +111,9 @@ private:
 	// Helpers
 	int btnBarWidth;
 	ButtonBar btnBar;
-	int borderGap = 8;
 	int stdGap = 8;
-	float labelSectHeight;
+	//float labelSectHeight;
+	UnitGrid unitGrid;
 
 	String backTrans = TRANS("Back");
 	String saveTrans = TRANS("Save");

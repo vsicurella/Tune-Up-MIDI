@@ -11,6 +11,7 @@
 #include "CreateScaleWindow.h"
 
 CreateScaleWindow::CreateScaleWindow(ValueTree tuningDefinitionIn)
+	: unitGrid(2, 13)
 {
 	backButton.reset(new TextButton(backTrans));
 	addAndMakeVisible(backButton.get());
@@ -98,37 +99,35 @@ CreateScaleWindow::~CreateScaleWindow()
 
 void CreateScaleWindow::paint(Graphics& g)
 {
-	g.fillAll(Colour(0xff323e44));
 
-	// bottom bar background
-	g.setColour(Colour(0xff323e44).darker(0.75f));
-	g.fillRect(0, proportionOfHeight(5 / 6.0f), getWidth(), proportionOfHeight(1 / 6.0f));
 }
 
 void CreateScaleWindow::resized() 
 {
-	btnBarWidth = getWidth() - 2 * borderGap - 3 * stdGap;
-	btnBar.setBounds(borderGap, proportionOfHeight(1 / 12.0f), btnBarWidth, proportionOfHeight(1 / 6.0f));
+	unitGrid.setSize(getWidth(), getHeight());
+
+	btnBarWidth = getWidth() - 3 * stdGap;
+	btnBar.setBounds(0, 0, btnBarWidth, unitGrid.getY(2));
 
 	backButton->setBounds(btnBar.getComponentBounds(backButton.get()).toNearestInt());
 	saveButton->setBounds(btnBar.getComponentBounds(saveButton.get()).toNearestInt());
 	viewButton->setBounds(btnBar.getComponentBounds(viewButton.get()).toNearestInt());
 	modeBox->setBounds(btnBar.getComponentBounds(modeBox.get()).toNearestInt());
 
-	labelSectHeight = proportionOfHeight(0.5f) - stdGap;
+	//labelSectHeight = proportionOfHeight(0.5f) - stdGap;
 
-	descriptionBox->setBounds(proportionOfWidth(0.5f), proportionOfHeight(1 / 3.0f), proportionOfWidth(0.5f) - 8, labelSectHeight);
+	descriptionBox->setBounds(unitGrid.getX(1), unitGrid.getY(3), unitGrid.getX(1), unitGrid.getY(8));
 
-	scaleNameLabel->setBounds(borderGap, proportionOfHeight(1 / 3.0f), Font().getStringWidth(nameTrans) + 2 * stdGap, labelSectHeight / 3.0f);
-	scaleNameBox->setBounds(scaleNameLabel->getRight(), scaleNameLabel->getY(), descriptionBox->getX() - scaleNameLabel->getRight() - stdGap, labelSectHeight / 3.0f);
+	scaleNameLabel->setBounds(0, unitGrid.getY(3), Font().getStringWidth(nameTrans) + 2 * stdGap, unitGrid.getY(2));
+	scaleNameBox->setBounds(scaleNameLabel->getRight(), scaleNameLabel->getY(), descriptionBox->getX() - scaleNameLabel->getRight() - stdGap, scaleNameLabel->getHeight());
 	
-	etNotesLabel->setBounds(borderGap, proportionOfHeight(1 / 3.0f) + labelSectHeight / 3, Font().getStringWidth(sizeTrans) + 2 * stdGap, labelSectHeight / 3.0f);
-	etNotesSlider->setBounds(etNotesLabel->getRight(), etNotesLabel->getY(), descriptionBox->getX() - etNotesLabel->getRight() - stdGap, labelSectHeight / 3.0f);
+	etNotesLabel->setBounds(0, unitGrid.getY(6), Font().getStringWidth(sizeTrans) + 2 * stdGap, unitGrid.getY(2));
+	etNotesSlider->setBounds(etNotesLabel->getRight(), etNotesLabel->getY(), descriptionBox->getX() - etNotesLabel->getRight() - stdGap, etNotesLabel->getHeight());
 	
-	etPeriodLabel->setBounds(borderGap, proportionOfHeight(1 / 3.0f) + labelSectHeight * 2 / 3, Font().getStringWidth(periodTrans) + 2 * stdGap, labelSectHeight / 3.0f);
-	etPeriodBox->setBounds(etPeriodLabel->getRight(), etPeriodLabel->getY(), descriptionBox->getX() - etPeriodLabel->getRight() - stdGap, labelSectHeight / 3.0f);
+	etPeriodLabel->setBounds(0, unitGrid.getY(9), Font().getStringWidth(periodTrans) + 2 * stdGap, unitGrid.getY(2));
+	etPeriodBox->setBounds(etPeriodLabel->getRight(), etPeriodLabel->getY(), descriptionBox->getX() - etPeriodLabel->getRight() - stdGap, etPeriodLabel->getHeight());
 
-	generatorTable->setBounds(borderGap, proportionOfHeight(1 / 3.0f) + labelSectHeight / 3, proportionOfWidth(0.5f) - borderGap - stdGap, proportionOfHeight(1 / 3.0f));
+	generatorTable->setBounds(0, unitGrid.getY(5), unitGrid.getX(1) - stdGap, unitGrid.getY(6));
 }
 
 void CreateScaleWindow::visibilityChanged()
