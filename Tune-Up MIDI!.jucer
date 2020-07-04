@@ -19,6 +19,7 @@
               file="Source/UI/GeneratorBoxModel.h"/>
         <FILE id="liynHA" name="MainWindow.cpp" compile="1" resource="0" file="Source/UI/MainWindow.cpp"/>
         <FILE id="rrZt9I" name="MainWindow.h" compile="0" resource="0" file="Source/UI/MainWindow.h"/>
+        <FILE id="YFwP6O" name="UnitGrid.h" compile="0" resource="0" file="Source/UI/UnitGrid.h"/>
       </GROUP>
       <FILE id="VKHJqi" name="TuningDefinition.cpp" compile="1" resource="0"
             file="Source/TuningDefinition.cpp"/>
