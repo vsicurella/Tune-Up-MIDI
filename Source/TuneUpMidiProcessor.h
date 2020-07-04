@@ -58,11 +58,12 @@ public:
 
 	const Array<int>& getTuningNotesOn() const;
 
-	void setTuning(const Tuning* tuningIn);
+	void setTuning(const Tuning* tuningIn, bool isDynamic = false);
 	void setPitchbendRange(int pitchbendRangeIn);
 
 	void processMidi(MidiBuffer& bufferIn);
 
+	void allNotesOff();
 	void resetNotes();
 
 	String* getMidiInLog();

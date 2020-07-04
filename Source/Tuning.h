@@ -29,6 +29,8 @@ protected:
 	String name;
 	String description;
 
+	bool cached = false;
+
 public:
     
     // Will function like standard tuning

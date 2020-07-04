@@ -76,7 +76,7 @@ public:
     /*
         Returns a note struct with the note number that needs the least amount of pitchbend to sound like the destination note
     */
-    MPENote closestNote(int midiNoteIn);
+    void closestNote(int midiNoteIn, int& closestNoteOut, int& pitchbendOut);
 
 	/*
 		Returns the difference between input note and destination note in semitones

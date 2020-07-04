@@ -86,16 +86,19 @@ void MidiNoteTuner::setDestinationRootFrequency(double freqIn)
     destinationRootFreq = freqIn;
 }
 
-MPENote MidiNoteTuner::closestNote(int midiNoteIn)
+void MidiNoteTuner::closestNote(int midiNoteIn, int& closestNoteOut, int& pitchbendOut)
 {
-	MPENote note;
-	double newSemitones = newTuning->getNoteInSemitones(midiNoteIn);
-	note.initialNote = originTuning->closestNoteToSemitone(newSemitones);
-	note.pitchbend = MPEValue::from14BitInt(
-		semitonesToPitchbend(newSemitones - originTuning->getNoteInSemitones(note.initialNote))
-	);
+	closestNoteOut = -1;
 
-	return note;
+	double newSemitones = newTuning->getNoteInSemitones(midiNoteIn);
+	int newMidiNote = originTuning->closestNoteToSemitone(newSemitones);
+	double difference = newSemitones - originTuning->getNoteInSemitones(newMidiNote);
+
+	if (abs(difference) <= pitchbendRange)
+	{
+		closestNoteOut = newMidiNote;
+		pitchbendOut = semitonesToPitchbend(difference);
+	}
 }
 
 int MidiNoteTuner::pitchbendFromNote(int midiNoteIn) const

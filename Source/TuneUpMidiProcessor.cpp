@@ -37,11 +37,15 @@ const Array<int>& TuneUpMidiProcessor::getTuningNotesOn() const
 	return notesInOn;
 }
 
-void TuneUpMidiProcessor::setTuning(const Tuning* tuningIn)
+void TuneUpMidiProcessor::setTuning(const Tuning* tuningIn, bool isDynamic)
 {
 	tuning = tuningIn;
 	retuner->setNewTuning(*tuning);
-	tuningChanged();
+	
+	if (isDynamic)
+		tuningChanged();
+	else
+		resetNotes();
 }
 
 void TuneUpMidiProcessor::setPitchbendRange(int pitchbendRangeIn)
@@ -76,25 +80,33 @@ void TuneUpMidiProcessor::processMidi(MidiBuffer& bufferIn)
 			noteIn = msg.getNoteNumber();
 
 			int noteChannel = 0;
-			MPENote noteTuned = retuner->closestNote(noteIn);
+			int noteTuned;
+			int pbValue = 8192;
+			retuner->closestNote(noteIn, noteTuned, pbValue);
 
 			desc += "Retuner: New note semitone difference: " + String(retuner->semitonesFromNote(noteIn)) + '\n';
-			desc += "Retuner: Note shifted from " + String(noteIn) + " to " + String(noteTuned.initialNote) + '\n';
+			desc += "Retuner: Note shifted from " + String(noteIn) + " to " + String(noteTuned) + '\n';
 
-			msg.setNoteNumber(noteTuned.initialNote);
+			if (noteTuned == -1)
+			{
+				// TODO: some alert that pitchbend range is not high enough
+				continue;
+			}
+
+			msg.setNoteNumber(noteTuned);
 
 			// set channel
 			if (msg.isNoteOn())
 			{
 				if (channelAssigner.hasFreeChannels())
 				{
-					noteChannel = channelAssigner.noteOn(noteIn, noteTuned.pitchbend.as14BitInt()) + 1;
+					noteChannel = channelAssigner.noteOn(noteIn, pbValue) + 1;
 					jassert(noteChannel > 0 && noteChannel <= 16);
 
 					msg.setChannel(noteChannel);
-					notesTunedOn.add(noteTuned.initialNote);
+					notesTunedOn.add(noteTuned);
 
-					pitchMsg = MidiMessage::pitchWheel(noteChannel, noteTuned.pitchbend.as14BitInt());
+					pitchMsg = MidiMessage::pitchWheel(noteChannel, pbValue);
 					desc += "Retuner: Pitchbend value = " + String(pitchMsg.getPitchWheelValue()) + '\n';
 
 					bufferOut.addEvent(pitchMsg, smplOffset++);
@@ -104,13 +116,13 @@ void TuneUpMidiProcessor::processMidi(MidiBuffer& bufferIn)
 			else
 			{
 				noteChannel = channelAssigner.getChannelOfNote(noteIn) + 1;
-				//jassert(bendChannel >= 0 && bendChannel < 16);
+				jassert(noteChannel > 0 && noteChannel <= 16);
 
 				if (noteChannel > 0 && noteChannel <= 16)
 				{
 					msg.setChannel(noteChannel);
 					channelAssigner.noteOff(noteIn);
-					notesTunedOn.removeFirstMatchingValue(noteTuned.initialNote);
+					notesTunedOn.removeFirstMatchingValue(noteTuned);
 					
 					bufferOut.addEvent(msg, smplOffset++);
 					desc += pitchMsg.getDescription() + '\n';
@@ -136,7 +148,12 @@ void TuneUpMidiProcessor::resetNotes()
 {
 	notesInOn.clear();
 	notesTunedOn.clear();
+
+	for (auto ch : channelAssigner.getChannelsOn())
+		inputBuffer.addEvent(MidiMessage::allNotesOff(ch), smplInput++);
+
 	channelAssigner.allNotesOff();
+
 }
 
 void TuneUpMidiProcessor::handleIncomingMidiMessage(MidiInput* source, const MidiMessage& msg)
