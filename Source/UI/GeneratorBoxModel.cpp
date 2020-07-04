@@ -16,10 +16,11 @@ GeneratorTable::GeneratorTable(ValueTree generatorListNodeIn)
 
 	header = &table.getHeader();
 
-	header->addColumn(generatorTrans, 1, Font().getStringWidth("1200.000") + 8, Font().getStringWidth("1200"));
-	header->addColumn(amountTrans, 2, Font().getStringWidth("128") + 8, Font().getStringWidth("10"));
-	header->addColumn(offsetTrans, 3, Font().getStringWidth(offsetTrans), Font().getStringWidth("10"));
-	header->addColumn("+/-", 4, Font().getStringWidth("+/-"));
+	header->addColumn("#", GeneratorNumber, font.getStringWidth("10"), font.getStringWidth("0"));
+	header->addColumn("Gen", GeneratorValue, font.getStringWidth("1200.0"), font.getStringWidth("120"));
+	header->addColumn("Amt", GeneratorAmt, font.getStringWidth("128"), font.getStringWidth("10"));
+	header->addColumn(offsetTrans, GeneratorOffset, font.getStringWidth(offsetTrans), font.getStringWidth("10"));
+	header->addColumn("+/-", GeneratorToggle, font.getStringWidth("+/-"));
 	header->setStretchToFitActive(true);
 
 	table.setColour(ListBox::outlineColourId, Colours::darkgrey);
@@ -53,12 +54,20 @@ void GeneratorTable::paintRowBackground(Graphics& g, int rowNumber, int w, int h
 
 void GeneratorTable::paintCell(Graphics& g, int rowNumber, int columnId, int w, int h, bool isSelected)
 {
-
+	if (columnId == 1)
+	{
+		g.setColour(table.findColour(TableListBox::ColourIds::textColourId));
+		g.setFont(font);
+		g.drawText(String(rowNumber), Rectangle<float>(0, 0, w, h), Justification::centred);
+	}
 }
 
 Component* GeneratorTable::refreshComponentForCell(int rowNumber, int columnId, bool isRowSelected, Component* existingComponentToUpdate)
 {
-	if (columnId < 4)
+	if (columnId == GeneratorNumber)
+		return nullptr;
+
+	else if (columnId < GeneratorToggle)
 	{
 		if (rowNumber < getNumRows() - 1)
 		{
@@ -66,15 +75,15 @@ Component* GeneratorTable::refreshComponentForCell(int rowNumber, int columnId, 
 
 			switch (columnId)
 			{
-			case 1:
+			case GeneratorValue:
 				id = TuningDefinition::generatorValueId;
 				break;
 
-			case 2:
+			case GeneratorAmt:
 				id = TuningDefinition::generatorAmountId;
 				break;
 
-			case 3:
+			case GeneratorOffset:
 				id = TuningDefinition::generatorOffsetId;
 				break;
 			}
@@ -98,7 +107,7 @@ Component* GeneratorTable::refreshComponentForCell(int rowNumber, int columnId, 
 				value = 0;
 
 			// Round generator to three decimal places for display
-			if (columnId == 1)
+			if (columnId == 2)
 				value = roundf((double)value * 1000) / 1000.0;
 
 			generatorLabel->setText(value.toString(), dontSendNotification);
@@ -188,7 +197,7 @@ void GeneratorTable::editorShown(Label* source, TextEditor& editor)
 	ValueTree node = generatorListNode.getChild(tl->getRowNumber());
 	int col = tl->getColumnId();
 
-	if (col == 1)
+	if (col == GeneratorValue)
 	{
 		editor.setText(node[TuningDefinition::generatorValueId].toString(), false);
 	}
@@ -203,7 +212,7 @@ void GeneratorTable::labelTextChanged(Label* source)
 
 	switch (col)
 	{
-	case 1:
+	case GeneratorValue:
 	{
 		double genValue = source->getText().getDoubleValue();
 		node.setProperty(TuningDefinition::generatorValueId, genValue, nullptr);
@@ -211,11 +220,11 @@ void GeneratorTable::labelTextChanged(Label* source)
 
 		break;
 	}
-	case 2:
+	case GeneratorAmt:
 		node.setProperty(TuningDefinition::generatorAmountId, source->getText().getIntValue(), nullptr);
 		break;
 
-	case 3:
+	case GeneratorOffset:
 		node.setProperty(TuningDefinition::generatorOffsetId, source->getText().getIntValue(), nullptr);
 		break;
 
@@ -269,3 +278,7 @@ void GeneratorTable::updateContent()
 	table.updateContent();
 }
 
+void GeneratorTable::setTableColour(int colourId, Colour colour)
+{
+	table.setColour(colourId, colour);
+}

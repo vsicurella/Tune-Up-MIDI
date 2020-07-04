@@ -19,6 +19,17 @@ class GeneratorTable :	public Component,
 {
 public:
 
+	enum ColumnType
+	{
+		GeneratorNumber = 1,
+		GeneratorValue,
+		GeneratorAmt,
+		GeneratorOffset,
+		GeneratorToggle
+	};
+
+public:
+
 	GeneratorTable(ValueTree generatorListNodeIn);
 	~GeneratorTable();
 
@@ -68,10 +79,13 @@ public:
 
 	void updateContent();
 
+	void setTableColour(int colourId, Colour colour);
+
 private:
 
 	ValueTree generatorListNode;
 
+	Font font = Font(11, Font::plain);
 	TableListBox table = { {}, this };
 	TableHeaderComponent* header;
 
