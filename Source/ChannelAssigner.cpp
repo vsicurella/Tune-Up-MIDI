@@ -61,7 +61,7 @@ int TuneUpMidiChannelAssigner::findNextFreeChannel() const
 			{
 				freeChannel = (lastChannelOn + i) % 16;
 				i++;
-			} while (channelsOn.contains(freeChannel) && !channelsToSkip.contains(freeChannel));
+			} while (channelsOn.contains(freeChannel) || channelsToSkip.contains(freeChannel));
 		}
 
 		else
