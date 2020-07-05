@@ -51,6 +51,9 @@ TuneupMidiAudioProcessorEditor::~TuneupMidiAudioProcessorEditor()
 //==============================================================================
 void TuneupMidiAudioProcessorEditor::paint (Graphics& g)
 {
+	g.setColour(Colour(0xff323e44));
+	g.fillAll();
+
 	// bottom bar background
 	g.setColour(Colour(0xff323e44).darker(0.75f));
 	g.fillRect(0, unitGrid.getY(11), getWidth(), unitGrid.getY(2));

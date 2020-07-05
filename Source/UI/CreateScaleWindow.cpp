@@ -45,7 +45,9 @@ CreateScaleWindow::CreateScaleWindow(ValueTree tuningDefinitionIn)
 
 	descriptionBox.reset(new TextEditor("descriptionBox"));
 	addAndMakeVisible(descriptionBox.get());
-	descriptionBox->setText(TRANS("Tuning description"));
+	descriptionBox->setReturnKeyStartsNewLine(true);
+	descriptionBox->setMultiLine(true);
+	descriptionBox->setTextToShowWhenEmpty(TRANS("Tuning description"), Colours::darkgrey);
 
 	etNotesLabel.reset(new Label("etNotesLabel", sizeTrans + ':'));
 	addChildComponent(etNotesLabel.get());

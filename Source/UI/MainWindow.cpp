@@ -61,11 +61,11 @@ TuneUpWindow::TuneUpWindow ()
     addAndMakeVisible (descriptionTextBox.get());
     descriptionTextBox->setMultiLine (true);
     descriptionTextBox->setReturnKeyStartsNewLine (false);
-    descriptionTextBox->setReadOnly (false);
+    descriptionTextBox->setReadOnly (true);
     descriptionTextBox->setScrollbarsShown (true);
     descriptionTextBox->setCaretVisible (true);
     descriptionTextBox->setPopupMenuEnabled (true);  
-    descriptionTextBox->setText (String());
+	descriptionTextBox->setTextToShowWhenEmpty(TRANS("No description"), Colours::darkgrey);
 
 	btnBar.setGapSize(stdGap);
 	btnBar.addComponent(newScaleButton.get());

@@ -22,10 +22,10 @@ GeneratorTable::GeneratorTable(ValueTree tuningDefinitionIn)
 
 	header = &table.getHeader();
 	header->addColumn("#", GeneratorNumber, font.getStringWidth("10"), font.getStringWidth("0"));
-	header->addColumn("Gen", GeneratorValue, font.getStringWidth("1200.0"), font.getStringWidth("120"));
-	header->addColumn("Amt", GeneratorAmt, font.getStringWidth("128"), font.getStringWidth("10"));
+	header->addColumn("Gen.", GeneratorValue, font.getStringWidth("1200.0"), font.getStringWidth("120"));
+	header->addColumn("Amt.", GeneratorAmt, font.getStringWidth("128"), font.getStringWidth("10"));
 	header->addColumn(offsetTrans, GeneratorOffset, font.getStringWidth(offsetTrans), font.getStringWidth("10"));
-	header->addColumn("+/-", GeneratorToggle, font.getStringWidth("+/-"));
+	header->addColumn("+/-", GeneratorToggle, font.getStringWidth("+-"));
 	header->setStretchToFitActive(true);
 
 	table.setColour(ListBox::outlineColourId, Colours::darkgrey);
@@ -193,7 +193,7 @@ int GeneratorTable::getColumnAutoSizeWidth(int columnId)
 
 	case GeneratorToggle:
 	{
-		return font.getStringWidth("XX");
+		return font.getStringWidth("+-");
 	}
 	}
 }
@@ -230,7 +230,7 @@ void GeneratorTable::deleteKeyPressed(int lastRowSelected)
 
 void GeneratorTable::returnKeyPressed(int lastRowSelected)
 {
-	addNewGenerator(lastRowSelected);
+	addNewGenerator(lastRowSelected + 1);
 }
 
 
