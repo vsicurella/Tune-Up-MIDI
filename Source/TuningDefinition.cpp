@@ -132,7 +132,11 @@ int TuningDefinition::determineTuningDefinitionSize(ValueTree tuningDefinitionIn
 
 					if (period != 0.0)
 					{
-						determinedSize = 1;
+						// Equal temperament
+						if (generatorList.getNumChildren() == 1)
+						{
+							return 1;
+						}
 
 						double gen, factor;
 
@@ -333,13 +337,6 @@ ValueTree TuningDefinition::createRegularTemperamentDefinition(
 
 	definitionOut.setProperty(tuningNameId, nameIn, nullptr);
 
-	if (descriptionIn.length() == 0)
-	{
-		// TODO: default regular temperament definition
-	}
-
-	definitionOut.setProperty(tuningDescriptionId, descriptionIn, nullptr);
-
 	ValueTree generatorList(generatorListId);
 	for (int i = 0; i < generatorCents.size(); i++)
 	{
@@ -355,7 +352,23 @@ ValueTree TuningDefinition::createRegularTemperamentDefinition(
 	definitionOut.addChild(generatorList, 0, nullptr);
 
 	// TODO: do this without packing into ValueTree?
-	definitionOut.setProperty(tuningSizeID, determineTuningDefinitionSize(definitionOut), nullptr);
+	int tuningSize = determineTuningDefinitionSize(definitionOut);
+	definitionOut.setProperty(tuningSizeID, tuningSize, nullptr);
+
+	if (descriptionIn.length() == 0)
+	{
+		descriptionIn = "A " + String(tuningSize) + "-note temperament generated as follows:";
+		for (int i = 0; i < generatorCents.size(); i++)
+		{
+			ValueTree node = generatorList.getChild(i);
+			descriptionIn += "\n\t" + String(i + 1) + ": ";
+			descriptionIn += "\t" + String(round(generatorCents[i] * 1000) / 1000.0) + ",";
+			descriptionIn += "\t" + String(generatorAmounts[i]) + ",";
+			descriptionIn += "\t" + String(generatorsDown[i]);
+		}
+	}
+
+	definitionOut.setProperty(tuningDescriptionId, descriptionIn, nullptr);
 
 	return definitionOut;
 }
