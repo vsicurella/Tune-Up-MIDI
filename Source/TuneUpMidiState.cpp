@@ -10,11 +10,12 @@
 
 #include "TuneUpMidiState.h"
 
-TuneUpMidiState::TuneUpMidiState(TuneUpMidiProcessor* midiProcessorIn)
-	: midiProcessor(midiProcessorIn), notesInOn(midiProcessorIn->getTuningNotesOn())
+TuneUpMidiState::TuneUpMidiState()
 {
-	renderTuning();
-	tuningDefinition.addListener(midiProcessor);
+	originTuning.reset(new Tuning(originTuningDefinition.render()));
+	tuning.reset(new Tuning(tuningDefinition.render()));
+
+	midiProcessor.reset(new TuneUpMidiProcessor(originTuning.get(), tuning.get(), notesInOn));
 
 	// TODO: Move this to MIDICCListener interface
 	// fill control change map with empty functions
@@ -29,6 +30,21 @@ TuneUpMidiState::TuneUpMidiState(TuneUpMidiProcessor* midiProcessorIn)
 TuneUpMidiState::~TuneUpMidiState()
 {
 	tuning = nullptr;
+}
+
+TuneUpMidiProcessor* TuneUpMidiState::getMidiProcessor()
+{
+	return midiProcessor.get();
+}
+
+ValueTree TuneUpMidiState::getOriginTuningDefinition()
+{
+	return originTuningDefinition.getDefinition();
+}
+
+Tuning* TuneUpMidiState::getOriginTuning()
+{
+	return originTuning.get();
 }
 
 ValueTree TuneUpMidiState::getTuningDefinition()

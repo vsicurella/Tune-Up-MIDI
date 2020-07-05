@@ -30,7 +30,7 @@ Identifier TuningDefinition::tuningDescriptionId = Identifier("Description");
 */
 TuningDefinition::TuningDefinition()
 {
-	definition = createEqualTemperamentDefinition(12, 1200.0);
+	definition = getStandardTuningDefinition();
 }
 
 TuningDefinition::TuningDefinition(ValueTree definitionIn)
@@ -73,7 +73,7 @@ int TuningDefinition::getRootMidiNote() const
 
 void TuningDefinition::setDefinition(ValueTree definitionIn, bool notifyListeners)
 {
-	definition.copyPropertiesAndChildrenFrom(definitionIn, nullptr);
+	definition = definitionIn;
 
 	if (notifyListeners)
 		listeners.call(&Listener::tuningChanged);
@@ -82,6 +82,14 @@ void TuningDefinition::setDefinition(ValueTree definitionIn, bool notifyListener
 Tuning TuningDefinition::render() const
 {
 	return renderTuningDefinition(definition);
+}
+
+/*
+	Returns definition for 12EDO
+*/
+ValueTree TuningDefinition::getStandardTuningDefinition()
+{
+	return createEqualTemperamentDefinition(12, 1200.0);
 }
 
 /*
@@ -379,36 +387,32 @@ Tuning TuningDefinition::renderFunctionalTuning(
 
 Tuning TuningDefinition::renderTuningDefinition(ValueTree definitionIn)
 {
-	if (definitionIn.hasType(tuningDefId))
+	// Return standard tuning if invalid
+	if (!definitionIn.hasType(tuningDefId))
+		definitionIn = getStandardTuningDefinition();
+
+	// Render functional tuning
+	if (definitionIn[functionalID])
 	{
-		// Render functional tuning
-		if (definitionIn[functionalID])
-		{
-			Array<double> generators;
-			Array<int> amounts, offsets;
+		Array<double> generators;
+		Array<int> amounts, offsets;
 
-			extractGeneratorProperties(definitionIn, generators, amounts, offsets);
+		extractGeneratorProperties(definitionIn, generators, amounts, offsets);
 
-			// Normalize period
-			amounts.set(0, 1);
-			offsets.set(0, 0);
+		// Normalize period
+		amounts.set(0, 1);
+		offsets.set(0, 0);
 
-			return renderFunctionalTuning(generators, amounts, offsets,
-				definitionIn[rootMidiNoteID],
-				definitionIn[tuningNameId],
-				definitionIn[tuningDescriptionId]
-			);
-		}
-
-		// Render static tuning
-
-		Array<double> centsTable;
-		treeToArray(centsTable, definitionIn.getChildWithName(centsTableID), intervalNodeID, intervalValueID);
-
-		return Tuning(centsTable, definitionIn[rootMidiNoteID], definitionIn[tuningNameId], definitionIn[tuningDescriptionId]);
+		return renderFunctionalTuning(generators, amounts, offsets,
+			definitionIn[rootMidiNoteID],
+			definitionIn[tuningNameId],
+			definitionIn[tuningDescriptionId]
+		);
 	}
 
-	// Return default tuning
+	// Render static tuning
+	Array<double> centsTable;
+	treeToArray(centsTable, definitionIn.getChildWithName(centsTableID), intervalNodeID, intervalValueID);
 
-	return Tuning();
+	return Tuning(centsTable, definitionIn[rootMidiNoteID], definitionIn[tuningNameId], definitionIn[tuningDescriptionId]);
 }

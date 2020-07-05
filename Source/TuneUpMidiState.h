@@ -17,8 +17,11 @@ class TuneUpMidiState : public MidiCCListener
 {
 	MidiKeyboardState midiState;
 
-	TuneUpMidiProcessor* midiProcessor;
-	const Array<int> notesInOn;
+	std::unique_ptr<TuneUpMidiProcessor> midiProcessor;
+	Array<int> notesInOn;
+
+	TuningDefinition originTuningDefinition;
+	std::unique_ptr<Tuning> originTuning;
 
 	TuningDefinition tuningDefinition;
 	std::unique_ptr<Tuning> tuning;
@@ -29,8 +32,13 @@ class TuneUpMidiState : public MidiCCListener
 
 public:
 
-	TuneUpMidiState(TuneUpMidiProcessor* midiProcessorIn);
+	TuneUpMidiState();
 	~TuneUpMidiState();
+
+	TuneUpMidiProcessor* getMidiProcessor();
+
+	ValueTree getOriginTuningDefinition();
+	Tuning* getOriginTuning();
 
 	ValueTree getTuningDefinition();
 	Tuning* getTuning();

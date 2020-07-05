@@ -31,7 +31,7 @@ class MidiNoteTuner
 	bool cached = false;
 	Array<int> pitchbendTable;
 
-	Tuning standard;
+	Tuning* standard;
 
 public:
     

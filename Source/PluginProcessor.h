@@ -64,8 +64,8 @@ public:
 private:
 	//==============================================================================
 
-	std::unique_ptr<TuneUpMidiProcessor> midiProcessor;
 	std::unique_ptr<TuneUpMidiState> pluginState;
+	TuneUpMidiProcessor* midiProcessor;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TuneupMidiAudioProcessor)

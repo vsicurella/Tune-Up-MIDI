@@ -45,15 +45,15 @@ class TuneUpMidiProcessor :
 
 	int pitchbendRange = 2;	
 	
-	Array<int> notesInOn;
+	Array<int>& notesInOn;
 	Array<int> notesTunedOn;
 
-	const Tuning standard;
+	const Tuning* standard;
 	const Tuning* tuning = nullptr;
 
 public:
 
-	TuneUpMidiProcessor();
+	TuneUpMidiProcessor(const Tuning* originTuning, const Tuning* newTuning, Array<int>& notesOn);
 	~TuneUpMidiProcessor();
 
 	const Array<int>& getTuningNotesOn() const;
@@ -63,7 +63,6 @@ public:
 
 	void processMidi(MidiBuffer& bufferIn);
 
-	void allNotesOff();
 	void resetNotes();
 
 	String* getMidiInLog();

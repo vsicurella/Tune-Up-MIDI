@@ -24,8 +24,8 @@ TuneupMidiAudioProcessor::TuneupMidiAudioProcessor()
                        )
 #endif
 {
-	midiProcessor.reset(new TuneUpMidiProcessor());
-	pluginState.reset(new TuneUpMidiState(midiProcessor.get()));
+	pluginState.reset(new TuneUpMidiState());
+	midiProcessor = pluginState->getMidiProcessor();
 }
 
 TuneupMidiAudioProcessor::~TuneupMidiAudioProcessor()
@@ -150,7 +150,7 @@ bool TuneupMidiAudioProcessor::hasEditor() const
 
 AudioProcessorEditor* TuneupMidiAudioProcessor::createEditor()
 {
-    return new TuneupMidiAudioProcessorEditor (*this, *midiProcessor.get(), *pluginState.get());
+    return new TuneupMidiAudioProcessorEditor (*this, *midiProcessor, *pluginState.get());
 }
 
 //==============================================================================

@@ -35,7 +35,6 @@ TuneupMidiAudioProcessorEditor::TuneupMidiAudioProcessorEditor (
 
 	if (pluginState.getTuning())
 	{
-		midiProcessor.setTuning(pluginState.getTuning());
 		mainWindow->loadTuning(pluginState.getTuning());
 	}
 }

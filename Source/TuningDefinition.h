@@ -84,6 +84,11 @@ public:
 	Tuning render() const;
 
 	/*
+		Returns definition for 12EDO
+	*/
+	static ValueTree getStandardTuningDefinition();
+
+	/*
 		Determines the size of a tuning, which may not be trivial with some functional tuning defintions.
 	*/
 	static int determineTuningDefinitionSize(ValueTree tuningDefinitionIn);

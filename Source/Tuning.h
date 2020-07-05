@@ -29,12 +29,7 @@ protected:
 	String name;
 	String description;
 
-	bool cached = false;
-
 public:
-    
-    // Will function like standard tuning
-	Tuning() {};
 
 	/*
 		Expects a full interval table in cents, ending with period. May or may not include unison.

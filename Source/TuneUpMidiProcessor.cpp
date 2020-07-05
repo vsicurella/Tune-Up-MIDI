@@ -11,10 +11,13 @@
 #include "TuneUpMidiProcessor.h"
 
 
-TuneUpMidiProcessor::TuneUpMidiProcessor()
-	: channelAssigner(nullptr, notesInOn) // TODO implement proper MPE instrument
+TuneUpMidiProcessor::TuneUpMidiProcessor(const Tuning* originTuning, const Tuning* newTuning, Array<int>& notesOnIn)
+	:	standard(originTuning),
+		tuning(newTuning),
+		notesInOn(notesOnIn),
+		channelAssigner(nullptr, notesOnIn) // TODO implement proper MPE zones
 {
-	retuner.reset(new MidiNoteTuner(standard, standard));
+	retuner.reset(new MidiNoteTuner(*standard, *tuning));
 	retuner->setPitchbendRange(pitchbendRange);
 
 	midiInput = MidiInput::openDevice(inputDeviceInfo.name, this);
@@ -24,7 +27,6 @@ TuneUpMidiProcessor::TuneUpMidiProcessor()
 
 
 	//midiOutput = MidiInput::openDevice(outputDeviceInfo.name, this);
-
 }
 
 TuneUpMidiProcessor::~TuneUpMidiProcessor()
@@ -44,7 +46,7 @@ void TuneUpMidiProcessor::setTuning(const Tuning* tuningIn, bool isDynamic)
 	
 	if (isDynamic)
 		tuningChanged();
-	else
+	else if (notesInOn.size() > 0)
 		resetNotes();
 }
 
@@ -150,7 +152,7 @@ void TuneUpMidiProcessor::resetNotes()
 	notesTunedOn.clear();
 
 	for (auto ch : channelAssigner.getChannelsOn())
-		inputBuffer.addEvent(MidiMessage::allNotesOff(ch), smplInput++);
+		inputBuffer.addEvent(MidiMessage::allNotesOff(ch + 1), smplInput++);
 
 	channelAssigner.allNotesOff();
 

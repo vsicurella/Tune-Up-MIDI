@@ -37,12 +37,11 @@ Tuning::Tuning(const Array<double>& centsTable, int rootMidiNoteIn, String nameI
 	jassert(tuningSize > 0);
 
 	// Cache Semitones
-	cached = true;
 	for (int i = 0; i < 128; i++)
 	{
 		intervalSemitones.add(getNoteInCents(i) / 100.0);
 	}
-
+	
 	name = nameIn;
 	description = descriptionIn;
 }
@@ -79,12 +78,7 @@ Array<double> Tuning::getIntervalSemitones() const
 
 int Tuning::getTuningSize() const
 {
-	// Default
-	if (!cached)
-		return 12;
-
-	else
-		return tuningSize;
+	return tuningSize;
 }
 
 int Tuning::getRootNote() const
@@ -94,31 +88,21 @@ int Tuning::getRootNote() const
 
 double Tuning::getNoteInSemitones(int midiNoteIn) const
 {
-	if (cached)
-	{
-		return intervalSemitones[midiNoteIn];
-	}
-
 	// Return value that will always fail
-	else if (midiNoteIn < 0 || midiNoteIn > 127)
+	if (midiNoteIn < 0 || midiNoteIn > 127)
 		return INT_MAX;
 
-	return midiNoteIn - rootMidiNote;
+	return intervalSemitones[midiNoteIn];
 }
 
 double Tuning::getNoteInCents(int midiNoteIn) const
 {
-	if (cached)
-	{
-		int noteDif = midiNoteIn - rootMidiNote;
-		int numPeriods = floor((double)noteDif / tuningSize);
+	int noteDif = midiNoteIn - rootMidiNote;
+	int numPeriods = floor((double)noteDif / tuningSize);
 
-		double periods = periodCents * numPeriods;
+	double periods = periodCents * numPeriods;
 
-		return intervalCents[modulo(noteDif, tuningSize)] + periods;
-	}
-	
-	return midiNoteIn - (double) rootMidiNote * 100;
+	return intervalCents[modulo(noteDif, tuningSize)] + periods;
 }
 
 String Tuning::getName() const
@@ -133,25 +117,38 @@ String Tuning::getDescription() const
 
 int Tuning::closestNoteToSemitone(double semitoneIn) const
 {
-	if (intervalSemitones.size() > 0)
+	if (tuningSize == 1)
 	{
-		double numPeriods = (int)(semitoneIn * 100 / periodCents);
-		double reduced = semitoneIn - (periodCents * numPeriods / 100);
-		
-		double dif, closestDif = INT_MAX;
-		int closestIndex = -1;
-		for (int i = 0; i < intervalSemitones.size(); i++)
+		return round(semitoneIn / periodSemitones) + rootMidiNote;
+	}
+	
+	double dif, closestDif = INT_MAX;
+	int closestIndex = -1;
+	
+	if (semitoneIn >= 0)
+	{
+		for (int i = 60; i < 128; i++)
 		{
-			dif = reduced - intervalSemitones[i];
+			dif = abs(semitoneIn - intervalSemitones[i]);
 			if (dif < closestDif)
 			{
 				closestDif = dif;
 				closestIndex = i;
 			}
 		}
-
-		return closestIndex;
+	}
+	else
+	{
+		for (int i = 60; i >= 0; i--)
+		{
+			dif = abs(semitoneIn - intervalSemitones[i]);
+			if (dif < closestDif)
+			{
+				closestDif = dif;
+				closestIndex = i;
+			}
+		}
 	}
 
-	return round(semitoneIn) + rootMidiNote;
+	return closestIndex;
 }
