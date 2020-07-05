@@ -10,6 +10,7 @@
 
 #pragma once
 #include <JuceHeader.h>
+#include "UnitGrid.h"
 
 class ButtonBar
 {
@@ -17,10 +18,14 @@ class ButtonBar
 	int gap = 8;
 
 	Array<Component*> components;
+
+	UnitGrid grid;
 	Array<int> units;
 	float unitDenominator = 0;
 
 public:
+
+	ButtonBar() : grid(1) {};
 
 	void addComponent(Component* componentIn, int widthUnits = 0)
 	{
@@ -31,6 +36,27 @@ public:
 
 		units.add(widthUnits);
 		unitDenominator += widthUnits;
+
+		grid = UnitGrid(unitDenominator);
+		grid.setSize(bounds.getWidth());
+	}
+
+	void addComponents(Array<Component*> componentsIn, Array<int> unitsIn = Array<int>())
+	{
+		for (int i = 0; i < componentsIn.size(); i++)
+		{
+			components.add(componentsIn[i]);
+
+			int numUnits = unitsIn[i];
+			if (numUnits == 0)
+				numUnits = componentsIn[i]->getName().length();
+
+			units.add(numUnits);
+			unitDenominator += numUnits;
+		}
+
+		grid = UnitGrid(unitDenominator);
+		grid.setSize(bounds.getWidth());
 	}
 
 	void removeComponent(Component* componentToRemove)
@@ -42,12 +68,16 @@ public:
 			components.remove(index);
 			unitDenominator -= units[index];
 			units.remove(index);
+
+			grid = UnitGrid(unitDenominator);
+			grid.setSize(bounds.getWidth());
 		}
 	}
 
 	void setBounds(int x, int y, int width, int height)
 	{
 		bounds = { x, y,  width, height };
+		grid.setSize(width);
 	}
 
 	void setGapSize(int gapSize)
@@ -74,7 +104,7 @@ public:
 
 			float width = bounds.getWidth() * units[index] / unitDenominator;
 
-			return Rectangle<float>(x, bounds.getY(), bounds.getWidth() * units[index] / unitDenominator, bounds.getHeight());
+			return Rectangle<float>(x, bounds.getY(), grid.getUnit(units[index]), bounds.getHeight());
 		}
 		else
 			return Rectangle<float>();
@@ -83,5 +113,10 @@ public:
 	Rectangle<int> getBounds()
 	{
 		return bounds;
+	}
+
+	Array<Component*> getComponents() 
+	{
+		return components;
 	}
 };

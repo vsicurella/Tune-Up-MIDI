@@ -16,66 +16,77 @@ class UnitGrid
 
 public:
 
-	UnitGrid(int horizontalUnits, int verticalUnits)
+	UnitGrid(int numUnits)
 	{
-		xUnits = horizontalUnits;
-		yUnits = verticalUnits;
+		units = numUnits;
 	}
 
-	void setSize(int widthIn, int heightIn)
+	void setSize(int pixelSizeIn)
 	{
-		width = widthIn;
-		height = heightIn;
+		size = pixelSizeIn;
 
-		xPositions.clear();
-		for (int x = 0; x < xUnits; x++)
+		positions.clear();
+		for (int x = 0; x < units; x++)
 		{
-			xPositions.add(round(x / (double) xUnits * width));
-		}
-
-		yPositions.clear();
-		for (int y = 0; y < yUnits; y++)
-		{
-			yPositions.add(round(y / (double) yUnits * height));
+			positions.add(round(x / (double) units * size));
 		}
 	}
 
-	int getX(int xUnitIn)
+	int getUnit(int unitIn)
 	{
-		if (xUnitIn < xUnits)
-			return xPositions[xUnitIn];
+		if (unitIn < units)
+			return positions[unitIn];
 		else
-			return round(xUnitIn / (double)xUnits * width);
-	}
-
-	int getY(int yUnitIn)
-	{
-		if (yUnitIn < yUnits)
-			return yPositions[yUnitIn];
-		else
-			return round(yUnitIn / (double)yUnits * height);
-	}
+			return round(unitIn / (double)units * size);
+	}	
 	
-	
-	float getXUnitFraction(float fractionalUnitIn)
+	float getUnit(float fractionalUnitIn)
 	{
-		return (fractionalUnitIn / xUnits) * width;
+		return (fractionalUnitIn / units) * size;
 	}
-
-	float getYUnitFraction(float fractionalUnitIn)
-	{
-		return (fractionalUnitIn / yUnits) * height;
-	}
-
 
 private:
 
-	int xUnits;
-	int yUnits;
+	int units;
+	int size;
+	Array<int> positions;
+};
 
-	int width;
-	int height;
+class UnitPlane
+{
+public:
 
-	Array<int> xPositions;
-	Array<int> yPositions;
+	UnitPlane(int xUnitsIn, int yUnitsIn)
+		: xGrid(xUnitsIn), yGrid(yUnitsIn) {}
+
+	void setSize(int width, int height)
+	{
+		xGrid.setSize(width);
+		yGrid.setSize(height);
+	}
+
+	int getX(int unitIn)
+	{
+		return xGrid.getUnit(unitIn);
+	}
+
+	float getX(float unitIn)
+	{
+		return xGrid.getUnit(unitIn);
+	}
+
+	int getY(int unitIn)
+	{
+		return yGrid.getUnit(unitIn);
+	}
+
+	float getY(float unitIn)
+	{
+		return yGrid.getUnit(unitIn);
+	}
+
+private:
+
+	UnitGrid xGrid;
+	UnitGrid yGrid;
 };
