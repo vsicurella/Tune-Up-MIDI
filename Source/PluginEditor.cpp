@@ -37,6 +37,9 @@ TuneupMidiAudioProcessorEditor::TuneupMidiAudioProcessorEditor (
 	{
 		mainWindow->loadTuning(pluginState.getTuning());
 	}
+
+	pluginState.addChangeListener(this);
+
 }
 
 TuneupMidiAudioProcessorEditor::~TuneupMidiAudioProcessorEditor()
@@ -59,6 +62,14 @@ void TuneupMidiAudioProcessorEditor::resized()
 
 	mainWindow->setBoundsInset(BorderSize<int>(8));
 	createScaleWindow->setBoundsInset(BorderSize<int>(8));
+}
+
+void TuneupMidiAudioProcessorEditor::changeListenerCallback(ChangeBroadcaster* source)
+{
+	if (source == &pluginState)
+	{
+		mainWindow->loadTuning(pluginState.getTuning());
+	}
 }
 
 void TuneupMidiAudioProcessorEditor::scaleLoaded(ValueTree tuningDefinition)

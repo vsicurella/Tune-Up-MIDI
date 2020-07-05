@@ -21,7 +21,8 @@
 */
 class TuneupMidiAudioProcessorEditor  :	public AudioProcessorEditor, 
 										private TuneUpWindow::Listener,
-										private CreateScaleWindow::Listener
+										private CreateScaleWindow::Listener,
+										private ChangeListener
 {
 public:
     TuneupMidiAudioProcessorEditor (TuneupMidiAudioProcessor&, TuneUpMidiProcessor&, TuneUpMidiState&);
@@ -30,6 +31,8 @@ public:
     //==============================================================================
     void paint (Graphics&) override;
     void resized() override;
+
+	void changeListenerCallback(ChangeBroadcaster* source) override;
 
 	//==============================================================================
 

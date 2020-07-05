@@ -153,7 +153,7 @@ void TuneUpMidiProcessor::resetNotes()
 
 	for (auto ch : channelAssigner.getChannelsOn())
 		inputBuffer.addEvent(MidiMessage::allNotesOff(ch + 1), smplInput++);
-
+	
 	channelAssigner.allNotesOff();
 
 }

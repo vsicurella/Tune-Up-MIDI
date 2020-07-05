@@ -13,7 +13,7 @@
 #include "MidiCCListener.h"
 #include "TuningDefinition.h"
 
-class TuneUpMidiState : public MidiCCListener
+class TuneUpMidiState : public MidiCCListener, public ChangeBroadcaster
 {
 	MidiKeyboardState midiState;
 
@@ -48,7 +48,7 @@ public:
 	/*
 		Sets and renders new tuning definition, without 
 	*/
-	void setNewTuning(ValueTree tuningDefinitionIn);
+	void setNewTuning(ValueTree tuningDefinitionIn, bool sendChangeSignal = false);
 
 	void renderTuning();
 

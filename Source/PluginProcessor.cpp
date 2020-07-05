@@ -185,7 +185,7 @@ void TuneupMidiAudioProcessor::setStateInformation (const void* data, int sizeIn
 
 	MemoryInputStream mis(data, sizeInBytes, false);
 	ValueTree tuningDefinition = ValueTree::readFromStream(mis);
-	pluginState->setNewTuning(tuningDefinition);
+	pluginState->setNewTuning(tuningDefinition, true);
 }
 
 //==============================================================================
