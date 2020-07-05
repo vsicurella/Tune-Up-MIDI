@@ -13,48 +13,18 @@
 
 //==============================================================================
 TuneUpWindow::TuneUpWindow ()
-	: unitGrid(2, 13)
+	: grid(2, 6)
 {
-
-	newScaleButton.reset(new TextButton("New"));
-	addAndMakeVisible(newScaleButton.get());
-	newScaleButton->setButtonText(TRANS("New"));
-	newScaleButton->addListener(this);
-
-	loadScaleButton.reset(new TextButton("Load"));
-	addAndMakeVisible(loadScaleButton.get());
-	loadScaleButton->setButtonText(TRANS("Load"));
-	loadScaleButton->addListener(this);
-
-	viewButton.reset(new TextButton("View"));
-	addAndMakeVisible(viewButton.get());
-	viewButton->setButtonText(TRANS("View"));
-	viewButton->addListener(this);
-
-	optionsButton.reset(new TextButton("Options"));
-	addAndMakeVisible(optionsButton.get());
-	optionsButton->setButtonText(TRANS("Options"));
-	optionsButton->addListener(this);
-
-	dynamicToggleButton.reset(new TextButton("Dynamic"));
-	addAndMakeVisible(dynamicToggleButton.get());
-	dynamicToggleButton->setButtonText(TRANS("Dynamic"));
-	dynamicToggleButton->setConnectedEdges(Button::ConnectedEdgeFlags::ConnectedOnRight);
-	dynamicToggleButton->addListener(this);
-
-	dynamicOptionsButton.reset(new TextButton("dynamicOptionsButton"));
-	addAndMakeVisible(dynamicOptionsButton.get());
-	dynamicOptionsButton->setButtonText("O");
-	dynamicOptionsButton->setConnectedEdges(Button::ConnectedEdgeFlags::ConnectedOnLeft);
-	dynamicOptionsButton->addListener(this);
-
 	scaleNameLabel.reset(new Label(scaleTrans));
+	//scaleNameLabel->setJustificationType(Justification::centredRight);
 	addAndMakeVisible(scaleNameLabel.get());
 
 	scaleSizeLabel.reset(new Label(sizeTrans));
+	//scaleSizeLabel->setJustificationType(Justification::centredRight);
 	addAndMakeVisible(scaleSizeLabel.get());
 
 	scalePeriodLabel.reset(new Label(periodTrans));
+	//scalePeriodLabel->setJustificationType(Justification::centredRight);
 	addAndMakeVisible(scalePeriodLabel.get());
 	
     descriptionTextBox.reset (new TextEditor ("descriptionTextBox"));
@@ -67,18 +37,6 @@ TuneUpWindow::TuneUpWindow ()
     descriptionTextBox->setPopupMenuEnabled (true);  
 	descriptionTextBox->setTextToShowWhenEmpty(TRANS("No description"), Colours::darkgrey);
 
-	btnBar.setGapSize(stdGap);
-	btnBar.addComponent(newScaleButton.get());
-	btnBar.addComponent(loadScaleButton.get());
-	btnBar.addComponent(viewButton.get());
-	btnBar.addComponent(optionsButton.get(), 5);
-	btnBar.addComponent(dynamicToggleButton.get(), 5);
-	btnBar.addComponent(dynamicOptionsButton.get(), 2);
-
-	// TEMP
-	dynamicToggleButton->setEnabled(false);
-	dynamicOptionsButton->setEnabled(false);
-
 	//scaleNameLabel->setColour(Label::ColourIds::outlineColourId, Colours::red);
 	//scaleSizeLabel->setColour(Label::ColourIds::outlineColourId, Colours::red);
 	//scalePeriodLabel->setColour(Label::ColourIds::outlineColourId, Colours::red);
@@ -86,12 +44,6 @@ TuneUpWindow::TuneUpWindow ()
 
 TuneUpWindow::~TuneUpWindow()
 {
-	newScaleButton = nullptr;
-	loadScaleButton = nullptr;
-	viewButton = nullptr;
-	optionsButton = nullptr;
-	dynamicToggleButton = nullptr;
-	dynamicOptionsButton = nullptr;
 	scaleNameLabel = nullptr;
 	scaleSizeLabel = nullptr;
 	scalePeriodLabel = nullptr;
@@ -101,52 +53,19 @@ TuneUpWindow::~TuneUpWindow()
 //==============================================================================
 void TuneUpWindow::paint (Graphics& g)
 {
-
+	//g.setColour(Colours::blue);
+	//g.drawRect(0, 0, getWidth(), getHeight());
 }
 
 void TuneUpWindow::resized()
 {
-	unitGrid.setSize(getWidth(), getHeight());
+	grid.setSize(getWidth(), getHeight());
 
-	btnBarWidth = getWidth() - stdGap * 4;
-	btnBar.setBounds(0, 0, btnBarWidth, unitGrid.getY(2));
+	descriptionTextBox->setBounds(grid.getX(1), 0, grid.getX(1), getHeight());
 
-	newScaleButton->setBounds(btnBar.getComponentBounds(newScaleButton.get()).toNearestInt());
-	loadScaleButton->setBounds(btnBar.getComponentBounds(loadScaleButton.get()).toNearestInt());
-	viewButton->setBounds(btnBar.getComponentBounds(viewButton.get()).toNearestInt());
-	optionsButton->setBounds(btnBar.getComponentBounds(optionsButton.get()).toNearestInt());
-	dynamicToggleButton->setBounds(btnBar.getComponentBounds(dynamicToggleButton.get()).toNearestInt());
-	dynamicOptionsButton->setBounds(btnBar.getComponentBounds(dynamicOptionsButton.get(), false).toNearestInt());
-
-	//labelSectHeight = proportionOfHeight(0.5f) - stdGap;
-
-	descriptionTextBox->setBounds(unitGrid.getX(1), unitGrid.getY(3), unitGrid.getX(1), unitGrid.getY(8));
-
-	scaleNameLabel->setBounds(0, unitGrid.getY(3), unitGrid.getX(1) - stdGap, unitGrid.getY(2));
-	scaleSizeLabel->setBounds(0, unitGrid.getY(6), unitGrid.getX(1) - stdGap, unitGrid.getY(2));
-	scalePeriodLabel->setBounds(0, unitGrid.getY(9), unitGrid.getX(1) - stdGap, unitGrid.getY(2));
-}
-
-void TuneUpWindow::buttonClicked (Button* buttonThatWasClicked)
-{
-    if (buttonThatWasClicked == loadScaleButton.get())
-    {
-		FileChooser chooser("Select your tuning file", File::getSpecialLocation(File::userDocumentsDirectory));
-		chooser.browseForFileToOpen();
-		loadedFile = chooser.getResult();
-
-		onFileLoad();
-    }
-
-	else if (buttonThatWasClicked == newScaleButton.get())
-	{
-		listeners.call(&TuneUpWindow::Listener::newButtonClicked);
-	}
-}
-
-ValueTree TuneUpWindow::getTuning()
-{
-	return stagedTuning;
+	scaleNameLabel->setBounds(0, 0, grid.getX(1), grid.getY(2) - stdGap);
+	scaleSizeLabel->setBounds(0, grid.getY(2), grid.getX(1) - stdGap, grid.getY(2) - stdGap);
+	scalePeriodLabel->setBounds(0, grid.getY(4), grid.getX(1) - stdGap, grid.getY(2) - stdGap);
 }
 
 void TuneUpWindow::setScaleNameLabel(String scaleNameIn)
@@ -167,27 +86,6 @@ void TuneUpWindow::setScalePeriodLabel(double periodIn)
 void TuneUpWindow::setDescription(String descIn)
 {
 	descriptionTextBox->setText(descIn);
-}
-
-void TuneUpWindow::onFileLoad()
-{
-	bool success = scalaFileReader.open(loadedFile);
-
-	if (success)
-	{
-		ScalaFile file = scalaFileReader.getScalaFile();
-		ValueTree definition = TuningDefinition::createStaticTuningDefinition(file.cents, 60, file.name, file.description);
-		
-		DBG("Staged Tuning: \n" + definition.toXmlString());
-		listeners.call(&TuneUpWindow::Listener::scaleLoaded, definition);
-	}
-	else
-	{
-		//DialogWindow::LaunchOptions errorDialog;
-		//errorDialog.content = OptionalScopedPointer<Component>(Label("msg", "Error loading scale file"));
-		//errorDialog.launchAsync();
-	}
-
 }
 
 void TuneUpWindow::loadTuning(Tuning* tuningIn)

@@ -11,16 +11,14 @@
 #pragma once
 #include <JuceHeader.h>
 #include "../TuningDefinition.h"
-#include "ButtonBar.h"
 #include "GeneratorBoxModel.h"
 #include "UnitGrid.h"
 
 class CreateScaleWindow :	public Component,
 							public ChangeListener,
-							private Button::Listener,
+							public ChangeBroadcaster,
 							private Label::Listener,
-							private Slider::Listener,
-							private ComboBox::Listener
+							private Slider::Listener
 {
 public:
 
@@ -38,12 +36,8 @@ public:
 	void paint(Graphics& g) override;
 	void resized() override;
 
-	void visibilityChanged() override;
-
-	void buttonClicked(Button* buttonClicked) override;
 	void labelTextChanged(Label* labelThatChanged) override;
 	void sliderValueChanged(Slider* sliderThatChanged) override;
-	void comboBoxChanged(ComboBox* comboBoxThatChanged) override;
 
 	void changeListenerCallback(ChangeBroadcaster* source) override;
 
@@ -51,49 +45,16 @@ public:
 
 	void setMode(ScaleMode modeIn);
 
-	void updateModeComponents();
-
 	void updateTuning();
 
 	ValueTree getTuningDefinition() const;
-
-
-	//==============================================================================
-
-	class Listener
-	{
-	public:
-
-		virtual void scaleUpdated(ValueTree tuningDefinition) = 0;
-		virtual void saveButtonClicked() = 0;
-		virtual void backButtonClicked() = 0;
-	};
-
-	void addListener(Listener* listenerIn)
-	{
-		listeners.add(listenerIn);
-	}
-
-	void removeListener(Listener* listenerIn)
-	{
-		listeners.remove(listenerIn);
-	}
-
-
-protected:
-
-	ListenerList<Listener> listeners;
 
 	//==============================================================================
 
 private:
 
 	ScaleMode mode;
-
-	std::unique_ptr<TextButton> backButton;
-	std::unique_ptr<TextButton> saveButton;
-	std::unique_ptr<TextButton> viewButton;
-	std::unique_ptr<ComboBox> modeBox;
+	ValueTree tuningDefinition;
 
 	std::unique_ptr<Label> scaleNameLabel;
 	std::unique_ptr<Label> scaleNameBox;
@@ -108,18 +69,10 @@ private:
 	// Regular Temperament Controls
 	std::unique_ptr<GeneratorTable> generatorTable;
 
-	ValueTree tuningDefinition;
-
 	// Helpers
-	int btnBarWidth;
-	ButtonBar btnBar;
 	int stdGap = 8;
-	//float labelSectHeight;
-	UnitGrid unitGrid;
+	UnitPlane grid;
 
-	String backTrans = TRANS("Back");
-	String saveTrans = TRANS("Save");
-	String viewTrans = TRANS("View");
 	String nameTrans = TRANS("Name");
 	String sizeTrans = TRANS("Size");
 	String periodTrans = TRANS("Period");

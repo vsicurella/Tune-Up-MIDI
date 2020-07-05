@@ -11,14 +11,11 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "../ScalaFileReader.h"
 #include "../TuningDefinition.h"
-#include "ButtonBar.h"
 #include "UnitGrid.h"
 
 
-class TuneUpWindow  : public Component,
-                      public Button::Listener
+class TuneUpWindow  : public Component
 {
 public:
     //==============================================================================
@@ -27,11 +24,7 @@ public:
 
 public:
 
-
-	void onFileLoad();
 	void loadTuning(Tuning* tuningIn);
-
-	ValueTree getTuning();
 
 	void setScaleNameLabel(String scaleNameIn);
 	void setScaleSizeLabel(int numNotesIn);
@@ -42,64 +35,20 @@ public:
 
     void paint (Graphics& g) override;
     void resized() override;
-    void buttonClicked (Button* buttonThatWasClicked) override;
 
 	//==============================================================================
-
-	class Listener
-	{
-	public:
-
-		virtual void scaleLoaded(ValueTree tuningDefinition) = 0;
-		virtual void newButtonClicked() = 0;
-		virtual void optionsButtonClicked() = 0;
-		virtual void dynamicOptionsClicked() = 0;
-	};
-
-	void addListener(Listener* listenerIn)
-	{
-		listeners.add(listenerIn);
-	}
-
-	void removeListener(Listener* listenerIn)
-	{
-		listeners.remove(listenerIn);
-	}
-
-
-protected:
-
-	ListenerList<Listener> listeners;
-
-	//==============================================================================
-
 
 private:
-	File loadedFile;
-
-	ScalaFileReader scalaFileReader;
-
-	ValueTree stagedTuning;
 
 	// Helpers
-	UnitGrid unitGrid;
-	ButtonBar btnBar;
-	int btnBarWidth;
-	//int labelSectHeight;
+	UnitPlane grid;
 	int stdGap = 8;
 
-	const String scaleTrans = TRANS("Scale");
-	const String sizeTrans = TRANS("Size");
-	const String periodTrans = TRANS("Period");
+	String scaleTrans = TRANS("Scale");
+	String sizeTrans = TRANS("Size");
+	String periodTrans = TRANS("Period");
 
     //==============================================================================
-    
-	std::unique_ptr<TextButton> newScaleButton;
-	std::unique_ptr<TextButton> loadScaleButton;
-	std::unique_ptr<TextButton> viewButton;
-	std::unique_ptr<TextButton> optionsButton;
-	std::unique_ptr<TextButton> dynamicToggleButton;
-	std::unique_ptr<TextButton> dynamicOptionsButton;
 	
 	std::unique_ptr<Label> scaleNameLabel;
 	std::unique_ptr<Label> scaleSizeLabel;

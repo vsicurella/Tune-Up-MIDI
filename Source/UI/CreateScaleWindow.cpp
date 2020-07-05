@@ -11,29 +11,8 @@
 #include "CreateScaleWindow.h"
 
 CreateScaleWindow::CreateScaleWindow(ValueTree tuningDefinitionIn)
-	: unitGrid(2, 13)
+	: grid(2, 6)
 {
-	backButton.reset(new TextButton(backTrans));
-	addAndMakeVisible(backButton.get());
-	backButton->setButtonText(backTrans);
-	backButton->addListener(this);
-
-	saveButton.reset(new TextButton(saveTrans));
-	addAndMakeVisible(saveButton.get());
-	saveButton->setButtonText(saveTrans);
-	saveButton->addListener(this);
-
-	viewButton.reset(new TextButton(viewTrans));
-	addAndMakeVisible(viewButton.get());
-	viewButton->setButtonText(viewTrans);
-	viewButton->addListener(this);
-
-	modeBox.reset(new ComboBox("ModeBox"));
-	addAndMakeVisible(modeBox.get());
-	modeBox->addItem("Equal Temperament", EqualTemperament);
-	modeBox->addItem("Regular Temperament", RegularTemperament);
-	modeBox->addListener(this);
-
 	scaleNameLabel.reset(new Label("scaleNameLabel", nameTrans + ':'));
 	addAndMakeVisible(scaleNameLabel.get());
 
@@ -72,23 +51,11 @@ CreateScaleWindow::CreateScaleWindow(ValueTree tuningDefinitionIn)
 	addChildComponent(generatorTable.get());
 	generatorTable->addChangeListener(this);
 
-	// TODO: generators
-
-	btnBar.addComponent(backButton.get());
-	btnBar.addComponent(saveButton.get());
-	btnBar.addComponent(viewButton.get());
-	btnBar.addComponent(modeBox.get(), 11);
-
-	modeBox->setSelectedId(1);
 	tuningDefinition = tuningDefinitionIn;
 }
 
 CreateScaleWindow::~CreateScaleWindow()
 {
-	backButton = nullptr;
-	saveButton = nullptr;
-	viewButton = nullptr;
-	modeBox = nullptr;
 	scaleNameLabel = nullptr;
 	scaleNameBox = nullptr;
 	descriptionBox = nullptr;
@@ -102,60 +69,26 @@ CreateScaleWindow::~CreateScaleWindow()
 
 void CreateScaleWindow::paint(Graphics& g)
 {
-
+	//g.setColour(Colours::red);
+	//g.drawRect(0, 0, getWidth(), getHeight());
 }
 
 void CreateScaleWindow::resized() 
 {
-	unitGrid.setSize(getWidth(), getHeight());
+	grid.setSize(getWidth(), getHeight());
 
-	btnBarWidth = getWidth() - 3 * stdGap;
-	btnBar.setBounds(0, 0, btnBarWidth, unitGrid.getY(2));
+	descriptionBox->setBounds(grid.getX(1), 0, grid.getX(1), getHeight());
 
-	backButton->setBounds(btnBar.getComponentBounds(backButton.get()).toNearestInt());
-	saveButton->setBounds(btnBar.getComponentBounds(saveButton.get()).toNearestInt());
-	viewButton->setBounds(btnBar.getComponentBounds(viewButton.get()).toNearestInt());
-	modeBox->setBounds(btnBar.getComponentBounds(modeBox.get()).toNearestInt());
-
-	//labelSectHeight = proportionOfHeight(0.5f) - stdGap;
-
-	descriptionBox->setBounds(unitGrid.getX(1), unitGrid.getY(3), unitGrid.getX(1), unitGrid.getY(8));
-
-	scaleNameLabel->setBounds(0, unitGrid.getY(3), Font().getStringWidth(nameTrans) + 2 * stdGap, unitGrid.getY(2));
+	scaleNameLabel->setBounds(0, 0, Font().getStringWidth(nameTrans) + 2 * stdGap, grid.getY(2) - stdGap);
 	scaleNameBox->setBounds(scaleNameLabel->getRight(), scaleNameLabel->getY(), descriptionBox->getX() - scaleNameLabel->getRight() - stdGap, scaleNameLabel->getHeight());
 	
-	etNotesLabel->setBounds(0, unitGrid.getY(6), Font().getStringWidth(sizeTrans) + 2 * stdGap, unitGrid.getY(2));
+	etNotesLabel->setBounds(0, grid.getY(2), Font().getStringWidth(sizeTrans) + 2 * stdGap, grid.getY(2) - stdGap);
 	etNotesSlider->setBounds(etNotesLabel->getRight(), etNotesLabel->getY(), descriptionBox->getX() - etNotesLabel->getRight() - stdGap, etNotesLabel->getHeight());
 	
-	etPeriodLabel->setBounds(0, unitGrid.getY(9), Font().getStringWidth(periodTrans) + 2 * stdGap, unitGrid.getY(2));
+	etPeriodLabel->setBounds(0, grid.getY(4), Font().getStringWidth(periodTrans) + 2 * stdGap, grid.getY(2) - stdGap);
 	etPeriodBox->setBounds(etPeriodLabel->getRight(), etPeriodLabel->getY(), descriptionBox->getX() - etPeriodLabel->getRight() - stdGap, etPeriodLabel->getHeight());
 
-	generatorTable->setBounds(0, unitGrid.getY(5), unitGrid.getX(1) - stdGap, unitGrid.getY(6));
-}
-
-void CreateScaleWindow::visibilityChanged()
-{
-	if (isVisible())
-		updateTuning();
-}
-
-void CreateScaleWindow::buttonClicked(Button* buttonClicked)
-{
-	if (buttonClicked == backButton.get())
-	{
-		listeners.call(&CreateScaleWindow::Listener::backButtonClicked);
-	}
-
-	else if (buttonClicked == saveButton.get())
-	{
-		updateTuning();
-		listeners.call(&CreateScaleWindow::Listener::saveButtonClicked);
-	}
-
-	else if (buttonClicked == viewButton.get())
-	{
-		/* pop up menu */
-	}
+	generatorTable->setBounds(0, grid.getY(2), grid.getX(1) - stdGap, getHeight() - grid.getY(2));
 }
 
 void CreateScaleWindow::labelTextChanged(Label* labelThatChanged) 
@@ -180,11 +113,6 @@ void CreateScaleWindow::sliderValueChanged(Slider* sliderThatChanged)
 	updateTuning();
 }
 
-void CreateScaleWindow::comboBoxChanged(ComboBox* comboBoxThatChanged) 
-{
-	setMode(ScaleMode(modeBox->getSelectedId()));
-}
-
 void CreateScaleWindow::changeListenerCallback(ChangeBroadcaster* source)
 {
 	if (source == generatorTable.get())
@@ -196,13 +124,8 @@ void CreateScaleWindow::changeListenerCallback(ChangeBroadcaster* source)
 void CreateScaleWindow::setMode(ScaleMode modeIn)
 {
 	mode = modeIn;
-	updateModeComponents();
-}
-
-void CreateScaleWindow::updateModeComponents()
-{
+	
 	generatorTable->setVisible(mode == RegularTemperament);
-
 	etNotesLabel->setVisible(mode == EqualTemperament);
 	etNotesSlider->setVisible(mode == EqualTemperament);
 	etPeriodLabel->setVisible(mode == EqualTemperament);
@@ -237,7 +160,7 @@ void CreateScaleWindow::updateTuning()
 			tuningDefinition.setProperty(TuningDefinition::tuningDescriptionId, desc, nullptr);
 	}
 	
-	listeners.call(&CreateScaleWindow::Listener::scaleUpdated, tuningDefinition);
+	sendChangeMessage();
 }
 
 ValueTree CreateScaleWindow::getTuningDefinition() const
