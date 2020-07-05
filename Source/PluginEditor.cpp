@@ -223,7 +223,7 @@ void TuneupMidiAudioProcessorEditor::resized()
 		break;
 
 	default:
-		barWidth -= components.size() * componentGap;
+		barWidth -= (components.size() - 1) * componentGap;
 	}
 
 	bar.setBounds(borderGap, borderGap, barWidth, grid.getUnit(2));
