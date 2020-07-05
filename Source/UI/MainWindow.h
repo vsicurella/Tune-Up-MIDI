@@ -26,7 +26,7 @@ public:
 
 	void loadTuning(Tuning* tuningIn);
 
-	void setTuningNameLabel(String scaleNameIn);
+	void setTuningNameLabel(String nameIn);
 	void setTuningSizeLabel(int numNotesIn);
 	void setTuningPeriodLabel(double periodIn);
 	void setDescription(String descIn);
@@ -40,9 +40,12 @@ public:
 
 private:
 
+	Font font;
+
 	// Helpers
-	UnitPlane grid;
+	UnitGrid grid;
 	int stdGap = 8;
+	int labelWidth = 32;
 
 	String nameTrans = TRANS("Name");
 	String sizeTrans = TRANS("Size");

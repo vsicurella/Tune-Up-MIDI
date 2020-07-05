@@ -11,13 +11,15 @@
 #include "CreateScaleWindow.h"
 
 CreateTuningWindow::CreateTuningWindow(ValueTree tuningDefinitionIn)
-	: grid(2, 6)
+	: grid(6)
 {
 	tuningNameLabel.reset(new Label("scaleNameLabel", nameTrans + ':'));
+	tuningNameLabel->setJustificationType(Justification::centredRight);
 	addAndMakeVisible(tuningNameLabel.get());
 
 	tuningNameBox.reset(new Label("scaleNameBox"));
 	addAndMakeVisible(tuningNameBox.get());
+	tuningNameBox->setJustificationType(Justification::centredLeft);
 	tuningNameBox->setColour(Label::outlineColourId, Colours::black);
 	tuningNameBox->setEditable(true);
 	tuningNameBox->addListener(this);
@@ -29,6 +31,7 @@ CreateTuningWindow::CreateTuningWindow(ValueTree tuningDefinitionIn)
 	descriptionBox->setTextToShowWhenEmpty(TRANS("Tuning description"), Colours::darkgrey);
 
 	etNotesLabel.reset(new Label("etNotesLabel", sizeTrans + ':'));
+	etNotesLabel->setJustificationType(Justification::centredRight);
 	addChildComponent(etNotesLabel.get());
 
 	etNotesSlider.reset(new Slider("etNotesSlider"));
@@ -39,10 +42,12 @@ CreateTuningWindow::CreateTuningWindow(ValueTree tuningDefinitionIn)
 	etNotesSlider->addListener(this);
 
 	etPeriodLabel.reset(new Label("etPeriodLabel", periodTrans + ':'));
+	etPeriodLabel->setJustificationType(Justification::centredRight);
 	addChildComponent(etPeriodLabel.get());
 	
 	etPeriodBox.reset(new Label("etPeriodBox", "2/1"));
 	addChildComponent(etPeriodBox.get());
+	etPeriodBox->setJustificationType(Justification::centredLeft);
 	etPeriodBox->setColour(Label::outlineColourId, Colours::black);
 	etPeriodBox->setEditable(true);
 	etPeriodBox->addListener(this);
@@ -52,6 +57,13 @@ CreateTuningWindow::CreateTuningWindow(ValueTree tuningDefinitionIn)
 	generatorTable->addChangeListener(this);
 
 	tuningDefinition = tuningDefinitionIn;
+
+	for (auto str : { nameTrans, sizeTrans, periodTrans })
+	{
+		int width = font.getStringWidth(str + ":") + stdGap;
+		if (width > labelWidth)
+			labelWidth = width;
+	}
 }
 
 CreateTuningWindow::~CreateTuningWindow()
@@ -75,20 +87,25 @@ void CreateTuningWindow::paint(Graphics& g)
 
 void CreateTuningWindow::resized() 
 {
-	grid.setSize(getWidth(), getHeight());
+	grid.setSize(getHeight());
 
-	descriptionBox->setBounds(grid.getX(1), 0, grid.getX(1), getHeight());
+	descriptionBox->setBounds(proportionOfWidth(0.5f), 0, proportionOfWidth(0.5f), getHeight());
 
-	tuningNameLabel->setBounds(0, 0, Font().getStringWidth(nameTrans) + 2 * stdGap, grid.getY(2) - stdGap);
-	tuningNameBox->setBounds(tuningNameLabel->getRight(), tuningNameLabel->getY(), descriptionBox->getX() - tuningNameLabel->getRight() - stdGap, tuningNameLabel->getHeight());
+	tuningNameLabel->setBounds(0, 0, labelWidth, grid.getUnit(2) - stdGap);
+	tuningNameBox->setBounds(labelWidth, tuningNameLabel->getY(), descriptionBox->getX() - labelWidth - stdGap, tuningNameLabel->getHeight());
 	
-	etNotesLabel->setBounds(0, grid.getY(2), Font().getStringWidth(sizeTrans) + 2 * stdGap, grid.getY(2) - stdGap);
-	etNotesSlider->setBounds(etNotesLabel->getRight(), etNotesLabel->getY(), descriptionBox->getX() - etNotesLabel->getRight() - stdGap, etNotesLabel->getHeight());
+	etNotesLabel->setBounds(0, grid.getUnit(2), labelWidth, grid.getUnit(2) - stdGap);
+	etNotesSlider->setBounds(labelWidth, etNotesLabel->getY(), descriptionBox->getX() - labelWidth - stdGap, etNotesLabel->getHeight());
 	
-	etPeriodLabel->setBounds(0, grid.getY(4), Font().getStringWidth(periodTrans) + 2 * stdGap, grid.getY(2) - stdGap);
-	etPeriodBox->setBounds(etPeriodLabel->getRight(), etPeriodLabel->getY(), descriptionBox->getX() - etPeriodLabel->getRight() - stdGap, etPeriodLabel->getHeight());
+	etPeriodLabel->setBounds(0, grid.getUnit(4), labelWidth, grid.getUnit(2) - stdGap);
+	etPeriodBox->setBounds(labelWidth, etPeriodLabel->getY(), descriptionBox->getX() - labelWidth - stdGap, etPeriodLabel->getHeight());
 
-	generatorTable->setBounds(0, grid.getY(2), grid.getX(1) - stdGap, getHeight() - grid.getY(2));
+	generatorTable->setBounds(0, grid.getUnit(2), proportionOfWidth(0.5f) - stdGap, getHeight() - grid.getUnit(2));
+}
+
+void CreateTuningWindow::editorShown(Label* source, TextEditor& editor)
+{
+	editor.setJustification(Justification::centredLeft);
 }
 
 void CreateTuningWindow::labelTextChanged(Label* labelThatChanged) 

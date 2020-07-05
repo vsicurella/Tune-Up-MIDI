@@ -36,6 +36,7 @@ public:
 	void paint(Graphics& g) override;
 	void resized() override;
 
+	void editorShown(Label* source, TextEditor& editor) override;
 	void labelTextChanged(Label* labelThatChanged) override;
 	void sliderValueChanged(Slider* sliderThatChanged) override;
 
@@ -60,6 +61,8 @@ private:
 	std::unique_ptr<Label> tuningNameBox;
 	std::unique_ptr<TextEditor> descriptionBox;
 
+	Font font;
+
 	// Equal Temperament Controls
 	std::unique_ptr<Label> etNotesLabel;
 	std::unique_ptr<Slider> etNotesSlider;
@@ -70,8 +73,9 @@ private:
 	std::unique_ptr<GeneratorTable> generatorTable;
 
 	// Helpers
+	UnitGrid grid;
 	int stdGap = 8;
-	UnitPlane grid;
+	int labelWidth = 32;
 
 	String nameTrans = TRANS("Name");
 	String sizeTrans = TRANS("Size");
