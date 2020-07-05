@@ -15,17 +15,17 @@
 TuneUpWindow::TuneUpWindow ()
 	: grid(2, 6)
 {
-	scaleNameLabel.reset(new Label(scaleTrans));
+	tuningNameLabel.reset(new Label(nameTrans));
 	//scaleNameLabel->setJustificationType(Justification::centredRight);
-	addAndMakeVisible(scaleNameLabel.get());
+	addAndMakeVisible(tuningNameLabel.get());
 
-	scaleSizeLabel.reset(new Label(sizeTrans));
+	tuningSizeLabel.reset(new Label(sizeTrans));
 	//scaleSizeLabel->setJustificationType(Justification::centredRight);
-	addAndMakeVisible(scaleSizeLabel.get());
+	addAndMakeVisible(tuningSizeLabel.get());
 
-	scalePeriodLabel.reset(new Label(periodTrans));
+	tuningPeriodLabel.reset(new Label(periodTrans));
 	//scalePeriodLabel->setJustificationType(Justification::centredRight);
-	addAndMakeVisible(scalePeriodLabel.get());
+	addAndMakeVisible(tuningPeriodLabel.get());
 	
     descriptionTextBox.reset (new TextEditor ("descriptionTextBox"));
     addAndMakeVisible (descriptionTextBox.get());
@@ -44,9 +44,9 @@ TuneUpWindow::TuneUpWindow ()
 
 TuneUpWindow::~TuneUpWindow()
 {
-	scaleNameLabel = nullptr;
-	scaleSizeLabel = nullptr;
-	scalePeriodLabel = nullptr;
+	tuningNameLabel = nullptr;
+	tuningSizeLabel = nullptr;
+	tuningPeriodLabel = nullptr;
     descriptionTextBox = nullptr;
 }
 
@@ -63,24 +63,24 @@ void TuneUpWindow::resized()
 
 	descriptionTextBox->setBounds(grid.getX(1), 0, grid.getX(1), getHeight());
 
-	scaleNameLabel->setBounds(0, 0, grid.getX(1), grid.getY(2) - stdGap);
-	scaleSizeLabel->setBounds(0, grid.getY(2), grid.getX(1) - stdGap, grid.getY(2) - stdGap);
-	scalePeriodLabel->setBounds(0, grid.getY(4), grid.getX(1) - stdGap, grid.getY(2) - stdGap);
+	tuningNameLabel->setBounds(0, 0, grid.getX(1), grid.getY(2) - stdGap);
+	tuningSizeLabel->setBounds(0, grid.getY(2), grid.getX(1) - stdGap, grid.getY(2) - stdGap);
+	tuningPeriodLabel->setBounds(0, grid.getY(4), grid.getX(1) - stdGap, grid.getY(2) - stdGap);
 }
 
-void TuneUpWindow::setScaleNameLabel(String scaleNameIn)
+void TuneUpWindow::setTuningNameLabel(String scaleNameIn)
 {
-	scaleNameLabel->setText(scaleTrans + ": " + scaleNameIn, dontSendNotification);
+	tuningNameLabel->setText(nameTrans + ": " + scaleNameIn, dontSendNotification);
 }
 
-void TuneUpWindow::setScaleSizeLabel(int numNotesIn)
+void TuneUpWindow::setTuningSizeLabel(int numNotesIn)
 {
-	scaleSizeLabel->setText(sizeTrans + ": " + String(numNotesIn), dontSendNotification);
+	tuningSizeLabel->setText(sizeTrans + ": " + String(numNotesIn), dontSendNotification);
 }
 
-void TuneUpWindow::setScalePeriodLabel(double periodIn)
+void TuneUpWindow::setTuningPeriodLabel(double periodIn)
 {
-	scalePeriodLabel->setText(periodTrans + ": " + String(periodIn), dontSendNotification);
+	tuningPeriodLabel->setText(periodTrans + ": " + String(periodIn), dontSendNotification);
 }
 
 void TuneUpWindow::setDescription(String descIn)
@@ -90,8 +90,8 @@ void TuneUpWindow::setDescription(String descIn)
 
 void TuneUpWindow::loadTuning(Tuning* tuningIn)
 {
-	setScaleNameLabel(tuningIn->getName());
-	setScaleSizeLabel(tuningIn->getTuningSize());
-	setScalePeriodLabel(tuningIn->getPeriodCents());
+	setTuningNameLabel(tuningIn->getName());
+	setTuningSizeLabel(tuningIn->getTuningSize());
+	setTuningPeriodLabel(tuningIn->getPeriodCents());
 	setDescription(tuningIn->getDescription());
 }

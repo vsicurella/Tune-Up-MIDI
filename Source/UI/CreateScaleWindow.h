@@ -14,7 +14,7 @@
 #include "GeneratorBoxModel.h"
 #include "UnitGrid.h"
 
-class CreateScaleWindow :	public Component,
+class CreateTuningWindow :	public Component,
 							public ChangeListener,
 							public ChangeBroadcaster,
 							private Label::Listener,
@@ -22,7 +22,7 @@ class CreateScaleWindow :	public Component,
 {
 public:
 
-	enum ScaleMode
+	enum TuningMode
 	{
 		EqualTemperament = 1,
 		RegularTemperament
@@ -30,8 +30,8 @@ public:
 
 public:
 
-	CreateScaleWindow(ValueTree tuningDefinitionIn /* TODO some recall */);
-	~CreateScaleWindow();
+	CreateTuningWindow(ValueTree tuningDefinitionIn /* TODO some recall */);
+	~CreateTuningWindow();
 
 	void paint(Graphics& g) override;
 	void resized() override;
@@ -43,7 +43,7 @@ public:
 
 	//==========================================================================
 
-	void setMode(ScaleMode modeIn);
+	void setMode(TuningMode modeIn);
 
 	void updateTuning();
 
@@ -53,11 +53,11 @@ public:
 
 private:
 
-	ScaleMode mode;
+	TuningMode mode;
 	ValueTree tuningDefinition;
 
-	std::unique_ptr<Label> scaleNameLabel;
-	std::unique_ptr<Label> scaleNameBox;
+	std::unique_ptr<Label> tuningNameLabel;
+	std::unique_ptr<Label> tuningNameBox;
 	std::unique_ptr<TextEditor> descriptionBox;
 
 	// Equal Temperament Controls

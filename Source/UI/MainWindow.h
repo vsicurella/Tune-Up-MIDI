@@ -26,9 +26,9 @@ public:
 
 	void loadTuning(Tuning* tuningIn);
 
-	void setScaleNameLabel(String scaleNameIn);
-	void setScaleSizeLabel(int numNotesIn);
-	void setScalePeriodLabel(double periodIn);
+	void setTuningNameLabel(String scaleNameIn);
+	void setTuningSizeLabel(int numNotesIn);
+	void setTuningPeriodLabel(double periodIn);
 	void setDescription(String descIn);
 
 	//==============================================================================
@@ -44,15 +44,18 @@ private:
 	UnitPlane grid;
 	int stdGap = 8;
 
-	String scaleTrans = TRANS("Scale");
+	String nameTrans = TRANS("Name");
 	String sizeTrans = TRANS("Size");
 	String periodTrans = TRANS("Period");
 
     //==============================================================================
 	
-	std::unique_ptr<Label> scaleNameLabel;
-	std::unique_ptr<Label> scaleSizeLabel;
-	std::unique_ptr<Label> scalePeriodLabel;
+	std::unique_ptr<Label> tuningNameLabel;
+	std::unique_ptr<Label> tuningNameBox;
+	std::unique_ptr<Label> tuningSizeLabel;
+	std::unique_ptr<Label> tuningSizeBox;
+	std::unique_ptr<Label> tuningPeriodLabel;
+	std::unique_ptr<Label> tuningPeriodBox;
 
 	std::unique_ptr<TextEditor> descriptionTextBox;
 

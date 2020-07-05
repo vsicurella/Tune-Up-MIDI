@@ -25,13 +25,13 @@ TuneupMidiAudioProcessorEditor::TuneupMidiAudioProcessorEditor (
 	mainWindow.reset(new TuneUpWindow());
 	addChildComponent(mainWindow.get());
 
-	createScaleWindow.reset(new CreateScaleWindow(pluginState.getTuningDefinition()));
-	addChildComponent(createScaleWindow.get());
-	createScaleWindow->addChangeListener(this);
+	createTuningWindow.reset(new CreateTuningWindow(pluginState.getTuningDefinition()));
+	addChildComponent(createTuningWindow.get());
+	createTuningWindow->addChangeListener(this);
 
 	controlWindows = {
 		mainWindow.get(),
-		createScaleWindow.get(),
+		createTuningWindow.get(),
 		tuningBrowserWindow.get(),
 		generalOptionsWindow.get(),
 		toolboxOptionsWindow.get(),
@@ -40,15 +40,15 @@ TuneupMidiAudioProcessorEditor::TuneupMidiAudioProcessorEditor (
 
 	// BUTTONS
 
-	newScaleButton.reset(new TextButton("New"));
-	addChildComponent(newScaleButton.get());
-	newScaleButton->setButtonText(TRANS("New"));
-	newScaleButton->addListener(this);
+	newTuningButton.reset(new TextButton("New"));
+	addChildComponent(newTuningButton.get());
+	newTuningButton->setButtonText(TRANS("New"));
+	newTuningButton->addListener(this);
 
-	loadScaleButton.reset(new TextButton("Load"));
-	addChildComponent(loadScaleButton.get());
-	loadScaleButton->setButtonText(TRANS("Load"));
-	loadScaleButton->addListener(this);
+	loadTuningButton.reset(new TextButton("Load"));
+	addChildComponent(loadTuningButton.get());
+	loadTuningButton->setButtonText(TRANS("Load"));
+	loadTuningButton->addListener(this);
 
 	viewButton.reset(new TextButton("View"));
 	addChildComponent(viewButton.get());
@@ -94,16 +94,16 @@ TuneupMidiAudioProcessorEditor::TuneupMidiAudioProcessorEditor (
 
 	newTuningModeBox.reset(new ComboBox("ModeBox"));
 	addChildComponent(newTuningModeBox.get());
-	newTuningModeBox->addItem("Equal Temperament", CreateScaleWindow::EqualTemperament);
-	newTuningModeBox->addItem("Regular Temperament", CreateScaleWindow::RegularTemperament);
+	newTuningModeBox->addItem("Equal Temperament", CreateTuningWindow::EqualTemperament);
+	newTuningModeBox->addItem("Regular Temperament", CreateTuningWindow::RegularTemperament);
 	newTuningModeBox->addListener(this);
-	newTuningModeBox->setSelectedId(CreateScaleWindow::EqualTemperament);
+	newTuningModeBox->setSelectedId(CreateTuningWindow::EqualTemperament);
 
 	// BUTTON BARS
 
 	buttonBarComponents = {
-		newScaleButton.get(),
-		loadScaleButton.get(),
+		newTuningButton.get(),
+		loadTuningButton.get(),
 		viewButton.get(),
 		optionsButton.get(),
 		dynamicToggleButton.get(),
@@ -123,13 +123,13 @@ TuneupMidiAudioProcessorEditor::TuneupMidiAudioProcessorEditor (
 		{
 		case MainWindowMode:
 			bar.addComponents(
-				{ newScaleButton.get(), loadScaleButton.get(), viewButton.get(),
+				{ newTuningButton.get(), loadTuningButton.get(), viewButton.get(),
 				  optionsButton.get(), dynamicToggleButton.get(), dynamicOptionsButton.get() },
 				{ 0, 0, 0, 5, 5, 2 }
 			);
 			break;
 
-		case NewScaleMode:
+		case NewTuningMode:
 			bar.addComponents(
 				{ backButton.get(), saveButton.get(), viewButton.get(), newTuningModeBox.get() },
 				{ 0, 0, 0, 11 }
@@ -137,7 +137,7 @@ TuneupMidiAudioProcessorEditor::TuneupMidiAudioProcessorEditor (
 			break;
 
 
-		case LoadScaleMode:
+		case LoadTuningMode:
 
 			break;
 
@@ -175,18 +175,18 @@ TuneupMidiAudioProcessorEditor::TuneupMidiAudioProcessorEditor (
 TuneupMidiAudioProcessorEditor::~TuneupMidiAudioProcessorEditor()
 {
 	// Revert to last saved settings if unsaved changes
-	if (currentMode == NewScaleMode)
+	if (currentMode == NewTuningMode)
 		loadTuning(lastTuningDefinition);
 
 	mainWindow = nullptr;
-	createScaleWindow = nullptr;
+	createTuningWindow = nullptr;
 	tuningBrowserWindow = nullptr;
 	generalOptionsWindow = nullptr;
 	toolboxOptionsWindow = nullptr;
 	dynamicOptionsWindow = nullptr;
 
-	newScaleButton = nullptr;
-	loadScaleButton = nullptr;
+	newTuningButton = nullptr;
+	loadTuningButton = nullptr;
 	viewButton = nullptr;
 	optionsButton = nullptr;
 	dynamicToggleButton = nullptr;
@@ -253,9 +253,9 @@ void TuneupMidiAudioProcessorEditor::changeListenerCallback(ChangeBroadcaster* s
 		mainWindow->loadTuning(pluginState.getTuning());
 	}
 
-	else if (source == createScaleWindow.get())
+	else if (source == createTuningWindow.get())
 	{
-		loadTuning(createScaleWindow->getTuningDefinition());
+		loadTuning(createTuningWindow->getTuningDefinition());
 	}
 }
 
@@ -263,7 +263,7 @@ void TuneupMidiAudioProcessorEditor::buttonClicked(Button* buttonClicked)
 {
 	if (buttonClicked == backButton.get())
 	{
-		if (currentMode == NewScaleMode)
+		if (currentMode == NewTuningMode)
 		{
 			// Reset tuning
 			loadTuning(lastTuningDefinition);
@@ -279,20 +279,20 @@ void TuneupMidiAudioProcessorEditor::buttonClicked(Button* buttonClicked)
 
 	else if (buttonClicked == saveButton.get())
 	{
-		if (currentMode == NewScaleMode)
+		if (currentMode == NewTuningMode)
 		{
-			createScaleWindow->updateTuning();
+			createTuningWindow->updateTuning();
 		}
 
 		setControlMode(MainWindowMode);
 	}
 
-	else if (buttonClicked == newScaleButton.get())
+	else if (buttonClicked == newTuningButton.get())
 	{
-		setControlMode(NewScaleMode);
+		setControlMode(NewTuningMode);
 	}
 
-	else if (buttonClicked == loadScaleButton.get())
+	else if (buttonClicked == loadTuningButton.get())
 	{
 		FileChooser chooser("Select your tuning file", File::getSpecialLocation(File::userDocumentsDirectory));
 		chooser.browseForFileToOpen();
@@ -307,7 +307,7 @@ void TuneupMidiAudioProcessorEditor::comboBoxChanged(ComboBox* comboBoxThatChang
 {
 	if (comboBoxThatChanged == newTuningModeBox.get())
 	{
-		createScaleWindow->setMode(CreateScaleWindow::ScaleMode(newTuningModeBox->getSelectedId()));
+		createTuningWindow->setMode(CreateTuningWindow::TuningMode(newTuningModeBox->getSelectedId()));
 	}
 }
 
@@ -342,13 +342,13 @@ void TuneupMidiAudioProcessorEditor::setControlMode(ControlMode modeIn)
 	// Functional stuff
 	switch (currentMode)
 	{
-	case NewScaleMode:
+	case NewTuningMode:
 	{
 		midiProcessor.resetNotes();
 		// backup current scale definition
 		lastTuningDefinition = pluginState.getTuningDefinition().createCopy();
 
-		createScaleWindow->updateTuning();
+		createTuningWindow->updateTuning();
 		break;
 	}
 

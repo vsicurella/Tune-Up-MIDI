@@ -31,8 +31,8 @@ public:
 	enum ControlMode
 	{
 		MainWindowMode = 0,
-		NewScaleMode,
-		LoadScaleMode,
+		NewTuningMode,
+		LoadTuningMode,
 		GeneralOptions,
 		ToolbarOptions,
 		DynamicOptions
@@ -73,7 +73,7 @@ private:
 
 	// Control windows
 	std::unique_ptr<TuneUpWindow> mainWindow;
-	std::unique_ptr<CreateScaleWindow> createScaleWindow;
+	std::unique_ptr<CreateTuningWindow> createTuningWindow;
 	std::unique_ptr<Component /* TODO */> tuningBrowserWindow;
 	std::unique_ptr<Component /* TODO */> generalOptionsWindow;
 	std::unique_ptr<Component /* TODO */> toolboxOptionsWindow;
@@ -83,8 +83,8 @@ private:
 
 	// Button Bar
 	// Main Window
-	std::unique_ptr<TextButton> newScaleButton;
-	std::unique_ptr<TextButton> loadScaleButton;
+	std::unique_ptr<TextButton> newTuningButton;
+	std::unique_ptr<TextButton> loadTuningButton;
 	std::unique_ptr<TextButton> viewButton;
 	std::unique_ptr<TextButton> optionsButton;
 	std::unique_ptr<TextButton> dynamicToggleButton;

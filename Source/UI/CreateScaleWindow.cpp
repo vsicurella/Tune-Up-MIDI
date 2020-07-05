@@ -10,17 +10,17 @@
 
 #include "CreateScaleWindow.h"
 
-CreateScaleWindow::CreateScaleWindow(ValueTree tuningDefinitionIn)
+CreateTuningWindow::CreateTuningWindow(ValueTree tuningDefinitionIn)
 	: grid(2, 6)
 {
-	scaleNameLabel.reset(new Label("scaleNameLabel", nameTrans + ':'));
-	addAndMakeVisible(scaleNameLabel.get());
+	tuningNameLabel.reset(new Label("scaleNameLabel", nameTrans + ':'));
+	addAndMakeVisible(tuningNameLabel.get());
 
-	scaleNameBox.reset(new Label("scaleNameBox"));
-	addAndMakeVisible(scaleNameBox.get());
-	scaleNameBox->setColour(Label::outlineColourId, Colours::black);
-	scaleNameBox->setEditable(true);
-	scaleNameBox->addListener(this);
+	tuningNameBox.reset(new Label("scaleNameBox"));
+	addAndMakeVisible(tuningNameBox.get());
+	tuningNameBox->setColour(Label::outlineColourId, Colours::black);
+	tuningNameBox->setEditable(true);
+	tuningNameBox->addListener(this);
 
 	descriptionBox.reset(new TextEditor("descriptionBox"));
 	addAndMakeVisible(descriptionBox.get());
@@ -54,10 +54,10 @@ CreateScaleWindow::CreateScaleWindow(ValueTree tuningDefinitionIn)
 	tuningDefinition = tuningDefinitionIn;
 }
 
-CreateScaleWindow::~CreateScaleWindow()
+CreateTuningWindow::~CreateTuningWindow()
 {
-	scaleNameLabel = nullptr;
-	scaleNameBox = nullptr;
+	tuningNameLabel = nullptr;
+	tuningNameBox = nullptr;
 	descriptionBox = nullptr;
 	etNotesLabel = nullptr;
 	etNotesSlider = nullptr;
@@ -67,20 +67,20 @@ CreateScaleWindow::~CreateScaleWindow()
 }
 
 
-void CreateScaleWindow::paint(Graphics& g)
+void CreateTuningWindow::paint(Graphics& g)
 {
 	//g.setColour(Colours::red);
 	//g.drawRect(0, 0, getWidth(), getHeight());
 }
 
-void CreateScaleWindow::resized() 
+void CreateTuningWindow::resized() 
 {
 	grid.setSize(getWidth(), getHeight());
 
 	descriptionBox->setBounds(grid.getX(1), 0, grid.getX(1), getHeight());
 
-	scaleNameLabel->setBounds(0, 0, Font().getStringWidth(nameTrans) + 2 * stdGap, grid.getY(2) - stdGap);
-	scaleNameBox->setBounds(scaleNameLabel->getRight(), scaleNameLabel->getY(), descriptionBox->getX() - scaleNameLabel->getRight() - stdGap, scaleNameLabel->getHeight());
+	tuningNameLabel->setBounds(0, 0, Font().getStringWidth(nameTrans) + 2 * stdGap, grid.getY(2) - stdGap);
+	tuningNameBox->setBounds(tuningNameLabel->getRight(), tuningNameLabel->getY(), descriptionBox->getX() - tuningNameLabel->getRight() - stdGap, tuningNameLabel->getHeight());
 	
 	etNotesLabel->setBounds(0, grid.getY(2), Font().getStringWidth(sizeTrans) + 2 * stdGap, grid.getY(2) - stdGap);
 	etNotesSlider->setBounds(etNotesLabel->getRight(), etNotesLabel->getY(), descriptionBox->getX() - etNotesLabel->getRight() - stdGap, etNotesLabel->getHeight());
@@ -91,9 +91,9 @@ void CreateScaleWindow::resized()
 	generatorTable->setBounds(0, grid.getY(2), grid.getX(1) - stdGap, getHeight() - grid.getY(2));
 }
 
-void CreateScaleWindow::labelTextChanged(Label* labelThatChanged) 
+void CreateTuningWindow::labelTextChanged(Label* labelThatChanged) 
 {
-	if (labelThatChanged == scaleNameBox.get())
+	if (labelThatChanged == tuningNameBox.get())
 	{
 	}
 	
@@ -104,7 +104,7 @@ void CreateScaleWindow::labelTextChanged(Label* labelThatChanged)
 	updateTuning();
 }
 
-void CreateScaleWindow::sliderValueChanged(Slider* sliderThatChanged) 
+void CreateTuningWindow::sliderValueChanged(Slider* sliderThatChanged) 
 {
 	if (sliderThatChanged == etNotesSlider.get())
 	{
@@ -113,7 +113,7 @@ void CreateScaleWindow::sliderValueChanged(Slider* sliderThatChanged)
 	updateTuning();
 }
 
-void CreateScaleWindow::changeListenerCallback(ChangeBroadcaster* source)
+void CreateTuningWindow::changeListenerCallback(ChangeBroadcaster* source)
 {
 	if (source == generatorTable.get())
 	{
@@ -121,7 +121,7 @@ void CreateScaleWindow::changeListenerCallback(ChangeBroadcaster* source)
 	}
 }
 
-void CreateScaleWindow::setMode(ScaleMode modeIn)
+void CreateTuningWindow::setMode(TuningMode modeIn)
 {
 	mode = modeIn;
 	
@@ -132,7 +132,7 @@ void CreateScaleWindow::setMode(ScaleMode modeIn)
 	etPeriodBox->setVisible(mode == EqualTemperament);
 }
 
-void CreateScaleWindow::updateTuning()
+void CreateTuningWindow::updateTuning()
 {
 	if (mode == EqualTemperament)
 	{
@@ -140,7 +140,7 @@ void CreateScaleWindow::updateTuning()
 			etNotesSlider->getValue(),
 			etPeriodBox->getText(),
 			60,
-			scaleNameBox->getText(),
+			tuningNameBox->getText(),
 			descriptionBox->getText()
 		);
 
@@ -151,7 +151,7 @@ void CreateScaleWindow::updateTuning()
 	{
 		tuningDefinition = generatorTable->getDefinition();
 
-		String name = scaleNameBox->getText();
+		String name = tuningNameBox->getText();
 		if (name.length() > 0)
 			tuningDefinition.setProperty(TuningDefinition::tuningNameId, name, nullptr);
 
@@ -163,7 +163,7 @@ void CreateScaleWindow::updateTuning()
 	sendChangeMessage();
 }
 
-ValueTree CreateScaleWindow::getTuningDefinition() const
+ValueTree CreateTuningWindow::getTuningDefinition() const
 {
 	return tuningDefinition;
 }
