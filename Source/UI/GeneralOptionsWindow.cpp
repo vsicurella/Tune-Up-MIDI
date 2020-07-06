@@ -11,7 +11,7 @@
 #include "GeneralOptionsWindow.h"
 
 GeneralOptionsWindow::GeneralOptionsWindow(ValueTree defaultOptions)
-	: grid(24, 6)
+	: grid(24, 14)
 {
 	defaultTuningDirLabel.reset(new Label("defaultTuningDirLabel", "Default Load Path:"));
 	addAndMakeVisible(defaultTuningDirLabel.get());
@@ -32,9 +32,9 @@ GeneralOptionsWindow::GeneralOptionsWindow(ValueTree defaultOptions)
 
 	defaultTuningInBox.reset(new ComboBox("defaultTuningInBox"));
 	addAndMakeVisible(defaultTuningInBox.get());
-	defaultTuningInBox->addItem("Standard Tuning (12EDO)", 1);
-	defaultTuningInBox->addItem("Current Tuning...", 2);
-	defaultTuningInBox->addItem("Browse For Tuning...", 3);
+	defaultTuningInBox->addItem(standardTrans, 1);
+	defaultTuningInBox->addItem(currentTrans, 2);
+	defaultTuningInBox->addItem(browseTrans, 3);
 
 	defaultTuningOutLabel.reset(new Label("defaultTuningOutLabel", "Default Tuning Out:"));
 	addAndMakeVisible(defaultTuningOutLabel.get());
@@ -42,34 +42,60 @@ GeneralOptionsWindow::GeneralOptionsWindow(ValueTree defaultOptions)
 
 	defaultTuningOutBox.reset(new ComboBox("defaultTuningOutBox"));
 	addAndMakeVisible(defaultTuningOutBox.get());
-	defaultTuningOutBox->addItem("Standard Tuning (12EDO)", 1);
-	defaultTuningOutBox->addItem("Current Tuning...", 2);
-	defaultTuningOutBox->addItem("Browse For Tuning...", 3);
+	defaultTuningOutBox->addItem(standardTrans, 1);
+	defaultTuningOutBox->addItem(currentTrans, 2);
+	defaultTuningOutBox->addItem(browseTrans, 3);
 
-	scaleInReferenceNoteLabel.reset(new Label("scaleInReferenceNoteLabel", "Reference Note In:"));
-	addAndMakeVisible(scaleInReferenceNoteLabel.get());
-	scaleInReferenceNoteLabel->setJustificationType(Justification::centredRight);
+	referenceNoteInLabel.reset(new Label("referenceNoteInLabel", "Reference Note In:"));
+	addAndMakeVisible(referenceNoteInLabel.get());
+	referenceNoteInLabel->setJustificationType(Justification::centredRight);
 
-	scaleInReferenceNoteSlider.reset(new Slider("scaleInReferenceNoteSlider"));
-	addAndMakeVisible(scaleInReferenceNoteSlider.get());
-	scaleInReferenceNoteSlider->setSliderStyle(Slider::IncDecButtons);
-	scaleInReferenceNoteSlider->setRange(0, 127, 1);
+	referenceNoteInSlider.reset(new Slider("referenceNoteInSlider"));
+	addAndMakeVisible(referenceNoteInSlider.get());
+	referenceNoteInSlider->setSliderStyle(Slider::IncDecButtons);
+	referenceNoteInSlider->setRange(0, 127, 1);
 
-	scaleInReferenceFreqLabel.reset(new Label("scaleInReferenceFreqLabel", "Reference Freq In:"));
-	addAndMakeVisible(scaleInReferenceFreqLabel.get());
-	scaleInReferenceFreqLabel->setJustificationType(Justification::centredRight);
+	referenceFreqInLabel.reset(new Label("referenceFreqInLabel", "Reference Freq In:"));
+	addAndMakeVisible(referenceFreqInLabel.get());
+	referenceFreqInLabel->setJustificationType(Justification::centredRight);
 	
-	scaleInReferenceFreqSlider.reset(new Slider("scaleInReferenceFreqSlider"));
-	addAndMakeVisible(scaleInReferenceFreqSlider.get());
-	scaleInReferenceFreqSlider->setSliderStyle(Slider::IncDecButtons);
-	scaleInReferenceFreqSlider->setRange(20, 20000, 0.001);
-	scaleInReferenceFreqSlider->setSkewFactor(2);
+	referenceFreqInSlider.reset(new Slider("referenceFreqInSlider"));
+	addAndMakeVisible(referenceFreqInSlider.get());
+	referenceFreqInSlider->setSliderStyle(Slider::IncDecButtons);
+	referenceFreqInSlider->setRange(20, 20000, 0.001);
+	referenceFreqInSlider->setSkewFactor(2);
 
-	scaleInReferenceFreqAutoButton.reset(new TextButton("scaleInReferenceFreqAutoButton", "Sets frequency based on standard tuning at Note 69=440Hz"));
-	addAndMakeVisible(scaleInReferenceFreqAutoButton.get());
-	scaleInReferenceFreqAutoButton->setButtonText("#");
-	scaleInReferenceFreqAutoButton->onClick = [=]() {
-		scaleInReferenceFreqSlider->setValue(pow(2, (scaleInReferenceNoteSlider->getValue() - 69) / 12.0) * 440);
+	referenceFreqInAutoBtn.reset(new TextButton("referenceFreqInAutoBtn", "Sets frequency based on standard tuning at Note 69=440Hz"));
+	addAndMakeVisible(referenceFreqInAutoBtn.get());
+	referenceFreqInAutoBtn->setButtonText("#");
+	referenceFreqInAutoBtn->onClick = [=]() {
+		referenceFreqInSlider->setValue(getStandardTuningFrequency(referenceNoteInSlider->getValue()));
+	};
+
+	referenceNoteOutLabel.reset(new Label("referenceNoteOutLabel", "Reference Note Out:"));
+	addAndMakeVisible(referenceNoteOutLabel.get());
+	referenceNoteOutLabel->setJustificationType(Justification::centredRight);
+
+	referenceNoteOutSlider.reset(new Slider("referenceNoteOutSlider"));
+	addAndMakeVisible(referenceNoteOutSlider.get());
+	referenceNoteOutSlider->setSliderStyle(Slider::IncDecButtons);
+	referenceNoteOutSlider->setRange(0, 127, 1);
+
+	referenceFreqOutLabel.reset(new Label("referenceFreqOutLabel", "Reference Freq In:"));
+	addAndMakeVisible(referenceFreqOutLabel.get());
+	referenceFreqOutLabel->setJustificationType(Justification::centredRight);
+
+	referenceFreqOutSlider.reset(new Slider("referenceFreqOutSlider"));
+	addAndMakeVisible(referenceFreqOutSlider.get());
+	referenceFreqOutSlider->setSliderStyle(Slider::IncDecButtons);
+	referenceFreqOutSlider->setRange(20, 20000, 0.001);
+	referenceFreqOutSlider->setSkewFactor(2);
+
+	referenceFreqOutAutoBtn.reset(new TextButton("referenceFreqInAutoBtn", "Sets frequency based on standard tuning at Note 69=440Hz"));
+	addAndMakeVisible(referenceFreqOutAutoBtn.get());
+	referenceFreqOutAutoBtn->setButtonText("#");
+	referenceFreqOutAutoBtn->onClick = [=]() {
+		referenceFreqOutSlider->setValue(getStandardTuningFrequency(referenceNoteOutSlider->getValue()));
 	};
 
 	pitchbendRangeLabel.reset(new Label("pitchbendRangeLabel", "Pitchbend Range:"));
@@ -98,7 +124,7 @@ GeneralOptionsWindow::GeneralOptionsWindow(ValueTree defaultOptions)
 	channelModeBox->addItem("Round Robin (Cycle)", 1);
 	channelModeBox->addItem("First Available", 2);
 
-	voiceLimitLabel.reset(new Label("voiceLimitLabel", "Max Voices:"));
+	voiceLimitLabel.reset(new Label("voiceLimitLabel", "Voice Limit:"));
 	addAndMakeVisible(voiceLimitLabel.get());
 	voiceLimitLabel->setJustificationType(Justification::centredRight);
 
@@ -107,11 +133,11 @@ GeneralOptionsWindow::GeneralOptionsWindow(ValueTree defaultOptions)
 	voiceLimitSlider->setSliderStyle(Slider::IncDecButtons);
 	voiceLimitSlider->setRange(1, 16, 1);
 
-	reuseChannelsButton.reset(new ToggleButton("Reuse Channels When Possible"));
+	reuseChannelsButton.reset(new ToggleButton(reuseTrans));
 	addAndMakeVisible(reuseChannelsButton.get());
 	
 
-	resetChannelPitchbendButton.reset(new ToggleButton("Reset Empty Channel Pitchbend"));
+	resetChannelPitchbendButton.reset(new ToggleButton(resetTrans));
 	addAndMakeVisible(resetChannelPitchbendButton.get());
 
 
@@ -127,11 +153,16 @@ GeneralOptionsWindow::~GeneralOptionsWindow()
 	 defaultTuningInBox = nullptr;
 	 defaultTuningOutLabel = nullptr;
 	 defaultTuningOutBox = nullptr;
-	 scaleInReferenceNoteLabel = nullptr;
-	 scaleInReferenceNoteSlider = nullptr;
-	 scaleInReferenceFreqLabel = nullptr;
-	 scaleInReferenceFreqSlider = nullptr;
-	 scaleInReferenceFreqAutoButton = nullptr;
+	 referenceNoteInLabel = nullptr;
+	 referenceNoteInSlider = nullptr;
+	 referenceFreqInLabel = nullptr;
+	 referenceFreqInSlider = nullptr;
+	 referenceFreqInAutoBtn = nullptr;
+	 referenceNoteOutLabel = nullptr;
+	 referenceNoteOutSlider = nullptr;
+	 referenceFreqOutLabel = nullptr;
+	 referenceFreqOutSlider = nullptr;
+	 referenceFreqOutAutoBtn = nullptr;
 	 pitchbendRangeLabel = nullptr;
 	 pitchbendRangeSlider = nullptr;
 	 channelControlLabel = nullptr;
@@ -146,51 +177,56 @@ GeneralOptionsWindow::~GeneralOptionsWindow()
 
 void GeneralOptionsWindow::paint(Graphics& g)
 {
-	g.setColour(Colours::green);
-	g.drawRect(0, 0, getWidth(), getHeight());
+	//g.setColour(Colours::green);
+	//g.drawRect(0, 0, getWidth(), getHeight());
 }
 
 void GeneralOptionsWindow::resized()
 {
 	grid.setSize(getWidth(), getHeight());
 
+	int leftHalfX = 0;
 	int rightHalfX = grid.getX(12);
-	int yStep = 1;
+	int yStep = 2;
 
 	int leftLabelWidth = grid.getX(6);
 	int rightLabelWidth = grid.getX(5);
 	int rightControlWidth = grid.getX(12);
-	int leftControlWidth = rightControlWidth - stdGap;
+	int leftControlWidth = rightControlWidth - stdGap / 2;
 	int buttonWidth = grid.getX(1);
 
-	int rowHeight = grid.getY(1) - 1;
-
+	int rowHeight = grid.getY(2) - 1;
 
 	// Left half
-	defaultTuningDirLabel->setBounds(0, 0, leftLabelWidth, rowHeight);
+	defaultTuningDirLabel->setBounds(leftHalfX, 0, leftLabelWidth, rowHeight);
 	defaultTuningDirEditor->setBounds(defaultTuningDirLabel->getRight(), defaultTuningDirLabel->getY(), leftControlWidth - defaultTuningDirLabel->getWidth() - buttonWidth, rowHeight);
 	defaultTuningDirButton->setBounds(defaultTuningDirEditor->getRight(), defaultTuningDirLabel->getY(), buttonWidth, rowHeight);
-	defaultTuningInLabel->setBounds(0, grid.getY(yStep * 1), leftLabelWidth, rowHeight);
+	defaultTuningInLabel->setBounds(leftHalfX, grid.getY(yStep * 1), leftLabelWidth, rowHeight);
 	defaultTuningInBox->setBounds(defaultTuningInLabel->getRight(), defaultTuningInLabel->getY(), leftControlWidth - defaultTuningInLabel->getWidth(), rowHeight);
-	defaultTuningOutLabel->setBounds(0, grid.getY(yStep * 2), leftLabelWidth, rowHeight);
+	defaultTuningOutLabel->setBounds(leftHalfX, grid.getY(yStep * 2), leftLabelWidth, rowHeight);
 	defaultTuningOutBox->setBounds(defaultTuningOutLabel->getRight(), defaultTuningOutLabel->getY(), leftControlWidth - defaultTuningOutLabel->getWidth(), rowHeight);
-	scaleInReferenceNoteLabel->setBounds(0, grid.getY(yStep * 3), leftLabelWidth, rowHeight);
-	scaleInReferenceNoteSlider->setBounds(scaleInReferenceNoteLabel->getRight(), scaleInReferenceNoteLabel->getY(), leftControlWidth - scaleInReferenceNoteLabel->getWidth(), scaleInReferenceNoteLabel->getHeight());
-	scaleInReferenceFreqLabel->setBounds(0, grid.getY(yStep * 4), leftLabelWidth, rowHeight);
-	scaleInReferenceFreqSlider->setBounds(scaleInReferenceFreqLabel->getRight(), scaleInReferenceFreqLabel->getY(), leftControlWidth - scaleInReferenceFreqLabel->getWidth() - buttonWidth, rowHeight);
-	scaleInReferenceFreqAutoButton->setBounds(scaleInReferenceFreqSlider->getRight(), scaleInReferenceFreqLabel->getY(), buttonWidth, rowHeight);
+	referenceNoteInLabel->setBounds(leftHalfX, grid.getY(yStep * 3), leftLabelWidth, rowHeight);
+	referenceNoteInSlider->setBounds(referenceNoteInLabel->getRight(), referenceNoteInLabel->getY(), leftControlWidth - referenceNoteInLabel->getWidth(), referenceNoteInLabel->getHeight());
+	referenceFreqInLabel->setBounds(leftHalfX, grid.getY(yStep * 4), leftLabelWidth, rowHeight);
+	referenceFreqInSlider->setBounds(referenceFreqInLabel->getRight(), referenceFreqInLabel->getY(), leftControlWidth - referenceFreqInLabel->getWidth() - buttonWidth, rowHeight);
+	referenceFreqInAutoBtn->setBounds(referenceFreqInSlider->getRight(), referenceFreqInLabel->getY(), buttonWidth, rowHeight);
+	referenceNoteOutLabel->setBounds(leftHalfX, grid.getY(yStep * 5), leftLabelWidth, rowHeight);
+	referenceNoteOutSlider->setBounds(referenceNoteOutLabel->getRight(), referenceNoteOutLabel->getY(), leftControlWidth - referenceNoteOutLabel->getWidth(), referenceNoteOutLabel->getHeight());
+	referenceFreqOutLabel->setBounds(leftHalfX, grid.getY(yStep * 6), leftLabelWidth, rowHeight);
+	referenceFreqOutSlider->setBounds(referenceFreqOutLabel->getRight(), referenceFreqOutLabel->getY(), leftControlWidth - referenceFreqOutLabel->getWidth() - buttonWidth, rowHeight);
+	referenceFreqOutAutoBtn->setBounds(referenceFreqOutSlider->getRight(), referenceFreqOutLabel->getY(), buttonWidth, rowHeight);
 
 	// Right half
 	pitchbendRangeLabel->setBounds(rightHalfX, defaultTuningDirLabel->getY(), rightLabelWidth, rowHeight);
 	pitchbendRangeSlider->setBounds(pitchbendRangeLabel->getRight(), 0, rightControlWidth - pitchbendRangeLabel->getWidth(), rowHeight);
-	channelControlLabel->setBounds(rightHalfX, defaultTuningInLabel->getY(), rightLabelWidth, rowHeight);
-	channelController->setBounds(channelControlLabel->getRight(), channelControlLabel->getY(), rightControlWidth - channelControlLabel->getWidth(), rowHeight);
+	voiceLimitLabel->setBounds(rightHalfX, defaultTuningInLabel->getY(), rightLabelWidth, rowHeight);
+	voiceLimitSlider->setBounds(voiceLimitLabel->getRight(), voiceLimitLabel->getY(), rightControlWidth - voiceLimitLabel->getWidth(), rowHeight);
 	channelModeLabel->setBounds(rightHalfX, defaultTuningOutLabel->getY(), rightLabelWidth, rowHeight);
 	channelModeBox->setBounds(channelModeLabel->getRight(), channelModeLabel->getY(), rightControlWidth - channelModeLabel->getWidth(), rowHeight);
-	voiceLimitLabel->setBounds(rightHalfX, scaleInReferenceNoteLabel->getY(), rightLabelWidth, rowHeight);
-	voiceLimitSlider->setBounds(voiceLimitLabel->getRight(), voiceLimitLabel->getY(), rightControlWidth - voiceLimitLabel->getWidth(), rowHeight);
-	reuseChannelsButton->setBounds(rightHalfX, scaleInReferenceFreqLabel->getY(), rightControlWidth, rowHeight);
-	resetChannelPitchbendButton->setBounds(rightHalfX, grid.getY(yStep * 5), rightControlWidth, rowHeight);
+	channelControlLabel->setBounds(rightHalfX, referenceNoteInLabel->getY(), rightLabelWidth, rowHeight);
+	channelController->setBounds(channelControlLabel->getRight(), channelControlLabel->getY(), rightControlWidth - channelControlLabel->getWidth(), rowHeight);
+	reuseChannelsButton->setBounds(rightHalfX, referenceNoteOutLabel->getY(), rightControlWidth, rowHeight);
+	resetChannelPitchbendButton->setBounds(rightHalfX, referenceFreqOutLabel->getY(), rightControlWidth, rowHeight);
 }
 
 void GeneralOptionsWindow::loadOptions(ValueTree optionsIn, bool factoryOptionIfEmpty)
@@ -217,13 +253,26 @@ void GeneralOptionsWindow::loadOptions(ValueTree optionsIn, bool factoryOptionIf
 	if (false /* TODO */)
 		void;
 	else
-		scaleInReferenceNoteSlider->setValue(69);
+		referenceNoteInSlider->setValue(69);
 	
 	//scaleInReferenceFreqSlider = nullptr;
 	if (false /* TODO */)
 		void;
 	else
-		scaleInReferenceFreqSlider->setValue(440.0);
+		referenceFreqInSlider->setValue(440.0);
+
+	//scaleInReferenceNoteSlider = nullptr;
+	if (false /* TODO */)
+		void;
+	else
+		referenceNoteOutSlider->setValue(60);
+
+	//scaleInReferenceFreqSlider = nullptr;
+	if (false /* TODO */)
+		void;
+	else
+		referenceFreqOutSlider->setValue(261.626);
+
 
 	//pitchbendRangeSlider = nullptr;
 	if (false /* TODO */)

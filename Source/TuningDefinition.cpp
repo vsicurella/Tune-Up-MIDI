@@ -332,7 +332,7 @@ ValueTree TuningDefinition::createRegularTemperamentDefinition(
 
 	if (nameIn.length() == 0)
 	{
-		nameIn = "New Rank-" + String(generatorCents.size()) + " Regular Temperament";
+		nameIn = "New Rank-" + String(generatorCents.size()) + " Temperament";
 	}
 
 	definitionOut.setProperty(tuningNameId, nameIn, nullptr);
@@ -393,7 +393,7 @@ Tuning TuningDefinition::renderFunctionalTuning(
 	);
 
 	if (nameIn.length() == 0)
-		nameIn = "New Regular Temperament";
+		nameIn = "New Rank-" + String(generatorCents.size()) + " Temperament";
 
 	return Tuning(centsTable, midiRootNote, nameIn, descriptionIn);
 }

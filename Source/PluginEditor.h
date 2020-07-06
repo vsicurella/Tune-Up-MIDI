@@ -109,6 +109,7 @@ private:
 	// Helpers
 	int borderGap = 8;
 	int componentGap = 8;
+	int barHeight;
 	UnitGrid grid;
 
 	String backTrans = TRANS("Back");

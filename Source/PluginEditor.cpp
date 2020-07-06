@@ -18,7 +18,7 @@ TuneupMidiAudioProcessorEditor::TuneupMidiAudioProcessorEditor (
 	TuneUpMidiState& ps
 )
     : AudioProcessorEditor (&p), processor (p), midiProcessor(mp), pluginState(ps),
-	grid(13)
+	grid(23)
 {
 	// CONTROL WINDOWS
 
@@ -208,12 +208,13 @@ void TuneupMidiAudioProcessorEditor::paint (Graphics& g)
 
 	// toolbar background
 	g.setColour(Colour(0xff323e44).darker(0.75f));
-	g.fillRect(0, grid.getUnit(11), getWidth(), grid.getUnit(2));
+	g.fillRect(0, controlWindows[currentMode]->getBottom() + componentGap, getWidth(), barHeight);
 }
 
 void TuneupMidiAudioProcessorEditor::resized()
 {
 	grid.setSize(getHeight());
+	barHeight = grid.getUnit(3);
 
 	// Button Bar
 	ButtonBar& bar = buttonBars.getReference(currentMode);
@@ -230,7 +231,7 @@ void TuneupMidiAudioProcessorEditor::resized()
 		barWidth -= (components.size() - 1) * componentGap;
 	}
 
-	bar.setBounds(borderGap, borderGap, barWidth, grid.getUnit(2));
+	bar.setBounds(borderGap, borderGap, barWidth, barHeight);
 
 	Component* c;
 	for (int i = 0; i < components.size(); i++)
@@ -246,7 +247,7 @@ void TuneupMidiAudioProcessorEditor::resized()
 	
 
 	// Control Windows
-	BorderSize<int> controlBorder(bar.getBounds().getBottom() + componentGap, borderGap, grid.getUnit(2) + componentGap, borderGap);
+	BorderSize<int> controlBorder(bar.getBounds().getBottom() + componentGap, borderGap, barHeight + componentGap, borderGap);
 	controlWindows[currentMode]->setBoundsInset(controlBorder);
 }
 

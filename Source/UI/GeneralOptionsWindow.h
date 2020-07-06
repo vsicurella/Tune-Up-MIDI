@@ -11,6 +11,11 @@
 #pragma once
 #include "UnitGrid.h"
 
+static std::function<double(int)> getStandardTuningFrequency = [=](int noteIn)
+{
+	return pow(2, (noteIn - 69) / 12.0) * 440.0;
+};
+
 class GeneralOptionsWindow : public Component
 {
 
@@ -75,12 +80,19 @@ private:
 	std::unique_ptr<Label> defaultTuningOutLabel;
 	std::unique_ptr<ComboBox> defaultTuningOutBox;
 
-	std::unique_ptr<Label> scaleInReferenceNoteLabel;
-	std::unique_ptr<Slider> scaleInReferenceNoteSlider;
+	std::unique_ptr<Label> referenceNoteInLabel;
+	std::unique_ptr<Slider> referenceNoteInSlider;
 
-	std::unique_ptr<Label> scaleInReferenceFreqLabel;
-	std::unique_ptr<Slider> scaleInReferenceFreqSlider;
-	std::unique_ptr<TextButton> scaleInReferenceFreqAutoButton;
+	std::unique_ptr<Label> referenceFreqInLabel;
+	std::unique_ptr<Slider> referenceFreqInSlider;
+	std::unique_ptr<TextButton> referenceFreqInAutoBtn;
+
+	std::unique_ptr<Label> referenceNoteOutLabel;
+	std::unique_ptr<Slider> referenceNoteOutSlider;
+
+	std::unique_ptr<Label> referenceFreqOutLabel;
+	std::unique_ptr<Slider> referenceFreqOutSlider;
+	std::unique_ptr<TextButton> referenceFreqOutAutoBtn;
 
 	std::unique_ptr<Label> pitchbendRangeLabel;
 	std::unique_ptr<Slider> pitchbendRangeSlider;
@@ -101,6 +113,9 @@ private:
 	UnitPlane grid;
 	int stdGap = 8;
 
+	String standardTrans = TRANS("Standard") + " (12EDO)";
+	String currentTrans = TRANS("Current Tuning");
+	String browseTrans = TRANS("Browse") + " ...";
 	String reuseTrans = TRANS("Reuse channels when possible");
-	String resetTrans = TRANS("Reset empty channels pitchbend");
+	String resetTrans = TRANS("Reset empty channel pitchbend");
 };
