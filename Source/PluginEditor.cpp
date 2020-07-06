@@ -29,6 +29,10 @@ TuneupMidiAudioProcessorEditor::TuneupMidiAudioProcessorEditor (
 	addChildComponent(createTuningWindow.get());
 	createTuningWindow->addChangeListener(this);
 
+	generalOptionsWindow.reset(new GeneralOptionsWindow(ValueTree()));
+	addChildComponent(generalOptionsWindow.get());
+	generalOptionsWindow->addListener(this);
+
 	controlWindows = {
 		mainWindow.get(),
 		createTuningWindow.get(),
@@ -301,6 +305,10 @@ void TuneupMidiAudioProcessorEditor::buttonClicked(Button* buttonClicked)
 		onFileLoad();
 	}
 
+	else if (buttonClicked == optionsButton.get())
+	{
+		setControlMode(GeneralOptions);
+	}
 }
 
 void TuneupMidiAudioProcessorEditor::comboBoxChanged(ComboBox* comboBoxThatChanged)
@@ -337,6 +345,11 @@ void TuneupMidiAudioProcessorEditor::loadTuning(ValueTree tuningDefinition)
 
 void TuneupMidiAudioProcessorEditor::setControlMode(ControlMode modeIn)
 {
+	for (auto c : buttonBars.getReference(currentMode).getComponents())
+		c->setVisible(false);
+
+	controlWindows[currentMode]->setVisible(false);
+
 	currentMode = modeIn;
 
 	// Functional stuff
@@ -353,8 +366,17 @@ void TuneupMidiAudioProcessorEditor::setControlMode(ControlMode modeIn)
 	}
 
 	case GeneralOptions:
-	{
+	{ 
+		generalOptionsButton->setEnabled(false);
+		toolboxButton->setEnabled(true);
+
 		break;
+	}
+
+	case ToolbarOptions:
+	{
+		generalOptionsButton->setEnabled(true);
+		toolboxButton->setEnabled(false);
 	}
 
 	default: // MainWindow
@@ -363,17 +385,8 @@ void TuneupMidiAudioProcessorEditor::setControlMode(ControlMode modeIn)
 	}
 	}
 
-	// Button Bars
-	for (auto c : buttonBarComponents)
-		c->setVisible(false);
-
 	for (auto c : buttonBars.getReference(currentMode).getComponents())
 		c->setVisible(true);
-
-	// GUI stuff
-	for (auto window : controlWindows)
-		if (window) // temporary while not all implemented
-			window->setVisible(false);
 
 	controlWindows[currentMode]->setVisible(true);
 

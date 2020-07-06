@@ -15,8 +15,10 @@
 #include "ScalaFileReader.h"
 #include "UI/MainWindow.h"
 #include "UI/CreateScaleWindow.h"
+#include "UI/GeneralOptionsWindow.h"
 #include "UI/ButtonBar.h"
 #include "UI/UnitGrid.h"
+
 
 //==============================================================================
 /**
@@ -24,6 +26,7 @@
 class TuneupMidiAudioProcessorEditor  :	public AudioProcessorEditor, 
 										private Button::Listener,
 										private ComboBox::Listener,
+										private GeneralOptionsWindow::Listener,
 										private ChangeListener
 {
 public:
@@ -75,7 +78,7 @@ private:
 	std::unique_ptr<TuneUpWindow> mainWindow;
 	std::unique_ptr<CreateTuningWindow> createTuningWindow;
 	std::unique_ptr<Component /* TODO */> tuningBrowserWindow;
-	std::unique_ptr<Component /* TODO */> generalOptionsWindow;
+	std::unique_ptr<GeneralOptionsWindow> generalOptionsWindow;
 	std::unique_ptr<Component /* TODO */> toolboxOptionsWindow;
 	std::unique_ptr<Component /* TODO */> dynamicOptionsWindow;
 
