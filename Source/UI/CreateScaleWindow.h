@@ -9,8 +9,6 @@
 */
 
 #pragma once
-#include <JuceHeader.h>
-#include "../TuningDefinition.h"
 #include "GeneratorBoxModel.h"
 #include "UnitGrid.h"
 

@@ -9,6 +9,10 @@
     <GROUP id="{6F056052-FDC6-DFD1-3175-1C32A5B87CD2}" name="Source">
       <GROUP id="{A64A6C41-3A46-2909-27EC-14AB349A9B53}" name="UI">
         <FILE id="EI3rXL" name="ButtonBar.h" compile="0" resource="0" file="Source/UI/ButtonBar.h"/>
+        <FILE id="vICwns" name="GeneralOptionsWindow.h" compile="0" resource="0"
+              file="Source/UI/GeneralOptionsWindow.h"/>
+        <FILE id="RwrcI7" name="GeneralOptionsWindow.cpp" compile="1" resource="0"
+              file="Source/UI/GeneralOptionsWindow.cpp"/>
         <FILE id="NCXY55" name="CreateScaleWindow.cpp" compile="1" resource="0"
               file="Source/UI/CreateScaleWindow.cpp"/>
         <FILE id="ckTCEB" name="CreateScaleWindow.h" compile="0" resource="0"
