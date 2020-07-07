@@ -9,8 +9,12 @@
 */
 
 #pragma once
+#include "../IDs.h"
+#include "../TuneUpModes.h"
 #include "GeneratorBoxModel.h"
 #include "UnitGrid.h"
+
+using namespace TuneUpMode;
 
 class CreateTuningWindow :	public Component,
 							public ChangeListener,
@@ -18,14 +22,6 @@ class CreateTuningWindow :	public Component,
 							private Label::Listener,
 							private Slider::Listener
 {
-public:
-
-	enum TuningMode
-	{
-		EqualTemperament = 1,
-		RegularTemperament
-	};
-
 public:
 
 	CreateTuningWindow(ValueTree tuningDefinitionIn /* TODO some recall */);
@@ -42,7 +38,7 @@ public:
 
 	//==========================================================================
 
-	void setMode(TuningMode modeIn);
+	void setMode(CreateTuningMode modeIn);
 
 	void updateTuning();
 
@@ -52,7 +48,7 @@ public:
 
 private:
 
-	TuningMode mode;
+	CreateTuningMode mode;
 	ValueTree tuningDefinition;
 
 	std::unique_ptr<Label> tuningNameLabel;

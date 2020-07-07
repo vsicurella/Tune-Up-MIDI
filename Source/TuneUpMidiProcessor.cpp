@@ -39,14 +39,20 @@ const Array<int>& TuneUpMidiProcessor::getTuningNotesOn() const
 	return notesInOn;
 }
 
-void TuneUpMidiProcessor::setTuning(const Tuning* tuningIn, bool isDynamic)
+void TuneUpMidiProcessor::setTuningIn(const Tuning* tuningInIn)
 {
-	tuning = tuningIn;
+	retuner->setOriginTuning(*tuningInIn);
+
+	if (notesInOn.size() > 0)
+		resetNotes();
+}
+
+void TuneUpMidiProcessor::setTuningOut(const Tuning* tuningOutIn)
+{
+	tuning = tuningOutIn;
 	retuner->setNewTuning(*tuning);
 	
-	if (isDynamic)
-		tuningChanged();
-	else if (notesInOn.size() > 0)
+	if (notesInOn.size() > 0)
 		resetNotes();
 }
 

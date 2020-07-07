@@ -12,27 +12,15 @@
 */
 
 #pragma once
+#include "IDs.h"
 #include "TuningMath.h"
 #include "Tuning.h"
+
+using namespace TuneUpIDs;
 
 class TuningDefinition
 {
 public:
-
-	static Identifier tuningDefId;
-	static Identifier functionalID;
-	static Identifier tuningSizeID;
-	static Identifier rootMidiNoteID;
-	static Identifier generatorListId; // TODO wrap all generator values types into one node
-	static Identifier generatorOffsetId;
-	static Identifier generatorAmountId;
-	static Identifier generatorNodeId;
-	static Identifier generatorValueId;
-	static Identifier centsTableID;
-	static Identifier intervalNodeID;
-	static Identifier intervalValueID;
-	static Identifier tuningNameId;
-	static Identifier tuningDescriptionId;
 
 	class Listener
 	{

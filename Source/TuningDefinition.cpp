@@ -10,21 +10,6 @@
 
 #include "TuningDefinition.h"
 
-Identifier TuningDefinition::tuningDefId = Identifier("TuningDefinition");
-Identifier TuningDefinition::functionalID = Identifier("TuningIsFunctional");
-Identifier TuningDefinition::tuningSizeID = Identifier("TuningSize");
-Identifier TuningDefinition::rootMidiNoteID = Identifier("RootNote");
-Identifier TuningDefinition::generatorListId = Identifier("GeneratorList");
-Identifier TuningDefinition::generatorNodeId = Identifier("GeneratorNode");
-Identifier TuningDefinition::generatorOffsetId = Identifier("GeneratorOffset");
-Identifier TuningDefinition::generatorAmountId = Identifier("GeneratorAmount");
-Identifier TuningDefinition::generatorValueId = Identifier("GeneratorValue");
-Identifier TuningDefinition::centsTableID = Identifier("CentsTable");
-Identifier TuningDefinition::intervalNodeID = Identifier("IntervalDesc");
-Identifier TuningDefinition::intervalValueID = Identifier("IntervalValue");
-Identifier TuningDefinition::tuningNameId = Identifier("Name");
-Identifier TuningDefinition::tuningDescriptionId = Identifier("Description");
-
 /*
 	Renders standard tuning.
 */
@@ -35,7 +20,7 @@ TuningDefinition::TuningDefinition()
 
 TuningDefinition::TuningDefinition(ValueTree definitionIn)
 {
-	if (definitionIn.hasType(tuningDefId))
+	if (definitionIn.hasType(tuningDefinitionId))
 		definition = definitionIn;
 	else
 		definition = createEqualTemperamentDefinition(12, 1200.0);
@@ -58,17 +43,17 @@ ValueTree TuningDefinition::getDefinition() const
 
 bool TuningDefinition::isFunctional() const
 {
-	return definition[functionalID];
+	return definition[functionalId];
 }
 
 int TuningDefinition::getTuningSize() const
 {
-	return definition[tuningSizeID];
+	return definition[tuningSizeId];
 }
 
 int TuningDefinition::getRootMidiNote() const
 {
-	return definition[rootMidiNoteID];
+	return definition[rootMidiNoteId];
 }
 
 void TuningDefinition::setDefinition(ValueTree definitionIn, bool notifyListeners)
@@ -97,26 +82,26 @@ ValueTree TuningDefinition::getStandardTuningDefinition()
 */
 int TuningDefinition::determineTuningDefinitionSize(ValueTree tuningDefinitionIn)
 {
-	if (tuningDefinitionIn.hasType(tuningDefId))
+	if (tuningDefinitionIn.hasType(tuningDefinitionId))
 	{
-		if (tuningDefinitionIn.hasProperty(tuningSizeID))
-			return tuningDefinitionIn[tuningSizeID];
+		if (tuningDefinitionIn.hasProperty(tuningSizeId))
+			return tuningDefinitionIn[tuningSizeId];
 
 		else 
 		{
 			int determinedSize = 0;
 
 			// static tuning
-			if (!tuningDefinitionIn[functionalID])
+			if (!tuningDefinitionIn[functionalId])
 			{
-				ValueTree intervalTableNode = tuningDefinitionIn.getChildWithName(centsTableID);
+				ValueTree intervalTableNode = tuningDefinitionIn.getChildWithName(centsTableId);
 				
 				if (intervalTableNode.isValid())
 				{
 					determinedSize = intervalTableNode.getNumChildren();
 
 					// subtract one if unison was included
-					if ((int)intervalTableNode.getChild(0)[intervalValueID] == 0)
+					if ((int)intervalTableNode.getChild(0)[intervalValueId] == 0)
 						determinedSize--;
 				}
 			}
@@ -211,18 +196,18 @@ ValueTree TuningDefinition::createStaticTuningDefinition(
 	String nameIn,
 	String descriptionIn)
 {
-	ValueTree definitionOut(tuningDefId);
-	definitionOut.setProperty(functionalID, false, nullptr);
-	definitionOut.setProperty(rootMidiNoteID, midiRootNote, nullptr);
+	ValueTree definitionOut(tuningDefinitionId);
+	definitionOut.setProperty(functionalId, false, nullptr);
+	definitionOut.setProperty(rootMidiNoteId, midiRootNote, nullptr);
 	definitionOut.setProperty(tuningNameId, nameIn, nullptr);
 	definitionOut.setProperty(tuningDescriptionId, descriptionIn, nullptr); // TODO: default description?
 
 	definitionOut.addChild(
-		arrayToTree(centsTable, centsTableID, intervalNodeID, intervalValueID),
+		arrayToTree(centsTable, centsTableId, intervalNodeId, intervalValueId),
 		-1, nullptr
 	);
 
-	definitionOut.setProperty(tuningSizeID, determineTuningDefinitionSize(definitionOut), nullptr);
+	definitionOut.setProperty(tuningSizeId, determineTuningDefinitionSize(definitionOut), nullptr);
 
 	return definitionOut;
 }
@@ -241,9 +226,9 @@ ValueTree TuningDefinition::createEqualTemperamentDefinition(
 	
 	if (numberOfDivisions > 0 && periodInCents > 0)
 	{
-		definitionOut = ValueTree(tuningDefId);
-		definitionOut.setProperty(functionalID, true, nullptr);
-		definitionOut.setProperty(rootMidiNoteID, midiRootNote, nullptr);
+		definitionOut = ValueTree(tuningDefinitionId);
+		definitionOut.setProperty(functionalId, true, nullptr);
+		definitionOut.setProperty(rootMidiNoteId, midiRootNote, nullptr);
 
 		if (nameIn.length() == 0)
 			nameIn = String(numberOfDivisions) + "-ED " + String(periodInCents) + "cents";
@@ -254,7 +239,7 @@ ValueTree TuningDefinition::createEqualTemperamentDefinition(
 			description = String(numberOfDivisions) + " equal divisions of " + String(periodInCents) + " cents.";
 		
 		definitionOut.setProperty(tuningDescriptionId, description, nullptr);
-		definitionOut.setProperty(tuningSizeID, 1, nullptr);
+		definitionOut.setProperty(tuningSizeId, 1, nullptr);
 
 		ValueTree generatorList(generatorListId);
 		ValueTree node(generatorNodeId);
@@ -326,9 +311,9 @@ ValueTree TuningDefinition::createRegularTemperamentDefinition(
 	String nameIn,
 	String descriptionIn)
 {
-	ValueTree definitionOut(tuningDefId);
-	definitionOut.setProperty(functionalID, true, nullptr);
-	definitionOut.setProperty(rootMidiNoteID, midiRootNote, nullptr);
+	ValueTree definitionOut(tuningDefinitionId);
+	definitionOut.setProperty(functionalId, true, nullptr);
+	definitionOut.setProperty(rootMidiNoteId, midiRootNote, nullptr);
 
 	if (nameIn.length() == 0)
 	{
@@ -353,7 +338,7 @@ ValueTree TuningDefinition::createRegularTemperamentDefinition(
 
 	// TODO: do this without packing into ValueTree?
 	int tuningSize = determineTuningDefinitionSize(definitionOut);
-	definitionOut.setProperty(tuningSizeID, tuningSize, nullptr);
+	definitionOut.setProperty(tuningSizeId, tuningSize, nullptr);
 
 	if (descriptionIn.length() == 0)
 	{
@@ -401,11 +386,11 @@ Tuning TuningDefinition::renderFunctionalTuning(
 Tuning TuningDefinition::renderTuningDefinition(ValueTree definitionIn)
 {
 	// Return standard tuning if invalid
-	if (!definitionIn.hasType(tuningDefId))
+	if (!definitionIn.hasType(tuningDefinitionId))
 		definitionIn = getStandardTuningDefinition();
 
 	// Render functional tuning
-	if (definitionIn[functionalID])
+	if (definitionIn[functionalId])
 	{
 		Array<double> generators;
 		Array<int> amounts, offsets;
@@ -417,7 +402,7 @@ Tuning TuningDefinition::renderTuningDefinition(ValueTree definitionIn)
 		offsets.set(0, 0);
 
 		return renderFunctionalTuning(generators, amounts, offsets,
-			definitionIn[rootMidiNoteID],
+			definitionIn[rootMidiNoteId],
 			definitionIn[tuningNameId],
 			definitionIn[tuningDescriptionId]
 		);
@@ -425,7 +410,7 @@ Tuning TuningDefinition::renderTuningDefinition(ValueTree definitionIn)
 
 	// Render static tuning
 	Array<double> centsTable;
-	treeToArray(centsTable, definitionIn.getChildWithName(centsTableID), intervalNodeID, intervalValueID);
+	treeToArray(centsTable, definitionIn.getChildWithName(centsTableId), intervalNodeId, intervalValueId);
 
-	return Tuning(centsTable, definitionIn[rootMidiNoteID], definitionIn[tuningNameId], definitionIn[tuningDescriptionId]);
+	return Tuning(centsTable, definitionIn[rootMidiNoteId], definitionIn[tuningNameId], definitionIn[tuningDescriptionId]);
 }

@@ -7,6 +7,7 @@
               companyWebsite="everytone.zone" displaySplashScreen="1">
   <MAINGROUP id="L9YdYm" name="Tune-Up MIDI!">
     <GROUP id="{6F056052-FDC6-DFD1-3175-1C32A5B87CD2}" name="Source">
+      <FILE id="EsX8Oc" name="TuneUpModes.h" compile="0" resource="0" file="Source/TuneUpModes.h"/>
       <GROUP id="{A64A6C41-3A46-2909-27EC-14AB349A9B53}" name="UI">
         <FILE id="EI3rXL" name="ButtonBar.h" compile="0" resource="0" file="Source/UI/ButtonBar.h"/>
         <FILE id="vICwns" name="GeneralOptionsWindow.h" compile="0" resource="0"
@@ -25,6 +26,7 @@
         <FILE id="rrZt9I" name="MainWindow.h" compile="0" resource="0" file="Source/UI/MainWindow.h"/>
         <FILE id="YFwP6O" name="UnitGrid.h" compile="0" resource="0" file="Source/UI/UnitGrid.h"/>
       </GROUP>
+      <FILE id="eab2AU" name="IDs.h" compile="0" resource="0" file="Source/IDs.h"/>
       <FILE id="VKHJqi" name="TuningDefinition.cpp" compile="1" resource="0"
             file="Source/TuningDefinition.cpp"/>
       <FILE id="w778Tg" name="TuningDefinition.h" compile="0" resource="0"

@@ -21,7 +21,7 @@ TuneupMidiAudioProcessorEditor::TuneupMidiAudioProcessorEditor (
 	grid(23)
 {
 	// CONTROL WINDOWS
-
+	
 	mainWindow.reset(new TuneUpWindow());
 	addChildComponent(mainWindow.get());
 
@@ -98,10 +98,10 @@ TuneupMidiAudioProcessorEditor::TuneupMidiAudioProcessorEditor (
 
 	newTuningModeBox.reset(new ComboBox("ModeBox"));
 	addChildComponent(newTuningModeBox.get());
-	newTuningModeBox->addItem("Equal Temperament", CreateTuningWindow::EqualTemperament);
-	newTuningModeBox->addItem("Regular Temperament", CreateTuningWindow::RegularTemperament);
+	newTuningModeBox->addItem("Equal Temperament", TuneUpMode::CreateTuningMode::EqualTemperament);
+	newTuningModeBox->addItem("Regular Temperament", TuneUpMode::CreateTuningMode::RegularTemperament);
 	newTuningModeBox->addListener(this);
-	newTuningModeBox->setSelectedId(CreateTuningWindow::EqualTemperament);
+	newTuningModeBox->setSelectedId(TuneUpMode::CreateTuningMode::EqualTemperament);
 
 	// BUTTON BARS
 
@@ -316,7 +316,7 @@ void TuneupMidiAudioProcessorEditor::comboBoxChanged(ComboBox* comboBoxThatChang
 {
 	if (comboBoxThatChanged == newTuningModeBox.get())
 	{
-		createTuningWindow->setMode(CreateTuningWindow::TuningMode(newTuningModeBox->getSelectedId()));
+		createTuningWindow->setMode(TuneUpMode::CreateTuningMode(newTuningModeBox->getSelectedId()));
 	}
 }
 
@@ -338,7 +338,7 @@ void TuneupMidiAudioProcessorEditor::onFileLoad()
 
 void TuneupMidiAudioProcessorEditor::loadTuning(ValueTree tuningDefinition)
 {
-	pluginState.setNewTuning(tuningDefinition);
+	pluginState.setTuningOut(tuningDefinition);
 	mainWindow->loadTuning(pluginState.getTuning());
 
 	DBG("Tuning Loaded: \n" + tuningDefinition.toXmlString());

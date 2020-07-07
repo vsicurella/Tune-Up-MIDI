@@ -138,7 +138,7 @@ void CreateTuningWindow::changeListenerCallback(ChangeBroadcaster* source)
 	}
 }
 
-void CreateTuningWindow::setMode(TuningMode modeIn)
+void CreateTuningWindow::setMode(CreateTuningMode modeIn)
 {
 	mode = modeIn;
 	
@@ -170,11 +170,11 @@ void CreateTuningWindow::updateTuning()
 
 		String name = tuningNameBox->getText();
 		if (name.length() > 0)
-			tuningDefinition.setProperty(TuningDefinition::tuningNameId, name, nullptr);
+			tuningDefinition.setProperty(TuneUpIDs::tuningNameId, name, nullptr);
 
 		String desc = descriptionBox->getText();
 		if (desc.length() > 0)
-			tuningDefinition.setProperty(TuningDefinition::tuningDescriptionId, desc, nullptr);
+			tuningDefinition.setProperty(TuneUpIDs::tuningDescriptionId, desc, nullptr);
 	}
 	
 	sendChangeMessage();

@@ -9,6 +9,8 @@
 */
 
 #pragma once
+#include "../IDs.h"
+#include "../TuneUpModes.h"
 #include "UnitGrid.h"
 
 static std::function<double(int)> getStandardTuningFrequency = [=](int noteIn)
@@ -16,15 +18,10 @@ static std::function<double(int)> getStandardTuningFrequency = [=](int noteIn)
 	return pow(2, (noteIn - 69) / 12.0) * 440.0;
 };
 
+using namespace TuneUpMode;
+
 class GeneralOptionsWindow : public Component
 {
-
-public:
-
-	enum FreeChannelMode {
-		RoundRobin = 1,
-		FirstAvailable
-	};
 
 public:
 

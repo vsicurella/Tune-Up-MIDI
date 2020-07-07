@@ -14,12 +14,61 @@
 #include "MidiNoteTuner.h"
 #include "ChannelAssigner.h"
 #include "TuningDefinition.h"
+#include "TuneUpModes.h"
+#include "IDs.h"
+
+using namespace TuneUpMode;
 
 class TuneUpMidiProcessor : 
 	public MidiMessageCollector, 
 	public MidiCCNotifier,
 	public TuningDefinition::Listener
 {
+
+public:
+
+	TuneUpMidiProcessor(const Tuning* originTuning, const Tuning* newTuning, Array<int>& notesOn);
+	~TuneUpMidiProcessor();
+
+	const Array<int>& getTuningNotesOn() const;
+
+	void setTuningIn(const Tuning* tuningInIn);
+	void setTuningOut(const Tuning* tuningOutIn);
+	void setPitchbendRange(int pitchbendRangeIn);
+
+	void processMidi(MidiBuffer& bufferIn);
+
+	void resetNotes();
+
+	String* getMidiInLog();
+	String* getMidiOutLog();
+	String* getRetunerLog();
+
+	//========================================================================================
+
+	// MidiInputCallback implementation
+	void handleIncomingMidiMessage(MidiInput* source, const MidiMessage& msg) override;
+
+	// Dynamic Tuning implementation
+	void tuningChanged() override;
+
+	//========================================================================================
+
+	class Listener
+	{
+	public:
+		virtual void ccValueChanged(int controlNumber, int controlValue) = 0;
+	};
+
+	void addListener(Listener* listenerIn) { listeners.add(listenerIn); }
+	void removeListener(Listener* listenerIn) { listeners.remove(listenerIn); }
+
+protected:
+
+	ListenerList<Listener> listeners;
+
+
+private:
 	MidiDeviceInfo inputDeviceInfo = MidiInput::getDefaultDevice();
 	std::unique_ptr<MidiInput> midiInput;
 
@@ -43,53 +92,16 @@ class TuneUpMidiProcessor :
 	MPEInstrument mpeInstrument;
 	TuneUpMidiChannelAssigner channelAssigner;
 
-	int pitchbendRange = 2;	
-	
+	// Options
+	int transposeDegrees = 0;
+	int transposePeriods = 0;
+	int pitchbendRange = 2;
+	PitchbendInputMode pitchbendInputMode = PitchbendInputMode::AddToTuning;
+	FreeChannelMode channelMode = FreeChannelMode::RoundRobin;
+
 	Array<int>& notesInOn;
 	Array<int> notesTunedOn;
 
 	const Tuning* standard;
 	const Tuning* tuning = nullptr;
-
-public:
-
-	TuneUpMidiProcessor(const Tuning* originTuning, const Tuning* newTuning, Array<int>& notesOn);
-	~TuneUpMidiProcessor();
-
-	const Array<int>& getTuningNotesOn() const;
-
-	void setTuning(const Tuning* tuningIn, bool isDynamic = false);
-	void setPitchbendRange(int pitchbendRangeIn);
-
-	void processMidi(MidiBuffer& bufferIn);
-
-	void resetNotes();
-
-	String* getMidiInLog();
-	String* getMidiOutLog();
-	String* getRetunerLog();
-
-public:
-
-	class Listener
-	{
-	public:
-		virtual void ccValueChanged(int controlNumber, int controlValue) = 0;
-	};
-
-	void addListener(Listener* listenerIn) { listeners.add(listenerIn); }
-	void removeListener(Listener* listenerIn) { listeners.remove(listenerIn); }
-
-protected:
-
-	ListenerList<Listener> listeners;
-
-
-public:
-
-	// MidiInputCallback implementation
-	void handleIncomingMidiMessage(MidiInput* source, const MidiMessage& msg) override;
-
-	// Dynamic Tuning implementation
-	void tuningChanged() override;
 };
