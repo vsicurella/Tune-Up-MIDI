@@ -12,6 +12,13 @@
 
 TuneUpMidiState::TuneUpMidiState()
 {
+	DBG("PluginState for " + applicationName + " initalizing...");
+
+	File defaultOptionsFile = File(defaultOptionsPath);
+	defaultOptionsNode = ValueTree::fromXml(defaultOptionsFile.loadFileAsString());
+
+	loadDefaultOptions();
+
 	originTuning.reset(new Tuning(originTuningDefinition.render()));
 	tuning.reset(new Tuning(tuningDefinition.render()));
 
@@ -62,25 +69,88 @@ const MidiKeyboardState& TuneUpMidiState::getMidiKeyboardState()
 	return midiState;
 }
 
-void TuneUpMidiState::setNewTuning(ValueTree tuningDefinitionIn, bool sendChangeSignal)
+/*
+	Loads a saved plugin state
+*/
+void TuneUpMidiState::loadPluginStateNode(ValueTree pluginStateNodeIn)
 {
-	DBG("PLUGINSTATE RECEIVED TUNING:\n" + tuningDefinitionIn.toXmlString());
+	pluginStateNode = pluginStateNodeIn;
 
-	if (tuningDefinitionIn.isValid())
+	ValueTree tuningsNode = pluginStateNode.getChildWithName(TuneUpIDs::tuningsInAndOutNodeId);
+	setTunings(tuningsNode.getChild(0), tuningsNode.getChild(1), true);
+
+}
+
+/*
+	Loads default options and passes data down
+*/
+void TuneUpMidiState::loadDefaultOptions()
+{
+	ValueTree definitionsList = defaultOptionsNode.getChildWithName(TuneUpIDs::defaultTuningsListId);
+	setTunings(definitionsList.getChild(0), definitionsList.getChild(1));
+
+	defaultTuningPath = defaultOptionsNode[TuneUpIDs::defaultTuningFilePathId];
+	if (defaultTuningPath.length() == 0)
 	{
-		DBG("NEW TUNING SET");
-		tuningDefinition.setDefinition(tuningDefinitionIn, false);
-		renderTuning();
-
-		if (sendChangeSignal)
-			sendChangeMessage();
+		defaultTuningPath = File::getSpecialLocation(File::userDocumentsDirectory).getFullPathName();
 	}
 }
 
-void TuneUpMidiState::renderTuning()
+/*
+	Loads session options and passes data down
+*/
+void TuneUpMidiState::loadSessionOptions(ValueTree sessionOptionsNodeIn)
 {
-	tuning.reset(new Tuning(tuningDefinition.render()));
-	midiProcessor->setTuning(tuning.get());
+
+}
+
+/*
+	Sets and renders tuning in and out definitions
+*/
+void TuneUpMidiState::setTunings(ValueTree tuningInDefinition, ValueTree tuningOutDefinition, bool sendChangeSignal)
+{
+	bool success = false;
+
+	if (tuningInDefinition.hasType(TuneUpIDs::tuningDefinitionId))
+	{
+		DBG("NEW TUNING IN SET");
+		
+		originTuningDefinition.setDefinition(tuningInDefinition);
+		originTuning.reset(new Tuning(originTuningDefinition.render()));
+
+		midiProcessor->setTuningIn(originTuning.get());
+		success = true;
+	}
+
+	if (tuningOutDefinition.hasType(TuneUpIDs::tuningDefinitionId))
+	{
+		DBG("NEW TUNING OUT SET");
+
+		tuningDefinition.setDefinition(tuningInDefinition);
+		tuning.reset(new Tuning(tuningDefinition.render()));
+
+		midiProcessor->setTuningOut(tuning.get());
+		success = true;
+	}
+
+	if (success && sendChangeSignal)
+		sendChangeMessage();
+}
+
+/*
+	Sets and renders new tuning in definition, leaving tuning out unchanged
+*/
+void TuneUpMidiState::setTuningIn(ValueTree definitionIn, bool sendChangeSignal)
+{
+	setTunings(definitionIn, ValueTree(), sendChangeSignal);
+}
+
+/*
+	Sets and renders new tuning out definition, leaving tuning in unchanged
+*/
+void TuneUpMidiState::setTuningOut(ValueTree definitionIn, bool sendChangeSignal)
+{
+	setTunings(ValueTree(), definitionIn, sendChangeSignal);
 }
 
 void TuneUpMidiState::setDynamicTuningPeriodController(int controlNumber)
@@ -94,6 +164,21 @@ void TuneUpMidiState::setDynamicTuningGeneratorController(int controlNumber)
 }
 
 void TuneUpMidiState::controlValueChanged(int controlNumber, int controlValue)
+{
+
+}
+
+void TuneUpMidiState::valueTreeChildAdded(ValueTree& parentTree, ValueTree& childAdded)
+{
+	
+}
+
+void TuneUpMidiState::valueTreeChildRemoved(ValueTree& parentTree, ValueTree& childRemoved, int childRemovedIndex)
+{
+
+}
+
+void TuneUpMidiState::valueTreePropertyChanged(ValueTree& parentTree, const Identifier& property)
 {
 
 }

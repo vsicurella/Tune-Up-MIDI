@@ -20,24 +20,6 @@ using namespace TuneUpIDs;
 
 class TuningDefinition
 {
-public:
-
-	class Listener
-	{
-	public:
-
-		virtual ~Listener() {};
-		virtual void tuningChanged() {};
-	};
-
-	void addListener(Listener* listenerIn) { listeners.add(listenerIn); }
-	void removeListener(Listener* listenerIn) { listeners.remove(listenerIn); }
-
-
-protected:
-
-	ListenerList<Listener> listeners;
-
 
 protected:
 
@@ -67,7 +49,7 @@ public:
 
 	int getRootMidiNote() const;
 
-	void setDefinition(ValueTree definitionIn, bool notifyListeners=true);
+	void setDefinition(ValueTree definitionIn);
 
 	Tuning render() const;
 

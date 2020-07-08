@@ -21,8 +21,7 @@ using namespace TuneUpMode;
 
 class TuneUpMidiProcessor : 
 	public MidiMessageCollector, 
-	public MidiCCNotifier,
-	public TuningDefinition::Listener
+	public MidiCCNotifier
 {
 
 public:
@@ -48,9 +47,6 @@ public:
 
 	// MidiInputCallback implementation
 	void handleIncomingMidiMessage(MidiInput* source, const MidiMessage& msg) override;
-
-	// Dynamic Tuning implementation
-	void tuningChanged() override;
 
 	//========================================================================================
 

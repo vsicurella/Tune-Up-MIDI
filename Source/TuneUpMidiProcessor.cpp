@@ -175,23 +175,23 @@ void TuneUpMidiProcessor::handleIncomingMidiMessage(MidiInput* source, const Mid
 	}
 }
 
-void TuneUpMidiProcessor::tuningChanged() 
-{
-	// only works if strictly one channel per note is used
-	if (channelAssigner.isOneChannelPerNote())
-	{
-		for (int i = 0; i < notesInOn.size(); i++)
-		{
-			int nodeIn = notesInOn[i];
-			int noteOut = notesTunedOn[i];
-
-			inputBuffer.addEvent(MidiMessage::pitchWheel(
-				channelAssigner.getChannelOfNote(nodeIn) + 1,
-				retuner->pitchbendFromNote(noteOut, nodeIn)
-			), smplInput++);
-		}
-	}
-}
+//void TuneUpMidiProcessor::tuningChanged() 
+//{
+//	// only works if strictly one channel per note is used
+//	if (channelAssigner.isOneChannelPerNote())
+//	{
+//		for (int i = 0; i < notesInOn.size(); i++)
+//		{
+//			int nodeIn = notesInOn[i];
+//			int noteOut = notesTunedOn[i];
+//
+//			inputBuffer.addEvent(MidiMessage::pitchWheel(
+//				channelAssigner.getChannelOfNote(nodeIn) + 1,
+//				retuner->pitchbendFromNote(noteOut, nodeIn)
+//			), smplInput++);
+//		}
+//	}
+//}
 
 String* TuneUpMidiProcessor::getMidiInLog()
 {

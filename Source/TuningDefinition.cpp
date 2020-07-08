@@ -28,7 +28,7 @@ TuningDefinition::TuningDefinition(ValueTree definitionIn)
 
 TuningDefinition::~TuningDefinition()
 {
-	listeners.clear();
+
 }
 
 //TuningDefinition TuningDefinition::operator=(const TuningDefinition& toCopy)
@@ -56,12 +56,9 @@ int TuningDefinition::getRootMidiNote() const
 	return definition[rootMidiNoteId];
 }
 
-void TuningDefinition::setDefinition(ValueTree definitionIn, bool notifyListeners)
+void TuningDefinition::setDefinition(ValueTree definitionIn)
 {
 	definition = definitionIn;
-
-	if (notifyListeners)
-		listeners.call(&Listener::tuningChanged);
 }
 
 Tuning TuningDefinition::render() const

@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="ocxSOI" name="Tune-Up MIDI!" projectType="audioplug" jucerVersion="5.4.7"
-              pluginCharacteristicsValue="pluginIsMidiEffectPlugin,pluginProducesMidiOut,pluginWantsMidiIn"
+<JUCERPROJECT id="ocxSOI" name="Tune-Up MIDI!" projectType="audioplug" pluginCharacteristicsValue="pluginIsMidiEffectPlugin,pluginProducesMidiOut,pluginWantsMidiIn"
               pluginChannelConfigs="{1, 1}, {2, 2},{16,16}" companyName="Everytone"
               pluginFormats="buildStandalone,buildVST3" companyCopyright="MIT License"
-              companyWebsite="everytone.zone" displaySplashScreen="1">
+              companyWebsite="everytone.zone" displaySplashScreen="1" jucerFormatVersion="1">
   <MAINGROUP id="L9YdYm" name="Tune-Up MIDI!">
     <GROUP id="{6F056052-FDC6-DFD1-3175-1C32A5B87CD2}" name="Source">
       <FILE id="EsX8Oc" name="TuneUpModes.h" compile="0" resource="0" file="Source/TuneUpModes.h"/>
