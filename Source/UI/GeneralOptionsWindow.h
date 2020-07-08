@@ -9,21 +9,29 @@
 */
 
 #pragma once
-#include "../IDs.h"
+#include "../TuningDefinition.h"
 #include "../TuneUpModes.h"
 #include "UnitGrid.h"
 
-static std::function<double(int)> getStandardTuningFrequency = [=](int noteIn)
+static std::function<double(int)> getStandardTuningFrequency = [](int noteIn)
 {
 	return pow(2, (noteIn - 69) / 12.0) * 440.0;
 };
 
+
+
 using namespace TuneUpMode;
 
-class GeneralOptionsWindow : public Component
+class GeneralOptionsWindow :	public Component,
+								private Button::Listener,
+								private ComboBox::Listener,
+								private Slider::Listener
 {
 
 public:
+
+	// Probably should move elsewhere
+	const ValueTree STD_TUNING = TuningDefinition::getStandardTuningDefinition();
 
 	GeneralOptionsWindow(ValueTree defaultOptions);
 	~GeneralOptionsWindow();
@@ -33,10 +41,55 @@ public:
 	void resized() override;
 
 	//================================================================================
-	
-	void loadOptions(ValueTree optionsIn, bool factoryOptionIfEmpty = false);
 
-	ValueTree getOptionsNode();
+	void buttonClicked(Button* btnClicked) override;
+
+	void comboBoxChanged(ComboBox* comboBoxThatChanged) override;
+
+	void sliderValueChanged(Slider* sliderThatChanged) override;
+
+	//================================================================================
+	
+	/*
+		Initializes all available options, and sets them to factory default if necessary.
+		Returns true if the passed in optionsIn node was valid and synchronized.
+		If false, you'll need to synchronize the trees again.
+	*/
+	bool initializeOptions(ValueTree optionsIn);
+
+	void loadSessionOptions(ValueTree sessionOptionsIn);
+
+	ValueTree getDefaultOptionsNode();
+
+	ValueTree getSessionOptionsNode();
+
+	void setDefaultTuningPath(String absolutePathIn, bool notifyListeners = true);
+
+	void setTuningIn(ValueTree tuningInDefinition, bool notifyListeners = true);
+
+	void setTuningOut(ValueTree tuningOutDefinition, bool notifyListeners = true);
+
+	void setReferenceNoteIn(int noteIn, bool updateUI = true, bool saveAsDefault = false, bool notifyListeners = true);
+
+	void setReferenceFreqIn(double freqIn, bool updateUI = true, bool saveAsDefault = false, bool notifyListeners = true);
+
+	void setReferenceNoteOut(int noteIn, bool updateUI = true, bool saveAsDefault = false, bool notifyListeners = true);
+
+	void setReferenceFreqOut(double freqIn, bool updateUI = true, bool saveAsDefault = false, bool notifyListeners = true);
+
+	void setPitchbendRange(int pitchbendRangeIn, bool updateUI = true, bool saveAsDefault = false, bool notifyListeners = true);
+
+	void setChannelConfiguration(/* TODO */ bool updateUI = true, bool saveAsDefault = false, bool notifyListeners = true);
+
+	void setChannelMode(TuneUpMode::FreeChannelMode modeIn, bool updateUI = true, bool saveAsDefault = false, bool notifyListeners = true);
+
+	void setVoiceLimit(int limitIn, bool updateUI = true, bool saveAsDefault = false, bool notifyListeners = true);
+
+	void setResetChannelPitchbend(bool resetChannels, bool updateUI = true, bool saveAsDefault = false, bool notifyListeners = true);
+
+	void setReuseChannels(bool reuseChannels, bool updateUI = true, bool saveAsDefault = false, bool notifyListeners = true);
+
+	void setDynamicTuningMode(bool isDynamicTuning);
 
 	//================================================================================
 
@@ -44,18 +97,38 @@ public:
 	{
 	public:
 
+		virtual ~Listener() {};
 
+		virtual void tuningInChanged(String tuningInPath) {};
+
+		virtual void tuningOutChanged(String tuningOutPath) {};
+
+		virtual void referenceNoteInChanged(int noteIn) {};
+
+		virtual void referenceFreqInChanged(double freqIn) {};
+
+		virtual void referenceNoteOutChanged(int noteIn) {};
+
+		virtual void referenceFreqOutChanged(double freqIn) {};
+
+		virtual void pitchbendRangeChanged(int pitchbendRangeIn) {};
+
+		virtual void channelConfigurationChanged(/* TODO */) {};
+
+		virtual void channelModeChanged(TuneUpMode::FreeChannelMode modeIn) {};
+
+		virtual void voiceLimitChanged(int limitIn) {};
+
+		virtual void resetChannelPitchbendChanged(bool resetChannels) {};
+
+		virtual void reuseChannelsChanged(bool reuseChannels) {};
+
+		virtual void dynamicTuningModeChanged(bool isDynamicTuning) {};
 	};
 
-	void addListener(Listener* listenerIn)
-	{
-		listeners.add(listenerIn);
-	}
+	void addListener(Listener* listenerIn) { listeners.add(listenerIn); }
 
-	void removeListener(Listener* listenerIn)
-	{
-		listeners.remove(listenerIn);
-	}
+	void removeListener(Listener* listenerIn) { listeners.remove(listenerIn); }
 
 protected:
 
@@ -65,7 +138,11 @@ protected:
 private:
 
 	Font font;
-	ValueTree generalOptionsNode;
+
+	ValueTree defaultOptionsNode;
+	ValueTree sessionOptionsNode;
+
+	ValueTree defaultTuningsListNode;
 
 	std::unique_ptr<Label> defaultTuningDirLabel;
 	std::unique_ptr<TextEditor> defaultTuningDirEditor;
@@ -106,6 +183,22 @@ private:
 	std::unique_ptr<ToggleButton> reuseChannelsButton;
 	std::unique_ptr<ToggleButton> resetChannelPitchbendButton;
 
+	Array<Identifier> availableOptions = 
+	{
+		TuneUpIDs::defaultTuningFilePathId,
+		TuneUpIDs::defaultTuningsListId,
+		TuneUpIDs::referenceNoteInId,
+		TuneUpIDs::referenceFreqInId,
+		TuneUpIDs::referenceNoteOutId,
+		TuneUpIDs::referenceFreqOutId,
+		TuneUpIDs::pitchbendRangeId,
+		TuneUpIDs::channelConfigurationId,
+		TuneUpIDs::channelModeId,
+		TuneUpIDs::voiceLimitId,
+		TuneUpIDs::reuseChannelsId,
+		TuneUpIDs::resetChannelPitchbendId
+	};
+
 	// Helpers
 	UnitPlane grid;
 	int stdGap = 8;
@@ -115,4 +208,8 @@ private:
 	String browseTrans = TRANS("Browse") + " ...";
 	String reuseTrans = TRANS("Reuse channels when possible");
 	String resetTrans = TRANS("Reset empty channel pitchbend");
+
+private:
+
+	void ensureNodeHasTuningListNode(ValueTree nodeIn);
 };

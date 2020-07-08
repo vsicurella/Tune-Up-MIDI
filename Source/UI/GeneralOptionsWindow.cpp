@@ -136,12 +136,11 @@ GeneralOptionsWindow::GeneralOptionsWindow(ValueTree defaultOptions)
 	reuseChannelsButton.reset(new ToggleButton(reuseTrans));
 	addAndMakeVisible(reuseChannelsButton.get());
 	
-
 	resetChannelPitchbendButton.reset(new ToggleButton(resetTrans));
 	addAndMakeVisible(resetChannelPitchbendButton.get());
 
-
-	loadOptions(defaultOptions, true);
+	sessionOptionsNode = ValueTree(sessionOptionsNodeId);
+	initializeOptions(defaultOptions);
 }
 
 GeneralOptionsWindow::~GeneralOptionsWindow()
@@ -229,90 +228,444 @@ void GeneralOptionsWindow::resized()
 	resetChannelPitchbendButton->setBounds(rightHalfX, referenceFreqOutLabel->getY(), rightControlWidth, rowHeight);
 }
 
-void GeneralOptionsWindow::loadOptions(ValueTree optionsIn, bool factoryOptionIfEmpty)
+void GeneralOptionsWindow::buttonClicked(Button* btnClicked)
 {
-	//defaultTuningDirEditor = nullptr;
-	if (false /* TODO */)
-		void;
-	else
-		void;
+	if (btnClicked == defaultTuningDirButton.get())
+	{
+		// TODO : browse for directory
+	}
 
-	//defaultTuningInBox = nullptr;
-	if (false /* TODO */)
-		void; 
-	else
-		defaultTuningInBox->setSelectedId(1);
+	else if (btnClicked == reuseChannelsButton.get())
+	{
+		setReuseChannels(reuseChannelsButton->getToggleState(), false);
+	}
 
-	//defaultTuningOutBox = nullptr;
-	if (false /* TODO */)
-		void;
-	else
-		defaultTuningOutBox->setSelectedId(1);
-
-	//scaleInReferenceNoteSlider = nullptr;
-	if (false /* TODO */)
-		void;
-	else
-		referenceNoteInSlider->setValue(69);
-	
-	//scaleInReferenceFreqSlider = nullptr;
-	if (false /* TODO */)
-		void;
-	else
-		referenceFreqInSlider->setValue(440.0);
-
-	//scaleInReferenceNoteSlider = nullptr;
-	if (false /* TODO */)
-		void;
-	else
-		referenceNoteOutSlider->setValue(60);
-
-	//scaleInReferenceFreqSlider = nullptr;
-	if (false /* TODO */)
-		void;
-	else
-		referenceFreqOutSlider->setValue(261.626);
-
-
-	//pitchbendRangeSlider = nullptr;
-	if (false /* TODO */)
-		void;
-	else
-		pitchbendRangeSlider->setValue(2);
-
-	//channelController = nullptr;
-	if (false /* TODO */)
-		void;
-	else
-		void;
-	
-	//channelModeBox = nullptr;
-	if (false /* TODO */)
-		void;
-	else
-		channelModeBox->setSelectedId(1);
-
-	//voiceLimitSlider = nullptr;
-	if (false /* TODO */)
-		void;
-	else
-		voiceLimitSlider->setValue(16);
-	
-	//reuseChannelsButton = nullptr;
-	if (false /* TODO */)
-		void;
-	else
-		reuseChannelsButton->setToggleState(false, dontSendNotification);
-
-	//resetChannelPitchbendButton = nullptr;
-	if (false /* TODO */)
-		void;
-	else
-		resetChannelPitchbendButton->setToggleState(true, dontSendNotification);
+	else if (btnClicked == resetChannelPitchbendButton.get())
+	{
+		setResetChannelPitchbend(resetChannelPitchbendButton->getToggleState(), false);
+	}
 }
 
-
-ValueTree GeneralOptionsWindow::getOptionsNode()
+void GeneralOptionsWindow::comboBoxChanged(ComboBox* comboBoxThatChanged)
 {
-	return generalOptionsNode;
+	if (comboBoxThatChanged == defaultTuningInBox.get())
+	{
+		// TODO
+	}
+
+	else if (comboBoxThatChanged == defaultTuningOutBox.get())
+	{
+		// TODO
+	}
+
+	else if (comboBoxThatChanged == channelModeBox.get())
+	{
+		setChannelMode(FreeChannelMode(channelModeBox->getSelectedId()), false);
+	}
+}
+
+void GeneralOptionsWindow::sliderValueChanged(Slider* sliderThatChanged)
+{
+	if (sliderThatChanged == referenceNoteInSlider.get())
+	{
+		setReferenceNoteIn(referenceNoteInSlider->getValue(), false);
+	}
+
+	else if (sliderThatChanged == referenceFreqInSlider.get())
+	{
+		setReferenceFreqIn(referenceFreqInSlider->getValue(), false);
+	}
+
+	else if (sliderThatChanged == referenceNoteOutSlider.get())
+	{
+		setReferenceNoteOut(referenceNoteOutSlider->getValue(), false);
+	}
+
+	else if (sliderThatChanged == referenceFreqOutSlider.get())
+	{
+		setReferenceFreqOut(referenceFreqOutSlider->getValue(), false);
+	}
+
+	else if (sliderThatChanged == pitchbendRangeSlider.get())
+	{
+		setPitchbendRange(pitchbendRangeSlider->getValue(), false);
+	}
+
+	else if (sliderThatChanged == voiceLimitSlider.get())
+	{
+		setVoiceLimit(voiceLimitSlider->getValue(), false);
+	}
+}
+
+bool GeneralOptionsWindow::initializeOptions(ValueTree optionsIn)
+{
+	bool synced = true;
+
+	if (optionsIn.hasType(TuneUpIDs::defaultOptionsNodeId))
+		defaultOptionsNode = optionsIn;
+	else
+	{
+		defaultOptionsNode = ValueTree(TuneUpIDs::defaultOptionsNodeId);
+		synced = false;
+	}
+
+	ensureNodeHasTuningListNode(defaultOptionsNode);
+	defaultTuningsListNode = defaultOptionsNode.getChildWithName(TuneUpIDs::defaultTuningsListId);
+
+	bool hasProperty;
+	var value;
+
+	for (auto prop : availableOptions)
+	{
+		hasProperty = defaultOptionsNode.hasProperty(prop);
+		value = defaultOptionsNode[prop];
+
+		// ONLY DEFAULT OPTIONS
+
+		if (prop == TuneUpIDs::defaultTuningFilePathId)
+		{
+			if (!hasProperty)
+				value = File::getSpecialLocation(File::userDocumentsDirectory).getFullPathName();
+			
+			setDefaultTuningPath(value);
+		}
+
+		else if (prop == TuneUpIDs::defaultTuningsListId)
+		{
+			if (defaultTuningsListNode.getNumChildren() > 0)
+			{
+				ValueTree dftTun = defaultTuningsListNode.getChild(0);
+
+				if (dftTun.hasType(TuneUpIDs::tuningDefinitionId))
+					setTuningIn(dftTun);
+				else
+					setTuningIn(STD_TUNING);
+
+				dftTun = defaultTuningsListNode.getChild(1);
+				
+				if (dftTun.hasType(TuneUpIDs::tuningDefinitionId))
+					setTuningOut(dftTun);
+				else
+					setTuningOut(STD_TUNING);
+			}
+
+			else
+			{
+				defaultTuningsListNode.addChild(STD_TUNING, 0, nullptr);
+				defaultTuningsListNode.addChild(STD_TUNING, 1, nullptr);
+			}
+
+		}
+
+		// OPTIONS THAT CAN BE BOTH DEFAULT OR SESSION
+
+		else if (prop == TuneUpIDs::referenceNoteInId)
+		{
+			if (!hasProperty)
+				value = 69;
+
+			setReferenceNoteIn(value, true, true);
+		}
+
+		else if (prop == TuneUpIDs::referenceFreqInId)
+		{
+			if (!hasProperty)
+				value = 440.0;
+
+			setReferenceFreqIn(value, true, true);
+		}
+
+		else if (prop == TuneUpIDs::referenceNoteOutId)
+		{
+			if (!hasProperty)
+				value = 60;
+
+			setReferenceNoteOut(value, true, true);
+		}
+
+		else if (prop == TuneUpIDs::referenceFreqOutId)
+		{
+			if (!hasProperty)
+				value = 261.626;
+
+			setReferenceFreqOut(value, true, true);
+		}
+
+		else if (prop == TuneUpIDs::pitchbendRangeId)
+		{
+			if (!hasProperty)
+				value = 2;
+
+			setPitchbendRange(value, true, true);
+		}
+
+		else if (prop == TuneUpIDs::voiceLimitId)
+		{
+			if (!hasProperty)
+				value = 16;
+
+			setVoiceLimit(value, true, true);
+		}
+
+		else if (prop == TuneUpIDs::channelConfigurationId)
+		{
+			if (!hasProperty)
+				value = 2;
+
+			// TODO
+		}
+
+		else if (prop == TuneUpIDs::channelModeId)
+		{
+			if (!hasProperty)
+				value = 1;
+
+			setChannelMode(FreeChannelMode((int)value), true, true);
+		}
+
+		else if (prop == TuneUpIDs::reuseChannelsId)
+		{
+			if (!hasProperty)
+				value = false;
+
+			setReuseChannels(value, true, true);
+		}
+
+		else if (prop == TuneUpIDs::resetChannelPitchbendId)
+		{
+			if (!hasProperty)
+				value = true;
+
+			setResetChannelPitchbend(value, true, true);
+		}
+	}
+
+	return synced;
+}
+
+void GeneralOptionsWindow::loadSessionOptions(ValueTree sessionOptionsIn)
+{
+	for (auto prop : availableOptions)
+	{
+		if (!sessionOptionsIn.hasProperty(prop))
+			continue;
+
+		if (prop == TuneUpIDs::referenceNoteInId)
+			setReferenceNoteIn(sessionOptionsIn[prop], true, true);
+
+		else if (prop == TuneUpIDs::referenceFreqInId)
+			setReferenceFreqIn(sessionOptionsIn[prop], true, true);
+
+		else if (prop == TuneUpIDs::referenceNoteOutId)
+			setReferenceNoteOut(sessionOptionsIn[prop], true, true);
+
+		else if (prop == TuneUpIDs::referenceFreqOutId)
+			setReferenceFreqOut(sessionOptionsIn[prop], true, true);
+
+		else if (prop == TuneUpIDs::pitchbendRangeId)
+			setPitchbendRange(sessionOptionsIn[prop], true, true);
+
+		else if (prop == TuneUpIDs::voiceLimitId)
+			setVoiceLimit(sessionOptionsIn[prop], true, true);
+
+		else if (prop == TuneUpIDs::channelConfigurationId)
+			setChannelConfiguration(true, false);
+
+		else if (prop == TuneUpIDs::channelModeId)
+			setChannelMode(FreeChannelMode((int)sessionOptionsIn[prop]), true, true);
+
+		else if (prop == TuneUpIDs::reuseChannelsId)
+			setReuseChannels(sessionOptionsIn[prop], true, true);
+
+		else if (prop == TuneUpIDs::resetChannelPitchbendId)
+			setResetChannelPitchbend(sessionOptionsIn[prop], true, true);
+	}
+}
+
+ValueTree GeneralOptionsWindow::getDefaultOptionsNode()
+{
+	return defaultOptionsNode;
+}
+
+ValueTree GeneralOptionsWindow::getSessionOptionsNode()
+{
+	return sessionOptionsNode;
+}
+
+void GeneralOptionsWindow::setDefaultTuningPath(String absolutePathIn, bool notifyListeners)
+{
+	defaultTuningDirEditor->setText(absolutePathIn);
+	defaultOptionsNode.setProperty(TuneUpIDs::defaultTuningFilePathId, absolutePathIn, nullptr);
+
+	if (notifyListeners)
+		void; // TODO
+}
+
+void GeneralOptionsWindow::setTuningIn(ValueTree tuningInPath, bool notifyListeners)
+{
+	if (defaultTuningsListNode.getNumChildren() > 0)
+		defaultTuningsListNode.getChild(0).copyPropertiesAndChildrenFrom(tuningInPath, nullptr);
+	else
+		defaultTuningsListNode.addChild(tuningInPath, 0, nullptr);
+
+	if (notifyListeners)
+		void; // TODO
+}
+
+void GeneralOptionsWindow::setTuningOut(ValueTree tuningOutPath, bool notifyListeners)
+{
+	if (defaultTuningsListNode.getNumChildren() == 0)
+		defaultTuningsListNode.addChild(STD_TUNING, 0, nullptr);
+
+	if (defaultTuningsListNode.getNumChildren() == 1)
+		defaultTuningsListNode.addChild(tuningOutPath, 1, nullptr);
+	else 
+		defaultTuningsListNode.getChild(1).copyPropertiesAndChildrenFrom(tuningOutPath, nullptr);
+
+	if (notifyListeners)
+		void; // TODO
+}
+
+void GeneralOptionsWindow::setReferenceNoteIn(int noteIn, bool updateUI, bool saveAsDefault, bool notifyListeners)
+{
+	sessionOptionsNode.setProperty(TuneUpIDs::referenceNoteInId, noteIn, nullptr);
+
+	if (updateUI)
+		referenceNoteInSlider->setValue(noteIn, dontSendNotification);
+
+	if (saveAsDefault)
+		defaultOptionsNode.setProperty(TuneUpIDs::referenceNoteInId, noteIn, nullptr);
+
+	if (notifyListeners)
+		listeners.call(&GeneralOptionsWindow::Listener::referenceNoteInChanged, noteIn);
+}
+
+void GeneralOptionsWindow::setReferenceFreqIn(double freqIn, bool updateUI, bool saveAsDefault, bool notifyListeners)
+{
+	sessionOptionsNode.setProperty(TuneUpIDs::referenceFreqInId, freqIn, nullptr);
+
+	if (updateUI)
+		referenceFreqInSlider->setValue(freqIn, dontSendNotification);
+
+	if (saveAsDefault)
+		defaultOptionsNode.setProperty(TuneUpIDs::referenceFreqInId, freqIn, nullptr);
+
+	if (notifyListeners)
+		listeners.call(&GeneralOptionsWindow::Listener::referenceFreqInChanged, freqIn);
+}
+
+void GeneralOptionsWindow::setReferenceNoteOut(int noteIn, bool updateUI, bool saveAsDefault, bool notifyListeners)
+{
+	sessionOptionsNode.setProperty(TuneUpIDs::referenceNoteOutId, noteIn, nullptr);
+
+	if (updateUI)
+		referenceNoteOutSlider->setValue(noteIn, dontSendNotification);
+
+	if (saveAsDefault)
+		defaultOptionsNode.setProperty(TuneUpIDs::referenceNoteOutId, noteIn, nullptr);
+
+	if (notifyListeners)
+		listeners.call(&GeneralOptionsWindow::Listener::referenceNoteOutChanged, noteIn);
+}
+
+void GeneralOptionsWindow::setReferenceFreqOut(double freqIn, bool updateUI, bool saveAsDefault, bool notifyListeners)
+{
+	sessionOptionsNode.setProperty(TuneUpIDs::referenceFreqOutId, freqIn, nullptr);
+
+	if (updateUI)
+		referenceFreqOutSlider->setValue(freqIn, dontSendNotification);
+
+	if (saveAsDefault)
+		defaultOptionsNode.setProperty(TuneUpIDs::referenceFreqOutId, freqIn, nullptr);
+
+	if (notifyListeners)
+		listeners.call(&GeneralOptionsWindow::Listener::referenceFreqOutChanged, freqIn);
+}
+
+void GeneralOptionsWindow::setPitchbendRange(int pitchbendRangeIn, bool updateUI, bool saveAsDefault, bool notifyListeners)
+{
+	sessionOptionsNode.setProperty(TuneUpIDs::pitchbendRangeId, pitchbendRangeIn, nullptr);
+
+	if (updateUI)
+		pitchbendRangeSlider->setValue(pitchbendRangeIn, dontSendNotification);
+
+	if (saveAsDefault)
+		defaultOptionsNode.setProperty(TuneUpIDs::pitchbendRangeId, pitchbendRangeIn, nullptr);
+
+	if (notifyListeners)
+		listeners.call(&GeneralOptionsWindow::Listener::pitchbendRangeChanged, pitchbendRangeIn);
+}
+
+void GeneralOptionsWindow::setChannelConfiguration(/* TODO */ bool updateUI, bool saveAsDefault, bool notifyListeners)
+{
+	/* TODO */
+	//generalOptionsNode.setProperty(TuneUpIDs::channelConfigurationId, , nullptr);
+}
+
+void GeneralOptionsWindow::setChannelMode(TuneUpMode::FreeChannelMode modeIn, bool updateUI, bool saveAsDefault, bool notifyListeners)
+{
+	sessionOptionsNode.setProperty(TuneUpIDs::channelModeId, modeIn, nullptr);
+
+	if (updateUI)
+		channelModeBox->setSelectedId(modeIn, dontSendNotification);
+
+	if (saveAsDefault)
+		defaultOptionsNode.setProperty(TuneUpIDs::channelModeId, modeIn, nullptr);
+
+	if (notifyListeners)
+		listeners.call(&GeneralOptionsWindow::Listener::channelModeChanged, modeIn);
+}
+
+void GeneralOptionsWindow::setVoiceLimit(int limitIn, bool updateUI, bool saveAsDefault, bool notifyListeners)
+{
+	sessionOptionsNode.setProperty(TuneUpIDs::voiceLimitId, limitIn, nullptr);
+
+	if (updateUI)
+		voiceLimitSlider->setValue(limitIn, dontSendNotification);
+
+	if (saveAsDefault)
+		defaultOptionsNode.setProperty(TuneUpIDs::voiceLimitId, limitIn, nullptr);
+
+	if (notifyListeners)
+		listeners.call(&GeneralOptionsWindow::Listener::voiceLimitChanged, limitIn);
+}
+
+void GeneralOptionsWindow::setResetChannelPitchbend(bool resetChannels, bool updateUI, bool saveAsDefault, bool notifyListeners)
+{
+	sessionOptionsNode.setProperty(TuneUpIDs::resetChannelPitchbendId, resetChannels, nullptr);
+
+	if (updateUI)
+		resetChannelPitchbendButton->setToggleState(resetChannels, dontSendNotification);
+
+	if (saveAsDefault)
+		defaultOptionsNode.setProperty(TuneUpIDs::resetChannelPitchbendId, resetChannels, nullptr);
+
+	if (notifyListeners)
+		listeners.call(&GeneralOptionsWindow::Listener::resetChannelPitchbendChanged, resetChannels);
+}
+
+void GeneralOptionsWindow::setReuseChannels(bool reuseChannels, bool updateUI, bool saveAsDefault, bool notifyListeners)
+{
+	sessionOptionsNode.setProperty(TuneUpIDs::reuseChannelsId, reuseChannels, nullptr);
+
+	if (updateUI)
+		reuseChannelsButton->setToggleState(reuseChannels, dontSendNotification);
+
+	if (saveAsDefault)
+		defaultOptionsNode.setProperty(TuneUpIDs::reuseChannelsId, reuseChannels, nullptr);
+
+	if (notifyListeners)
+		listeners.call(&GeneralOptionsWindow::Listener::reuseChannelsChanged, reuseChannels);
+}
+
+void GeneralOptionsWindow::setDynamicTuningMode(bool isDynamicTuning)
+{
+	sessionOptionsNode.setProperty(TuneUpIDs::dynamicTuningModeId, isDynamicTuning, nullptr);
+	listeners.call(&GeneralOptionsWindow::Listener::dynamicTuningModeChanged, isDynamicTuning);
+}
+
+void GeneralOptionsWindow::ensureNodeHasTuningListNode(ValueTree nodeIn)
+{
+	if (!nodeIn.getChildWithName(TuneUpIDs::defaultTuningsListId).isValid())
+		nodeIn.addChild(ValueTree(TuneUpIDs::defaultTuningsListId), -1, nullptr);
 }
