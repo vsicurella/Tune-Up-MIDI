@@ -33,7 +33,7 @@ public:
 	// Probably should move elsewhere
 	const ValueTree STD_TUNING = TuningDefinition::getStandardTuningDefinition();
 
-	GeneralOptionsWindow(ValueTree defaultOptions);
+	GeneralOptionsWindow();
 	~GeneralOptionsWindow();
 
 	void paint(Graphics& g) override;

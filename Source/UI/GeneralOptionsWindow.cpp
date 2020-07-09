@@ -10,7 +10,7 @@
 
 #include "GeneralOptionsWindow.h"
 
-GeneralOptionsWindow::GeneralOptionsWindow(ValueTree defaultOptions)
+GeneralOptionsWindow::GeneralOptionsWindow()
 	: grid(24, 14)
 {
 	defaultTuningDirLabel.reset(new Label("defaultTuningDirLabel", "Default Load Path:"));
@@ -140,7 +140,6 @@ GeneralOptionsWindow::GeneralOptionsWindow(ValueTree defaultOptions)
 	addAndMakeVisible(resetChannelPitchbendButton.get());
 
 	sessionOptionsNode = ValueTree(sessionOptionsNodeId);
-	initializeOptions(defaultOptions);
 }
 
 GeneralOptionsWindow::~GeneralOptionsWindow()
@@ -451,34 +450,34 @@ void GeneralOptionsWindow::loadSessionOptions(ValueTree sessionOptionsIn)
 			continue;
 
 		if (prop == TuneUpIDs::referenceNoteInId)
-			setReferenceNoteIn(sessionOptionsIn[prop], true, true);
+			setReferenceNoteIn(sessionOptionsIn[prop]);
 
 		else if (prop == TuneUpIDs::referenceFreqInId)
-			setReferenceFreqIn(sessionOptionsIn[prop], true, true);
+			setReferenceFreqIn(sessionOptionsIn[prop]);
 
 		else if (prop == TuneUpIDs::referenceNoteOutId)
-			setReferenceNoteOut(sessionOptionsIn[prop], true, true);
+			setReferenceNoteOut(sessionOptionsIn[prop]);
 
 		else if (prop == TuneUpIDs::referenceFreqOutId)
-			setReferenceFreqOut(sessionOptionsIn[prop], true, true);
+			setReferenceFreqOut(sessionOptionsIn[prop]);
 
 		else if (prop == TuneUpIDs::pitchbendRangeId)
-			setPitchbendRange(sessionOptionsIn[prop], true, true);
+			setPitchbendRange(sessionOptionsIn[prop]);
 
 		else if (prop == TuneUpIDs::voiceLimitId)
-			setVoiceLimit(sessionOptionsIn[prop], true, true);
+			setVoiceLimit(sessionOptionsIn[prop]);
 
 		else if (prop == TuneUpIDs::channelConfigurationId)
-			setChannelConfiguration(true, false);
+			setChannelConfiguration(/*TODO*/);
 
 		else if (prop == TuneUpIDs::channelModeId)
-			setChannelMode(FreeChannelMode((int)sessionOptionsIn[prop]), true, true);
+			setChannelMode(FreeChannelMode((int)sessionOptionsIn[prop]));
 
 		else if (prop == TuneUpIDs::reuseChannelsId)
-			setReuseChannels(sessionOptionsIn[prop], true, true);
+			setReuseChannels(sessionOptionsIn[prop]);
 
 		else if (prop == TuneUpIDs::resetChannelPitchbendId)
-			setResetChannelPitchbend(sessionOptionsIn[prop], true, true);
+			setResetChannelPitchbend(sessionOptionsIn[prop]);
 	}
 }
 
