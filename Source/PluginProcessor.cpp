@@ -163,29 +163,34 @@ TuneUpMidiState* TuneupMidiAudioProcessor::getPluginState()
 //==============================================================================
 void TuneupMidiAudioProcessor::getStateInformation (MemoryBlock& destData)
 {
-    // You should use this method to store your parameters in the memory block.
-    // You could do that either as raw data, or use the XML or ValueTree classes
-    // as intermediaries to make it easy to save and load complex data.
-
 	MemoryOutputStream mos;
 
-	ValueTree definition = pluginState->getTuningDefinition();
-	if (definition.isValid())
-	{
-		definition.writeToStream(mos);
-	}	
-	
+	ValueTree stateNode = pluginState->getPluginStateNode();
+
+	//stateNode = ValueTree(); // uncomment to wipe saved state
+
+	DBG("Saved this node to memory:\n" + stateNode.toXmlString());
+
+	stateNode.writeToStream(mos);
 	destData.replaceWith(mos.getData(), mos.getDataSize());
 }
 
 void TuneupMidiAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
-    // You should use this method to restore your parameters from this memory block,
-    // whose contents will have been created by the getStateInformation() call.
-
 	MemoryInputStream mis(data, sizeInBytes, false);
-	ValueTree tuningDefinition = ValueTree::readFromStream(mis);
-	pluginState->setTuningOut(tuningDefinition, true);
+	ValueTree stateNode = ValueTree::readFromStream(mis);
+
+	DBG("Found this in memory:\n" + stateNode.toXmlString());
+
+	//stateNode = ValueTree(); // uncomment to test default load
+
+	pluginState->setPluginStateNode(stateNode);
+	pluginState->setSessionOptionsNode(stateNode.getChildWithName(TuneUpIDs::sessionOptionsNodeId));
+
+	if (stateNode.getChildWithName(TuneUpIDs::sessionOptionsNodeId).getNumChildren() > 0)
+		pluginState->resetToSessionOptions(false);
+	else
+		pluginState->resetToDefaultOptions(true, false);
 }
 
 //==============================================================================

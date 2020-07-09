@@ -31,6 +31,12 @@ public:
 	TuneUpMidiState();
 	~TuneUpMidiState();
 
+	ValueTree getPluginStateNode();
+
+	ValueTree getDefaultOptionsNode();
+
+	ValueTree getSessionOptionsNode();
+
 	TuneUpMidiProcessor* getMidiProcessor();
 
 	ValueTree getOriginTuningDefinition();
@@ -42,34 +48,49 @@ public:
 	const MidiKeyboardState& getMidiKeyboardState();
 
 	/*
-		Loads a saved plugin state
+		Sets the parent data node of the instance (but doesn't initialize or pass data down)
 	*/
-	void loadPluginStateNode(ValueTree pluginStateNodeIn);
+	void setPluginStateNode(ValueTree pluginStateNodeIn);
 
 	/*
-		Loads default options and passes data down
+		Reset to factory default
 	*/
-	void loadDefaultOptions();
+	void resetToFactoryDefault(bool sendChange = true);
 
 	/*
-		Loads session options and passes data down
+		Sets the default options node of the instance (but doesn't initialize or pass data down)
 	*/
-	void loadSessionOptions(ValueTree sessionOptionsNodeIn);
+	void setDefaultOptionsNode(ValueTree defaultOptionsNodeIn);
 
 	/*
-		Sets and renders tuning in and out definitions
+		Replaces data with user default options
 	*/
-	void setTunings(ValueTree tuningInDefinition, ValueTree tuningOutDefinition, bool sendChangeSignal = false);
+	void resetToDefaultOptions(bool saveToSession, bool sendChange = true);
+
+	/*
+		Sets the session options node of the instance (but doesn't initialize or pass data down)
+	*/
+	void setSessionOptionsNode(ValueTree sessionOptionsNodeIn);
+
+	/*
+		Sets the session options node and loads the data
+	*/
+	void resetToSessionOptions(bool sendChangeMessage = true);
+
+	/*
+		Writes session data to plugin state
+	*/
+	void writeSessionDataToState();
 
 	/*
 		Sets and renders new tuning in definition, leaving tuning out unchanged
 	*/
-	void setTuningIn(ValueTree definitionIn, bool sendChangeSignal = false);
+	void setTuningIn(ValueTree definitionIn, bool writeToSession = true, bool sendChangeSignal = false);
 
 	/*
 		Sets and renders new tuning out definition, leaving tuning in unchanged
 	*/
-	void setTuningOut(ValueTree definitionIn, bool sendChangeSignal = false);
+	void setTuningOut(ValueTree definitionIn, bool writeToSession = true, bool sendChangeSignal = false);
 
 	void setDynamicTuningPeriodController(int controlNumber);
 	void setDynamicTuningGeneratorController(int controlNumber);
@@ -94,6 +115,7 @@ private:
 
 	ValueTree pluginStateNode;
 	ValueTree defaultOptionsNode;
+	ValueTree sessionOptionsNode;
 
 	MidiKeyboardState midiState;
 

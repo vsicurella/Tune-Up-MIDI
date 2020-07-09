@@ -12,19 +12,18 @@
 
 
 TuneUpMidiProcessor::TuneUpMidiProcessor(const Tuning* originTuning, const Tuning* newTuning, Array<int>& notesOnIn)
-	:	standard(originTuning),
-		tuning(newTuning),
+	:	tuningIn(originTuning),
+		tuningOut(newTuning),
 		notesInOn(notesOnIn),
 		channelAssigner(nullptr, notesOnIn) // TODO implement proper MPE zones
 {
-	retuner.reset(new MidiNoteTuner(*standard, *tuning));
+	retuner.reset(new MidiNoteTuner(*tuningIn, *tuningOut));
 	retuner->setPitchbendRange(pitchbendRange);
 
 	midiInput = MidiInput::openDevice(inputDeviceInfo.name, this);
 	if (midiInput.get())
 		midiInput->start();
 	DBG("Midi Input opened: " + inputDeviceInfo.name);
-
 
 	//midiOutput = MidiInput::openDevice(outputDeviceInfo.name, this);
 }
@@ -41,7 +40,8 @@ const Array<int>& TuneUpMidiProcessor::getTuningNotesOn() const
 
 void TuneUpMidiProcessor::setTuningIn(const Tuning* tuningInIn)
 {
-	retuner->setOriginTuning(*tuningInIn);
+	tuningIn = tuningInIn;
+	retuner->setOriginTuning(*tuningIn);
 
 	if (notesInOn.size() > 0)
 		resetNotes();
@@ -49,8 +49,8 @@ void TuneUpMidiProcessor::setTuningIn(const Tuning* tuningInIn)
 
 void TuneUpMidiProcessor::setTuningOut(const Tuning* tuningOutIn)
 {
-	tuning = tuningOutIn;
-	retuner->setNewTuning(*tuning);
+	tuningOut = tuningOutIn;
+	retuner->setNewTuning(*tuningOut);
 	
 	if (notesInOn.size() > 0)
 		resetNotes();

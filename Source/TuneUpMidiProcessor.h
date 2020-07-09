@@ -98,6 +98,6 @@ private:
 	Array<int>& notesInOn;
 	Array<int> notesTunedOn;
 
-	const Tuning* standard;
-	const Tuning* tuning = nullptr;
+	const Tuning* tuningIn;
+	const Tuning* tuningOut = nullptr;
 };

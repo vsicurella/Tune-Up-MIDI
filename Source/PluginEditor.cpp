@@ -29,7 +29,13 @@ TuneupMidiAudioProcessorEditor::TuneupMidiAudioProcessorEditor (
 	addChildComponent(createTuningWindow.get());
 	createTuningWindow->addChangeListener(this);
 
-	generalOptionsWindow.reset(new GeneralOptionsWindow(ValueTree()));
+	generalOptionsWindow.reset(new GeneralOptionsWindow());
+	if (!generalOptionsWindow->initializeOptions(pluginState.getDefaultOptionsNode()))
+	{
+		// Update PluginState with factory default options
+		pluginState.setDefaultOptionsNode(generalOptionsWindow->getDefaultOptionsNode());
+	}
+	generalOptionsWindow->loadSessionOptions(pluginState.getSessionOptionsNode());
 	addChildComponent(generalOptionsWindow.get());
 	generalOptionsWindow->addListener(this);
 
@@ -255,7 +261,7 @@ void TuneupMidiAudioProcessorEditor::changeListenerCallback(ChangeBroadcaster* s
 {
 	if (source == &pluginState)
 	{
-		mainWindow->loadTuning(pluginState.getTuning());
+		reloadPluginState();
 	}
 
 	else if (source == createTuningWindow.get())
@@ -336,12 +342,19 @@ void TuneupMidiAudioProcessorEditor::onFileLoad()
 
 }
 
+void TuneupMidiAudioProcessorEditor::reloadPluginState()
+{
+	mainWindow->loadTuning(pluginState.getTuning());
+	generalOptionsWindow->loadSessionOptions(pluginState.getSessionOptionsNode());
+	createTuningWindow->setDefinition(pluginState.getTuningDefinition());
+}
+
 void TuneupMidiAudioProcessorEditor::loadTuning(ValueTree tuningDefinition)
 {
-	pluginState.setTuningOut(tuningDefinition);
+	pluginState.setTuningOut(tuningDefinition, true, false);
 	mainWindow->loadTuning(pluginState.getTuning());
 
-	DBG("Tuning Loaded: \n" + tuningDefinition.toXmlString());
+	DBG("GUI updated to Loaded: \n" + tuningDefinition.toXmlString());
 }
 
 void TuneupMidiAudioProcessorEditor::setControlMode(ControlMode modeIn)

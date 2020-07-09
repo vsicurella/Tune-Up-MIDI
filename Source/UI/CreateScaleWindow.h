@@ -40,7 +40,9 @@ public:
 
 	void setMode(CreateTuningMode modeIn);
 
-	void updateTuning();
+	void setDefinition(ValueTree definition);
+
+	void updateTuning(bool sendChange = true);
 
 	ValueTree getTuningDefinition() const;
 

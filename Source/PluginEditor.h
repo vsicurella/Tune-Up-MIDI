@@ -58,6 +58,8 @@ public:
 
 	void onFileLoad();
 
+	void reloadPluginState();
+
 	void loadTuning(ValueTree tuningDefinition);
 
 	void setControlMode(ControlMode modeIn);

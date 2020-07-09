@@ -38,7 +38,7 @@ CreateTuningWindow::CreateTuningWindow(ValueTree tuningDefinitionIn)
 	addChildComponent(etNotesSlider.get());
 	etNotesSlider->setSliderStyle(Slider::SliderStyle::IncDecButtons);
 	etNotesSlider->setRange(1, 128, 1);
-	etNotesSlider->setValue(12);
+	etNotesSlider->setValue(12, dontSendNotification);
 	etNotesSlider->addListener(this);
 
 	etPeriodLabel.reset(new Label("etPeriodLabel", periodTrans + ':'));
@@ -149,7 +149,13 @@ void CreateTuningWindow::setMode(CreateTuningMode modeIn)
 	etPeriodBox->setVisible(mode == EqualTemperament);
 }
 
-void CreateTuningWindow::updateTuning()
+void CreateTuningWindow::setDefinition(ValueTree definition)
+{
+	tuningDefinition = definition;
+	generatorTable->updateDefinition(tuningDefinition);
+}
+
+void CreateTuningWindow::updateTuning(bool sendChange)
 {
 	if (mode == EqualTemperament)
 	{
@@ -177,7 +183,8 @@ void CreateTuningWindow::updateTuning()
 			tuningDefinition.setProperty(TuneUpIDs::tuningDescriptionId, desc, nullptr);
 	}
 	
-	sendChangeMessage();
+	if (sendChange)
+		sendChangeMessage();
 }
 
 ValueTree CreateTuningWindow::getTuningDefinition() const
