@@ -33,7 +33,24 @@ public:
 
 	void setTuningIn(const Tuning* tuningInIn);
 	void setTuningOut(const Tuning* tuningOutIn);
+
+	void setReferenceNoteIn(int noteIn);
+
+	void setReferenceFreqIn(double freqIn);
+
+	void setReferenceNoteOut(int noteOut);
+
+	void setReferenceFreqOut(double freqOut);
+
 	void setPitchbendRange(int pitchbendRangeIn);
+
+	void setVoiceLimit(int voiceLimitIn);
+
+	void setFreeChannelMode(FreeChannelMode channelModeIn);
+
+	void setReuseChannels(bool reuseChannels);
+
+	void setResetChannelPitchbendWhenEmpty(bool resetPitchbend);
 
 	void processMidi(MidiBuffer& bufferIn);
 
@@ -93,7 +110,8 @@ private:
 	int transposePeriods = 0;
 	int pitchbendRange = 2;
 	PitchbendInputMode pitchbendInputMode = PitchbendInputMode::AddToTuning;
-	FreeChannelMode channelMode = FreeChannelMode::RoundRobin;
+
+	bool resetChannelPitchbendWhenEmpty = false;
 
 	Array<int>& notesInOn;
 	Array<int> notesTunedOn;

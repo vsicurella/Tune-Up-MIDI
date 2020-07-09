@@ -183,10 +183,11 @@ private:
 	std::unique_ptr<ToggleButton> reuseChannelsButton;
 	std::unique_ptr<ToggleButton> resetChannelPitchbendButton;
 
+	// TODO: Generalize this and make it Common
 	Array<Identifier> availableOptions = 
 	{
 		TuneUpIDs::defaultTuningFilePathId,
-		TuneUpIDs::defaultTuningsListId,
+		TuneUpIDs::tuningsListId,
 		TuneUpIDs::referenceNoteInId,
 		TuneUpIDs::referenceFreqInId,
 		TuneUpIDs::referenceNoteOutId,

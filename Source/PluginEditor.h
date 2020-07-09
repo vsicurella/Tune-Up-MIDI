@@ -56,6 +56,29 @@ public:
 
 	//==============================================================================
 
+	// GeneralOptionsWindow::Listener implementation
+
+	void referenceNoteInChanged(int noteIn) override;
+
+	void referenceFreqInChanged(double freqIn) override;
+
+	void referenceNoteOutChanged(int noteIn) override;
+
+	void referenceFreqOutChanged(double freqIn) override;
+	
+	void pitchbendRangeChanged(int newPitchBendRange) override;
+
+	void voiceLimitChanged(int limitIn) override;
+
+	void channelModeChanged(FreeChannelMode channelModeIn) override;
+
+	void reuseChannelsChanged(bool reuseChannels) override;
+
+	void resetChannelPitchbendChanged(bool resetPitchbend) override;
+	
+	//==============================================================================
+
+
 	void onFileLoad();
 
 	void reloadPluginState();

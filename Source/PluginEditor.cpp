@@ -326,6 +326,54 @@ void TuneupMidiAudioProcessorEditor::comboBoxChanged(ComboBox* comboBoxThatChang
 	}
 }
 
+
+void TuneupMidiAudioProcessorEditor::referenceNoteInChanged(int noteIn)
+{
+	pluginState.setReferenceNoteIn(noteIn);
+}
+
+void TuneupMidiAudioProcessorEditor::referenceFreqInChanged(double freqIn)
+{
+	pluginState.setReferenceFreqIn(freqIn);
+}
+
+void TuneupMidiAudioProcessorEditor::referenceNoteOutChanged(int noteIn)
+{
+	pluginState.setReferenceNoteOut(noteIn);
+}
+
+void TuneupMidiAudioProcessorEditor::referenceFreqOutChanged(double freqIn)
+{
+	pluginState.setReferenceFreqOut(freqIn);
+}
+
+void TuneupMidiAudioProcessorEditor::pitchbendRangeChanged(int newPitchBendRange)
+{
+	pluginState.setPitchbendRange(newPitchBendRange);
+}
+
+void TuneupMidiAudioProcessorEditor::voiceLimitChanged(int limitIn)
+{
+	pluginState.setVoiceLimit(limitIn);
+}
+
+void TuneupMidiAudioProcessorEditor::channelModeChanged(FreeChannelMode channelModeIn)
+{
+	pluginState.setChannelMode(channelModeIn);
+}
+
+void TuneupMidiAudioProcessorEditor::reuseChannelsChanged(bool reuseChannels)
+{
+	pluginState.setReuseChannels(reuseChannels);
+}
+
+void TuneupMidiAudioProcessorEditor::resetChannelPitchbendChanged(bool resetPitchbend)
+{
+	pluginState.setResetChannelPitchbend(resetPitchbend);
+}
+
+
+
 void TuneupMidiAudioProcessorEditor::onFileLoad()
 {
 	bool success = scalaFileReader.open(loadedFile);

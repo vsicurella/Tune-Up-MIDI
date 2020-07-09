@@ -83,6 +83,11 @@ public:
 	void writeSessionDataToState();
 
 	/*
+		Passes data from input node, and falls back to defaultOptions if necessary
+	*/
+	void loadNodeOptions(ValueTree nodeOptionsIn);
+
+	/*
 		Sets and renders new tuning in definition, leaving tuning out unchanged
 	*/
 	void setTuningIn(ValueTree definitionIn, bool writeToSession = true, bool sendChangeSignal = false);
@@ -91,6 +96,28 @@ public:
 		Sets and renders new tuning out definition, leaving tuning in unchanged
 	*/
 	void setTuningOut(ValueTree definitionIn, bool writeToSession = true, bool sendChangeSignal = false);
+
+	// SESSION PARAMETER SETTERS
+
+	void setReferenceNoteIn(int noteIn);
+
+	void setReferenceFreqIn(double freqIn);
+
+	void setReferenceNoteOut(int noteIn);
+
+	void setReferenceFreqOut(double freqIn);
+
+	void setPitchbendRange(int newPitchBendRange);
+
+	void setVoiceLimit(int limitIn);
+
+	void setChannelMode(FreeChannelMode channelModeIn);
+
+	void setReuseChannels(bool reuseChannels);
+
+	void setResetChannelPitchbend(bool resetPitchbend);
+
+	//=======================================================================================
 
 	void setDynamicTuningPeriodController(int controlNumber);
 	void setDynamicTuningGeneratorController(int controlNumber);
@@ -131,6 +158,25 @@ private:
 
 	TuningDefinition tuningDefinition;
 	std::unique_ptr<Tuning> tuning;
+
+	// Session Options
+	// TODO: generalize this and make it Common
+	Array<Identifier> availableOptions =
+	{
+//		TuneUpIDs::defaultTuningFilePathId,
+//		TuneUpIDs::tuningsListId,
+		TuneUpIDs::referenceNoteInId,
+		TuneUpIDs::referenceFreqInId,
+		TuneUpIDs::referenceNoteOutId,
+		TuneUpIDs::referenceFreqOutId,
+		TuneUpIDs::pitchbendRangeId,
+//		TuneUpIDs::channelConfigurationId,
+		TuneUpIDs::channelModeId,
+		TuneUpIDs::voiceLimitId,
+		TuneUpIDs::reuseChannelsId,
+		TuneUpIDs::resetChannelPitchbendId
+	};
+
 
 	// TODO: make a part of MidiCCListener interface
 	// Midi Control number to function map

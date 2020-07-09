@@ -25,6 +25,7 @@ GeneralOptionsWindow::GeneralOptionsWindow()
 	defaultTuningDirButton.reset(new TextButton("defaultTuningDirButton", "Browse for default tuning file directory"));
 	addAndMakeVisible(defaultTuningDirButton.get());
 	defaultTuningDirButton->setButtonText("...");
+	defaultTuningDirButton->addListener(this);
 
 	defaultTuningInLabel.reset(new Label("defaultTuningInLabel", "Default Tuning In:"));
 	addAndMakeVisible(defaultTuningInLabel.get());
@@ -35,6 +36,7 @@ GeneralOptionsWindow::GeneralOptionsWindow()
 	defaultTuningInBox->addItem(standardTrans, 1);
 	defaultTuningInBox->addItem(currentTrans, 2);
 	defaultTuningInBox->addItem(browseTrans, 3);
+	defaultTuningInBox->addListener(this);
 
 	defaultTuningOutLabel.reset(new Label("defaultTuningOutLabel", "Default Tuning Out:"));
 	addAndMakeVisible(defaultTuningOutLabel.get());
@@ -45,6 +47,7 @@ GeneralOptionsWindow::GeneralOptionsWindow()
 	defaultTuningOutBox->addItem(standardTrans, 1);
 	defaultTuningOutBox->addItem(currentTrans, 2);
 	defaultTuningOutBox->addItem(browseTrans, 3);
+	defaultTuningOutBox->addListener(this);
 
 	referenceNoteInLabel.reset(new Label("referenceNoteInLabel", "Reference Note In:"));
 	addAndMakeVisible(referenceNoteInLabel.get());
@@ -54,6 +57,7 @@ GeneralOptionsWindow::GeneralOptionsWindow()
 	addAndMakeVisible(referenceNoteInSlider.get());
 	referenceNoteInSlider->setSliderStyle(Slider::IncDecButtons);
 	referenceNoteInSlider->setRange(0, 127, 1);
+	referenceNoteInSlider->addListener(this);
 
 	referenceFreqInLabel.reset(new Label("referenceFreqInLabel", "Reference Freq In:"));
 	addAndMakeVisible(referenceFreqInLabel.get());
@@ -64,6 +68,7 @@ GeneralOptionsWindow::GeneralOptionsWindow()
 	referenceFreqInSlider->setSliderStyle(Slider::IncDecButtons);
 	referenceFreqInSlider->setRange(20, 20000, 0.001);
 	referenceFreqInSlider->setSkewFactor(2);
+	referenceFreqInSlider->addListener(this);
 
 	referenceFreqInAutoBtn.reset(new TextButton("referenceFreqInAutoBtn", "Sets frequency based on standard tuning at Note 69=440Hz"));
 	addAndMakeVisible(referenceFreqInAutoBtn.get());
@@ -80,6 +85,7 @@ GeneralOptionsWindow::GeneralOptionsWindow()
 	addAndMakeVisible(referenceNoteOutSlider.get());
 	referenceNoteOutSlider->setSliderStyle(Slider::IncDecButtons);
 	referenceNoteOutSlider->setRange(0, 127, 1);
+	referenceNoteOutSlider->addListener(this);
 
 	referenceFreqOutLabel.reset(new Label("referenceFreqOutLabel", "Reference Freq In:"));
 	addAndMakeVisible(referenceFreqOutLabel.get());
@@ -90,6 +96,7 @@ GeneralOptionsWindow::GeneralOptionsWindow()
 	referenceFreqOutSlider->setSliderStyle(Slider::IncDecButtons);
 	referenceFreqOutSlider->setRange(20, 20000, 0.001);
 	referenceFreqOutSlider->setSkewFactor(2);
+	referenceFreqOutSlider->addListener(this);
 
 	referenceFreqOutAutoBtn.reset(new TextButton("referenceFreqInAutoBtn", "Sets frequency based on standard tuning at Note 69=440Hz"));
 	addAndMakeVisible(referenceFreqOutAutoBtn.get());
@@ -106,6 +113,7 @@ GeneralOptionsWindow::GeneralOptionsWindow()
 	addAndMakeVisible(pitchbendRangeSlider.get());
 	pitchbendRangeSlider->setSliderStyle(Slider::IncDecButtons);
 	pitchbendRangeSlider->setRange(1, 96, 1);
+	pitchbendRangeSlider->addListener(this);
 
 	channelControlLabel.reset(new Label("channelControlLabel", "Channels:"));
 	addAndMakeVisible(channelControlLabel.get());
@@ -123,6 +131,7 @@ GeneralOptionsWindow::GeneralOptionsWindow()
 	addAndMakeVisible(channelModeBox.get());
 	channelModeBox->addItem("Round Robin (Cycle)", 1);
 	channelModeBox->addItem("First Available", 2);
+	channelModeBox->addListener(this);
 
 	voiceLimitLabel.reset(new Label("voiceLimitLabel", "Voice Limit:"));
 	addAndMakeVisible(voiceLimitLabel.get());
@@ -132,12 +141,15 @@ GeneralOptionsWindow::GeneralOptionsWindow()
 	addAndMakeVisible(voiceLimitSlider.get());
 	voiceLimitSlider->setSliderStyle(Slider::IncDecButtons);
 	voiceLimitSlider->setRange(1, 16, 1);
+	voiceLimitSlider->addListener(this);
 
 	reuseChannelsButton.reset(new ToggleButton(reuseTrans));
 	addAndMakeVisible(reuseChannelsButton.get());
+	reuseChannelsButton->addListener(this);
 	
 	resetChannelPitchbendButton.reset(new ToggleButton(resetTrans));
 	addAndMakeVisible(resetChannelPitchbendButton.get());
+	resetChannelPitchbendButton->addListener(this);
 
 	sessionOptionsNode = ValueTree(sessionOptionsNodeId);
 }
@@ -309,7 +321,7 @@ bool GeneralOptionsWindow::initializeOptions(ValueTree optionsIn)
 	}
 
 	ensureNodeHasTuningListNode(defaultOptionsNode);
-	defaultTuningsListNode = defaultOptionsNode.getChildWithName(TuneUpIDs::defaultTuningsListId);
+	defaultTuningsListNode = defaultOptionsNode.getChildWithName(TuneUpIDs::tuningsListId);
 
 	bool hasProperty;
 	var value;
@@ -329,7 +341,7 @@ bool GeneralOptionsWindow::initializeOptions(ValueTree optionsIn)
 			setDefaultTuningPath(value);
 		}
 
-		else if (prop == TuneUpIDs::defaultTuningsListId)
+		else if (prop == TuneUpIDs::tuningsListId)
 		{
 			if (defaultTuningsListNode.getNumChildren() > 0)
 			{
@@ -527,7 +539,7 @@ void GeneralOptionsWindow::setTuningOut(ValueTree tuningOutPath, bool notifyList
 
 void GeneralOptionsWindow::setReferenceNoteIn(int noteIn, bool updateUI, bool saveAsDefault, bool notifyListeners)
 {
-	sessionOptionsNode.setProperty(TuneUpIDs::referenceNoteInId, noteIn, nullptr);
+	//sessionOptionsNode.setProperty(TuneUpIDs::referenceNoteInId, noteIn, nullptr);
 
 	if (updateUI)
 		referenceNoteInSlider->setValue(noteIn, dontSendNotification);
@@ -541,7 +553,7 @@ void GeneralOptionsWindow::setReferenceNoteIn(int noteIn, bool updateUI, bool sa
 
 void GeneralOptionsWindow::setReferenceFreqIn(double freqIn, bool updateUI, bool saveAsDefault, bool notifyListeners)
 {
-	sessionOptionsNode.setProperty(TuneUpIDs::referenceFreqInId, freqIn, nullptr);
+	//sessionOptionsNode.setProperty(TuneUpIDs::referenceFreqInId, freqIn, nullptr);
 
 	if (updateUI)
 		referenceFreqInSlider->setValue(freqIn, dontSendNotification);
@@ -555,7 +567,7 @@ void GeneralOptionsWindow::setReferenceFreqIn(double freqIn, bool updateUI, bool
 
 void GeneralOptionsWindow::setReferenceNoteOut(int noteIn, bool updateUI, bool saveAsDefault, bool notifyListeners)
 {
-	sessionOptionsNode.setProperty(TuneUpIDs::referenceNoteOutId, noteIn, nullptr);
+	//sessionOptionsNode.setProperty(TuneUpIDs::referenceNoteOutId, noteIn, nullptr);
 
 	if (updateUI)
 		referenceNoteOutSlider->setValue(noteIn, dontSendNotification);
@@ -569,7 +581,7 @@ void GeneralOptionsWindow::setReferenceNoteOut(int noteIn, bool updateUI, bool s
 
 void GeneralOptionsWindow::setReferenceFreqOut(double freqIn, bool updateUI, bool saveAsDefault, bool notifyListeners)
 {
-	sessionOptionsNode.setProperty(TuneUpIDs::referenceFreqOutId, freqIn, nullptr);
+	//sessionOptionsNode.setProperty(TuneUpIDs::referenceFreqOutId, freqIn, nullptr);
 
 	if (updateUI)
 		referenceFreqOutSlider->setValue(freqIn, dontSendNotification);
@@ -583,7 +595,7 @@ void GeneralOptionsWindow::setReferenceFreqOut(double freqIn, bool updateUI, boo
 
 void GeneralOptionsWindow::setPitchbendRange(int pitchbendRangeIn, bool updateUI, bool saveAsDefault, bool notifyListeners)
 {
-	sessionOptionsNode.setProperty(TuneUpIDs::pitchbendRangeId, pitchbendRangeIn, nullptr);
+	//sessionOptionsNode.setProperty(TuneUpIDs::pitchbendRangeId, pitchbendRangeIn, nullptr);
 
 	if (updateUI)
 		pitchbendRangeSlider->setValue(pitchbendRangeIn, dontSendNotification);
@@ -603,7 +615,7 @@ void GeneralOptionsWindow::setChannelConfiguration(/* TODO */ bool updateUI, boo
 
 void GeneralOptionsWindow::setChannelMode(TuneUpMode::FreeChannelMode modeIn, bool updateUI, bool saveAsDefault, bool notifyListeners)
 {
-	sessionOptionsNode.setProperty(TuneUpIDs::channelModeId, modeIn, nullptr);
+	//sessionOptionsNode.setProperty(TuneUpIDs::channelModeId, modeIn, nullptr);
 
 	if (updateUI)
 		channelModeBox->setSelectedId(modeIn, dontSendNotification);
@@ -617,7 +629,7 @@ void GeneralOptionsWindow::setChannelMode(TuneUpMode::FreeChannelMode modeIn, bo
 
 void GeneralOptionsWindow::setVoiceLimit(int limitIn, bool updateUI, bool saveAsDefault, bool notifyListeners)
 {
-	sessionOptionsNode.setProperty(TuneUpIDs::voiceLimitId, limitIn, nullptr);
+	//sessionOptionsNode.setProperty(TuneUpIDs::voiceLimitId, limitIn, nullptr);
 
 	if (updateUI)
 		voiceLimitSlider->setValue(limitIn, dontSendNotification);
@@ -631,7 +643,7 @@ void GeneralOptionsWindow::setVoiceLimit(int limitIn, bool updateUI, bool saveAs
 
 void GeneralOptionsWindow::setResetChannelPitchbend(bool resetChannels, bool updateUI, bool saveAsDefault, bool notifyListeners)
 {
-	sessionOptionsNode.setProperty(TuneUpIDs::resetChannelPitchbendId, resetChannels, nullptr);
+	//sessionOptionsNode.setProperty(TuneUpIDs::resetChannelPitchbendId, resetChannels, nullptr);
 
 	if (updateUI)
 		resetChannelPitchbendButton->setToggleState(resetChannels, dontSendNotification);
@@ -645,7 +657,7 @@ void GeneralOptionsWindow::setResetChannelPitchbend(bool resetChannels, bool upd
 
 void GeneralOptionsWindow::setReuseChannels(bool reuseChannels, bool updateUI, bool saveAsDefault, bool notifyListeners)
 {
-	sessionOptionsNode.setProperty(TuneUpIDs::reuseChannelsId, reuseChannels, nullptr);
+	//sessionOptionsNode.setProperty(TuneUpIDs::reuseChannelsId, reuseChannels, nullptr);
 
 	if (updateUI)
 		reuseChannelsButton->setToggleState(reuseChannels, dontSendNotification);
@@ -659,12 +671,12 @@ void GeneralOptionsWindow::setReuseChannels(bool reuseChannels, bool updateUI, b
 
 void GeneralOptionsWindow::setDynamicTuningMode(bool isDynamicTuning)
 {
-	sessionOptionsNode.setProperty(TuneUpIDs::dynamicTuningModeId, isDynamicTuning, nullptr);
+	//sessionOptionsNode.setProperty(TuneUpIDs::dynamicTuningModeId, isDynamicTuning, nullptr);
 	listeners.call(&GeneralOptionsWindow::Listener::dynamicTuningModeChanged, isDynamicTuning);
 }
 
 void GeneralOptionsWindow::ensureNodeHasTuningListNode(ValueTree nodeIn)
 {
-	if (!nodeIn.getChildWithName(TuneUpIDs::defaultTuningsListId).isValid())
-		nodeIn.addChild(ValueTree(TuneUpIDs::defaultTuningsListId), -1, nullptr);
+	if (!nodeIn.getChildWithName(TuneUpIDs::tuningsListId).isValid())
+		nodeIn.addChild(ValueTree(TuneUpIDs::tuningsListId), -1, nullptr);
 }

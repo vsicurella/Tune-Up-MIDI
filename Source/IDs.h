@@ -15,13 +15,12 @@ namespace TuneUpIDs
 {
 	// Parents
 	static Identifier tuneUpMidiStateId("TuneUpMidiState");
-	static Identifier tuningsInAndOutNodeId("TuningsInAndOut");
+	static Identifier tuningsListId("TuningsList");
 
 	// Options
 	static Identifier defaultOptionsNodeId("DefaultOptions");
 	static Identifier sessionOptionsNodeId("SessionOptions");
 	static Identifier defaultTuningFilePathId("DefaultTuningPath");
-	static Identifier defaultTuningsListId("DefaultTuningsList");
 	static Identifier referenceNoteInId("ReferenceNoteIn");
 	static Identifier referenceFreqInId("ReferenceFreqIn");
 	static Identifier referenceNoteOutId("ReferenceNoteOut");

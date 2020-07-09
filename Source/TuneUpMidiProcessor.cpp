@@ -56,12 +56,54 @@ void TuneUpMidiProcessor::setTuningOut(const Tuning* tuningOutIn)
 		resetNotes();
 }
 
+void TuneUpMidiProcessor::setReferenceNoteIn(int noteIn)
+{
+	retuner->setOriginRootNote(noteIn);
+}
+
+void TuneUpMidiProcessor::setReferenceFreqIn(double freqIn)
+{
+	retuner->setOriginRootFreq(freqIn);
+}
+
+void TuneUpMidiProcessor::setReferenceNoteOut(int noteOut)
+{
+	retuner->setDestinationRootNote(noteOut);
+}
+
+void TuneUpMidiProcessor::setReferenceFreqOut(double freqOut)
+{
+	retuner->setDestinationRootFrequency(freqOut);
+}
+
 void TuneUpMidiProcessor::setPitchbendRange(int pitchbendRangeIn)
 {
 	pitchbendRange = pitchbendRangeIn;
 	if (retuner.get())
 		retuner->setPitchbendRange(pitchbendRange);
 }
+
+void TuneUpMidiProcessor::setVoiceLimit(int voiceLimitIn)
+{
+	channelAssigner.setVoiceLimit(voiceLimitIn);
+}
+
+void TuneUpMidiProcessor::setFreeChannelMode(FreeChannelMode channelModeIn)
+{
+	channelAssigner.setRoundRobinMode(channelModeIn == FreeChannelMode::RoundRobin);
+}
+
+void TuneUpMidiProcessor::setReuseChannels(bool reuseChannels)
+{
+	channelAssigner.setOneChannelPerNote(!reuseChannels);
+}
+
+void TuneUpMidiProcessor::setResetChannelPitchbendWhenEmpty(bool resetPitchbend)
+{
+	resetChannelPitchbendWhenEmpty = resetPitchbend;
+}
+
+
 
 void TuneUpMidiProcessor::processMidi(MidiBuffer& bufferIn)
 {
@@ -131,9 +173,15 @@ void TuneUpMidiProcessor::processMidi(MidiBuffer& bufferIn)
 					msg.setChannel(noteChannel);
 					channelAssigner.noteOff(noteIn);
 					notesTunedOn.removeFirstMatchingValue(noteTuned);
-					
+
 					bufferOut.addEvent(msg, smplOffset++);
-					desc += pitchMsg.getDescription() + '\n';
+
+					if (resetChannelPitchbendWhenEmpty)
+					{
+						pitchMsg = MidiMessage::pitchWheel(noteChannel, MPEValue::centreValue().as14BitInt());
+						bufferOut.addEvent(pitchMsg, smplOffset++);
+						desc += pitchMsg.getDescription() + '\n';
+					}
 				}
 			}
 		}
