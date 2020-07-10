@@ -131,6 +131,12 @@ private:
 	// Toolbar
 	// TODO
 
+	// TEMP
+	std::unique_ptr<Label> voiceLimitTitle;
+	std::unique_ptr<Label> voiceLimitValue;
+	std::unique_ptr<Label> channelsOnTitle;
+	std::unique_ptr<Label> channelsOnValue;
+
 	// Helpers
 	int borderGap = 8;
 	int componentGap = 8;

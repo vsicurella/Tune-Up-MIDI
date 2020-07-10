@@ -21,7 +21,8 @@ using namespace TuneUpMode;
 
 class TuneUpMidiProcessor : 
 	public MidiMessageCollector, 
-	public MidiCCNotifier
+	public MidiCCNotifier,
+	public ChangeBroadcaster
 {
 
 public:
@@ -30,6 +31,12 @@ public:
 	~TuneUpMidiProcessor();
 
 	const Array<int>& getTuningNotesOn() const;
+
+	int getNumberOfNotesOn() const;
+
+	const Array<int>& getChannelsOn() const;
+
+	const Array<int>& getChannelsPitchbend() const;
 
 	void setTuningIn(const Tuning* tuningInIn);
 	void setTuningOut(const Tuning* tuningOutIn);
@@ -94,16 +101,15 @@ private:
 	MidiBuffer ccInput;
 	int ccSmpl = 0;
 
-	std::unique_ptr<MPEInstrument> mpeInst;
+	//std::unique_ptr<MPEInstrument> mpeInst;
+	
+	TuneUpMidiChannelAssigner channelAssigner;
 	std::unique_ptr<MidiNoteTuner> retuner;
 
 	String desc;
 	String midiInLog;
 	String midiOutLog;
 	String retunerLog;
-
-	MPEInstrument mpeInstrument;
-	TuneUpMidiChannelAssigner channelAssigner;
 
 	// Options
 	int transposeDegrees = 0;

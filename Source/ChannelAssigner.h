@@ -22,8 +22,6 @@
 
 class TuneUpMidiChannelAssigner
 {
-	MPEInstrument* mpeInst = nullptr;
-	
 	Array<int> pitchbendOfChannel; // 16 values representing pitchbend per midi channel, 8192 meaning pitchbend at unity
     
     int voiceLimit = INT_MAX;
@@ -35,7 +33,7 @@ class TuneUpMidiChannelAssigner
 	Array<int> channelsOn;
 
 	Array<int> channelsOfNotes; // index is tuning note, value is channel number
-	Array<int> channelsToSkip;
+	Array<int> channelsToSkip = { };
     
 	// allows channels to contain more than one note if pitchbend value is the same
 	// but per-note vibrato and other expression is limited
@@ -88,11 +86,13 @@ public:
 
 	bool isChannelFree(int channelIn) const;
 
-	bool hasFreeChannels() const;
+	bool isUnderVoiceLimit() const;
 
-	Array<int> getChannelsOn() const;
+	const Array<int>& getChannelsOn() const;
     
     int getChannelOfNote(int noteIn) const;
+
+	const Array<int>& getChannelsPitchbend() const;
 
 	/*
 		Input channel number 0 - 15 

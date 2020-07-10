@@ -109,6 +109,24 @@ TuneupMidiAudioProcessorEditor::TuneupMidiAudioProcessorEditor (
 	newTuningModeBox->addListener(this);
 	newTuningModeBox->setSelectedId(TuneUpMode::CreateTuningMode::EqualTemperament);
 
+	// Temp =====================================
+
+	voiceLimitTitle.reset(new Label("labeller", "Voices:"));
+	addAndMakeVisible(voiceLimitTitle.get());
+
+	voiceLimitValue.reset(new Label("limitval", "0"));
+	addAndMakeVisible(voiceLimitValue.get());
+
+	channelsOnTitle.reset(new Label("channelsoon", "Channels On:"));
+	addAndMakeVisible(channelsOnTitle.get());
+
+	channelsOnValue.reset(new Label("channelsval", ""));
+	addAndMakeVisible(channelsOnValue.get());
+
+	midiProcessor.addChangeListener(this);
+
+	// End Temp ===================================
+
 	// BUTTON BARS
 
 	buttonBarComponents = {
@@ -188,6 +206,8 @@ TuneupMidiAudioProcessorEditor::~TuneupMidiAudioProcessorEditor()
 	if (currentMode == NewTuningMode)
 		loadTuning(lastTuningDefinition);
 
+	midiProcessor.removeChangeListener(this); // TEMP
+
 	mainWindow = nullptr;
 	createTuningWindow = nullptr;
 	tuningBrowserWindow = nullptr;
@@ -255,6 +275,12 @@ void TuneupMidiAudioProcessorEditor::resized()
 	// Control Windows
 	BorderSize<int> controlBorder(bar.getBounds().getBottom() + componentGap, borderGap, barHeight + componentGap, borderGap);
 	controlWindows[currentMode]->setBoundsInset(controlBorder);
+
+	// TEMP
+	voiceLimitTitle->setBounds(0, controlWindows[currentMode]->getBottom() + componentGap, Font().getStringWidth(voiceLimitTitle->getText())+componentGap, barHeight);
+	voiceLimitValue->setBounds(voiceLimitTitle->getRight(), voiceLimitTitle->getY(), Font().getStringWidth("16") + componentGap, barHeight);
+	channelsOnTitle->setBounds(voiceLimitValue->getRight(), voiceLimitTitle->getY(), Font().getStringWidth(channelsOnTitle->getText())+componentGap, barHeight);
+	channelsOnValue->setBounds(channelsOnTitle->getRight(), voiceLimitTitle->getY(), getWidth() - channelsOnTitle->getRight(), barHeight);
 }
 
 void TuneupMidiAudioProcessorEditor::changeListenerCallback(ChangeBroadcaster* source)
@@ -262,6 +288,13 @@ void TuneupMidiAudioProcessorEditor::changeListenerCallback(ChangeBroadcaster* s
 	if (source == &pluginState)
 	{
 		reloadPluginState();
+	}
+
+	else if (source == &midiProcessor)
+	{
+		// TEMP
+		voiceLimitValue->setText(String(midiProcessor.getTuningNotesOn().size()), dontSendNotification);
+		channelsOnValue->setText(arrayToString(midiProcessor.getChannelsOn()), dontSendNotification);
 	}
 
 	else if (source == createTuningWindow.get())

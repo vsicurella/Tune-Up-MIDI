@@ -97,8 +97,7 @@ void TuneupMidiAudioProcessor::changeProgramName (int index, const String& newNa
 //==============================================================================
 void TuneupMidiAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
+	midiProcessor->resetNotes();
 }
 
 void TuneupMidiAudioProcessor::releaseResources()

@@ -38,6 +38,21 @@ const Array<int>& TuneUpMidiProcessor::getTuningNotesOn() const
 	return notesInOn;
 }
 
+int TuneUpMidiProcessor::getNumberOfNotesOn() const
+{
+	return channelAssigner.getNumNotesOn();
+}
+
+const Array<int>& TuneUpMidiProcessor::getChannelsOn() const
+{
+	return channelAssigner.getChannelsOn();
+}
+
+const Array<int>& TuneUpMidiProcessor::getChannelsPitchbend() const
+{
+	return channelAssigner.getChannelsPitchbend();
+}
+
 void TuneUpMidiProcessor::setTuningIn(const Tuning* tuningInIn)
 {
 	tuningIn = tuningInIn;
@@ -103,14 +118,15 @@ void TuneUpMidiProcessor::setResetChannelPitchbendWhenEmpty(bool resetPitchbend)
 	resetChannelPitchbendWhenEmpty = resetPitchbend;
 }
 
-
-
 void TuneUpMidiProcessor::processMidi(MidiBuffer& bufferIn)
 {
 	// add inputBuffer
-	bufferIn.addEvents(inputBuffer, 0, -1, bufferIn.getLastEventTime());
-	inputBuffer.clear();
-	smplInput = 0;
+	if (inputBuffer.getLastEventTime() > 0)
+	{
+		bufferIn.addEvents(inputBuffer, 0, -1, 0);
+		inputBuffer.clear();
+		smplInput = 0;
+	}
 
 	// get note data
 	auto events = MidiBuffer::Iterator(bufferIn);
@@ -123,6 +139,9 @@ void TuneUpMidiProcessor::processMidi(MidiBuffer& bufferIn)
 		desc = msg.getDescription() + '\n';
 		midiInLog.append(desc, desc.length());
 		desc = "";
+
+		// TODO: Put each case into separate function and set up so that interal note on and note offs can be processed properly
+		// no matter where/when the function is called
 
 		// remap and add pitchbend
 		if (msg.isNoteOnOrOff())
@@ -148,9 +167,14 @@ void TuneUpMidiProcessor::processMidi(MidiBuffer& bufferIn)
 			// set channel
 			if (msg.isNoteOn())
 			{
-				if (channelAssigner.hasFreeChannels())
+				if (channelAssigner.isUnderVoiceLimit())
 				{
 					noteChannel = channelAssigner.noteOn(noteIn, pbValue) + 1;
+
+					// No free channel is available
+					if (noteChannel < 1 || noteChannel > 16)
+						continue;
+
 					jassert(noteChannel > 0 && noteChannel <= 16);
 
 					msg.setChannel(noteChannel);
@@ -166,22 +190,23 @@ void TuneUpMidiProcessor::processMidi(MidiBuffer& bufferIn)
 			else
 			{
 				noteChannel = channelAssigner.getChannelOfNote(noteIn) + 1;
+
+				if (noteChannel < 1 || noteChannel > 16)
+					continue;
+
 				jassert(noteChannel > 0 && noteChannel <= 16);
 
-				if (noteChannel > 0 && noteChannel <= 16)
+				msg.setChannel(noteChannel);
+				channelAssigner.noteOff(noteIn);
+				notesTunedOn.removeFirstMatchingValue(noteTuned);
+
+				bufferOut.addEvent(msg, smplOffset++);
+
+				if (resetChannelPitchbendWhenEmpty)
 				{
-					msg.setChannel(noteChannel);
-					channelAssigner.noteOff(noteIn);
-					notesTunedOn.removeFirstMatchingValue(noteTuned);
-
-					bufferOut.addEvent(msg, smplOffset++);
-
-					if (resetChannelPitchbendWhenEmpty)
-					{
-						pitchMsg = MidiMessage::pitchWheel(noteChannel, MPEValue::centreValue().as14BitInt());
-						bufferOut.addEvent(pitchMsg, smplOffset++);
-						desc += pitchMsg.getDescription() + '\n';
-					}
+					pitchMsg = MidiMessage::pitchWheel(noteChannel, MPEValue::centreValue().as14BitInt());
+					bufferOut.addEvent(pitchMsg, smplOffset++);
+					desc += pitchMsg.getDescription() + '\n';
 				}
 			}
 		}
@@ -189,8 +214,23 @@ void TuneUpMidiProcessor::processMidi(MidiBuffer& bufferIn)
 		// Any other MIDI message
 		else
 		{
+			// TODO: add pitchbend changes to current channel pitchbend
+
 			sendControlMessage(msg);
 			bufferOut.addEvent(msg, smplOffset++);
+
+			// TEMP - all allNotesOff messages will be "omni"
+			if (msg.isAllNotesOff())
+			{
+				for (int i = 0; i < getNumberOfNotesOn(); i++)
+				{
+					bufferOut.addEvent(MidiMessage::noteOff(channelAssigner.getChannelOfNote(notesInOn[i]) + 1, notesTunedOn[i]), smplOffset++);
+				}
+
+				notesInOn.clear();
+				notesTunedOn.clear();
+				channelAssigner.allNotesOff();
+			}
 		}
 
 		desc += msg.getDescription() + '\n';
@@ -198,18 +238,15 @@ void TuneUpMidiProcessor::processMidi(MidiBuffer& bufferIn)
 	}
 
 	bufferIn = bufferOut;
+	sendChangeMessage();
 }
 
 void TuneUpMidiProcessor::resetNotes()
 {
-	notesInOn.clear();
-	notesTunedOn.clear();
+	for (auto ch : getChannelsOn())
+		inputBuffer.addEvent(MidiMessage::allNotesOff(ch), smplInput++);
 
-	for (auto ch : channelAssigner.getChannelsOn())
-		inputBuffer.addEvent(MidiMessage::allNotesOff(ch + 1), smplInput++);
-	
-	channelAssigner.allNotesOff();
-
+	sendChangeMessage();
 }
 
 void TuneUpMidiProcessor::handleIncomingMidiMessage(MidiInput* source, const MidiMessage& msg)

@@ -13,8 +13,6 @@
 TuneUpMidiChannelAssigner::TuneUpMidiChannelAssigner(MPEInstrument* mpeInstIn, Array<int>& notesOnIn)
 	: notesOn(notesOnIn)
 {
-    mpeInst = mpeInstIn;
-
 	pitchbendOfChannel.resize(16);
 	pitchbendOfChannel.fill(8192);
 
@@ -50,18 +48,21 @@ void TuneUpMidiChannelAssigner::setRoundRobinMode(bool roundRobin)
 
 int TuneUpMidiChannelAssigner::findNextFreeChannel() const
 {
-	int freeChannel = -1;
-
 	if (numNotesOn <= voiceLimit)
 	{
 		if (roundRobinMode)
 		{
-			int i = 1;
+			int freeChannel = lastChannelOn;
 			do
 			{
-				freeChannel = (lastChannelOn + i) % 16;
-				i++;
-			} while (channelsOn.contains(freeChannel) || channelsToSkip.contains(freeChannel));
+				freeChannel = (freeChannel + 1) % 16;
+
+				if (!channelsOn.contains(freeChannel) && !channelsToSkip.contains(freeChannel))
+				{
+					return freeChannel;
+				}
+				
+			} while (freeChannel != lastChannelOn - 1);
 		}
 
 		else
@@ -70,23 +71,18 @@ int TuneUpMidiChannelAssigner::findNextFreeChannel() const
 			{
 				if (!channelsOn.contains(i) && !channelsToSkip.contains(i))
 				{
-					freeChannel = i;
-					break;
+					return  i;
 				}
 			}
 		}
 	}
 
-	return freeChannel;
+	return -1;
 }
 
 int TuneUpMidiChannelAssigner::getFreeOrExistingChannel(int noteIn, int pitchbendIn) const
 {
-    // TODO: implement voice limit and add MPEZone compatibility
-    //int channelMax = mpeInst->getZoneLayout().getLowerZone().getLastMemberChannel();
-
-	int note, pitchbend;
-	bool isSameNote = false;
+    // TODO: implement MPEZone compatibility
 
 	if (!oneChannelPerNote)
 	{
@@ -103,22 +99,31 @@ int TuneUpMidiChannelAssigner::getFreeOrExistingChannel(int noteIn, int pitchben
 
 int TuneUpMidiChannelAssigner::noteOn(int noteIn, int pitchbendIn)
 {
-	int channel = -1;
-	if (mpeInst && mpeInst->isMemberChannel(channel) || !mpeInst)
-	{
+	int channel;
+	
+	// If this returns a valid index, a Note Off message was missed somewhere
+	int indexOfNote = notesOn.indexOf(noteIn);
+
+	if (indexOfNote < 0)
 		channel = getFreeOrExistingChannel(noteIn, pitchbendIn);
-		lastChannelOn = channel;
-		
-		if (!notesOn.contains(noteIn))
+	else
+		channel = channelsOfNotes[noteIn];
+	
+	if (channel >= 0 && channel < 16)
+	{
+		if (indexOfNote < 0)
 		{
 			notesOn.add(noteIn);
-			numNotesOn = notesOn.size();
-
 			channelsOn.addUsingDefaultSort(channel);
-			pitchbendOfChannel.set(channel, pitchbendIn);
-
-			channelsOfNotes.set(noteIn, channel);
 		}
+
+		lastChannelOn = channel;
+
+		numNotesOn = notesOn.size();
+
+		
+		pitchbendOfChannel.set(channel, pitchbendIn);
+		channelsOfNotes.set(noteIn, channel);	
 	}
 
 	return channel;
@@ -171,6 +176,7 @@ void TuneUpMidiChannelAssigner::allNotesOff()
 	pitchbendOfChannel.fill(8192);
 	notesOn.clear();
 	channelsOn.clear();
+	numNotesOn = 0;
 }
 
 bool TuneUpMidiChannelAssigner::isChannelFree(int channelIn) const
@@ -178,12 +184,12 @@ bool TuneUpMidiChannelAssigner::isChannelFree(int channelIn) const
 	return channelsOn.indexOf(channelIn) < 0;
 }
 
-bool TuneUpMidiChannelAssigner::hasFreeChannels() const
+bool TuneUpMidiChannelAssigner::isUnderVoiceLimit() const
 {
-	return channelsOn.size() + channelsToSkip.size() < 16;
+	return notesOn.size() < voiceLimit;
 }
 
-Array<int> TuneUpMidiChannelAssigner::getChannelsOn() const
+const Array<int>& TuneUpMidiChannelAssigner::getChannelsOn() const
 {
 	return channelsOn;
 }
@@ -191,6 +197,11 @@ Array<int> TuneUpMidiChannelAssigner::getChannelsOn() const
 int TuneUpMidiChannelAssigner::getChannelOfNote(int noteIn) const
 {
 	return channelsOfNotes[noteIn];
+}
+
+const Array<int>& TuneUpMidiChannelAssigner::getChannelsPitchbend() const
+{
+	return pitchbendOfChannel;
 }
 
 int TuneUpMidiChannelAssigner::getPitchbendOfChannel(int channelIn) const
