@@ -25,7 +25,8 @@ using namespace TuneUpMode;
 class GeneralOptionsWindow :	public Component,
 								private Button::Listener,
 								private ComboBox::Listener,
-								private Slider::Listener
+								private Slider::Listener,
+								private TextEditor::Listener
 {
 
 public:
@@ -48,6 +49,8 @@ public:
 
 	void sliderValueChanged(Slider* sliderThatChanged) override;
 
+	void textEditorReturnKeyPressed(TextEditor& source) override;
+
 	//================================================================================
 	
 	/*
@@ -63,7 +66,11 @@ public:
 
 	ValueTree getSessionOptionsNode();
 
-	void setDefaultTuningPath(String absolutePathIn, bool notifyListeners = true);
+	/*
+		Checks if the passed in File is valid, and sets the tuning path if it is
+	*/
+
+	void setDefaultTuningPath(File pathFileIn, bool notifyListeners = true);
 
 	void setTuningIn(ValueTree tuningInDefinition, bool notifyListeners = true);
 
@@ -98,6 +105,8 @@ public:
 	public:
 
 		virtual ~Listener() {};
+
+		virtual void defaultTuningDirectoryChanged(String directoryPath) {};
 
 		virtual void tuningInChanged(String tuningInPath) {};
 

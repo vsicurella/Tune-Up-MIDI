@@ -58,6 +58,8 @@ public:
 
 	// GeneralOptionsWindow::Listener implementation
 
+	//void defaultTuningDirectoryChanged(String directoryPath) override;
+
 	void referenceNoteInChanged(int noteIn) override;
 
 	void referenceFreqInChanged(double freqIn) override;

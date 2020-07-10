@@ -243,7 +243,14 @@ void GeneralOptionsWindow::buttonClicked(Button* btnClicked)
 {
 	if (btnClicked == defaultTuningDirButton.get())
 	{
-		// TODO : browse for directory
+		FileChooser chooser(
+			"Select default tuning file directory",
+			File(defaultOptionsNode[TuneUpIDs::defaultTuningFilePathId]),
+			String(), true, false, defaultTuningDirButton.get()
+		);
+
+		chooser.browseForDirectory();
+		setDefaultTuningPath(chooser.getResult());
 	}
 
 	else if (btnClicked == reuseChannelsButton.get())
@@ -308,6 +315,11 @@ void GeneralOptionsWindow::sliderValueChanged(Slider* sliderThatChanged)
 	}
 }
 
+void GeneralOptionsWindow::textEditorReturnKeyPressed(TextEditor& source)
+{
+
+}
+
 bool GeneralOptionsWindow::initializeOptions(ValueTree optionsIn)
 {
 	bool synced = true;
@@ -335,10 +347,14 @@ bool GeneralOptionsWindow::initializeOptions(ValueTree optionsIn)
 
 		if (prop == TuneUpIDs::defaultTuningFilePathId)
 		{
+			File f;
+
 			if (!hasProperty)
-				value = File::getSpecialLocation(File::userDocumentsDirectory).getFullPathName();
+				f = File::getSpecialLocation(File::userDocumentsDirectory).getFullPathName();
+			else
+				f = File(value.toString());
 			
-			setDefaultTuningPath(value);
+			setDefaultTuningPath(f);
 		}
 
 		else if (prop == TuneUpIDs::tuningsListId)
@@ -503,13 +519,17 @@ ValueTree GeneralOptionsWindow::getSessionOptionsNode()
 	return sessionOptionsNode;
 }
 
-void GeneralOptionsWindow::setDefaultTuningPath(String absolutePathIn, bool notifyListeners)
+void GeneralOptionsWindow::setDefaultTuningPath(File pathFileIn, bool notifyListeners)
 {
-	defaultTuningDirEditor->setText(absolutePathIn);
-	defaultOptionsNode.setProperty(TuneUpIDs::defaultTuningFilePathId, absolutePathIn, nullptr);
+	if (pathFileIn.isDirectory())
+	{
+		String path = pathFileIn.getFullPathName();
+		defaultTuningDirEditor->setText(path);
+		defaultOptionsNode.setProperty(TuneUpIDs::defaultTuningFilePathId, path, nullptr);
 
-	if (notifyListeners)
-		void; // TODO
+		if (notifyListeners)
+			listeners.call(&GeneralOptionsWindow::Listener::defaultTuningDirectoryChanged, path);
+	}
 }
 
 void GeneralOptionsWindow::setTuningIn(ValueTree tuningInPath, bool notifyListeners)

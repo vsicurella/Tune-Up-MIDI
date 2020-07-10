@@ -17,7 +17,8 @@
 
 //static ValueTree jucerFile = ValueTree::fromXml(File("/Tune-Up MIDI!/Tune-Up MIDI!.jucer").getRelativePathFrom(File::getCurrentWorkingDirectory()));
 static String applicationName = "Tune-Up MIDI!";
-static String defaultOptionsPath = File::getSpecialLocation(File::userApplicationDataDirectory).getChildFile(applicationName).getFullPathName();
+static String applicationFolderPath = File::getSpecialLocation(File::userApplicationDataDirectory).getChildFile(applicationName).getFullPathName();
+static String defaultOptionsFilePath = File(applicationFolderPath).getChildFile(applicationName + ".default").getFullPathName();
 
 class TuneUpMidiState : public MidiCCListener, 
 						public ChangeBroadcaster,
@@ -66,6 +67,11 @@ public:
 		Replaces data with user default options
 	*/
 	void resetToDefaultOptions(bool saveToSession, bool sendChange = true);
+
+	/*
+		Writes current defaultOptionsNode to application directory
+	*/
+	void writeDefaultOptionsToFile();
 
 	/*
 		Sets the session options node of the instance (but doesn't initialize or pass data down)

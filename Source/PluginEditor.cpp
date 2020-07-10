@@ -20,6 +20,8 @@ TuneupMidiAudioProcessorEditor::TuneupMidiAudioProcessorEditor (
     : AudioProcessorEditor (&p), processor (p), midiProcessor(mp), pluginState(ps),
 	grid(23)
 {
+	//defaultTuningFilePath = pluginState.getDefaultOptionsNode()[TuneUpIDs::defaultTuningFilePathId];
+
 	// CONTROL WINDOWS
 	
 	mainWindow.reset(new TuneUpWindow());
@@ -184,11 +186,7 @@ TuneupMidiAudioProcessorEditor::TuneupMidiAudioProcessorEditor (
 
     setSize (500, 200);
 
-	if (pluginState.getTuning())
-	{
-		mainWindow->loadTuning(pluginState.getTuning());
-	}
-
+	mainWindow->loadTuning(pluginState.getTuning());
 	pluginState.addChangeListener(this);
 
 	setControlMode(MainWindowMode);
@@ -338,7 +336,10 @@ void TuneupMidiAudioProcessorEditor::buttonClicked(Button* buttonClicked)
 
 	else if (buttonClicked == loadTuningButton.get())
 	{
-		FileChooser chooser("Select your tuning file", File::getSpecialLocation(File::userDocumentsDirectory));
+		FileChooser chooser(
+			"Select your tuning file", 
+			pluginState.getDefaultOptionsNode()[TuneUpIDs::defaultTuningFilePathId].toString()
+		);
 		chooser.browseForFileToOpen();
 		loadedFile = chooser.getResult();
 
@@ -359,6 +360,10 @@ void TuneupMidiAudioProcessorEditor::comboBoxChanged(ComboBox* comboBoxThatChang
 	}
 }
 
+//void TuneupMidiAudioProcessorEditor::defaultTuningDirectoryChanged(String directoryPath)
+//{
+//	defaultTuningFilePath = directoryPath;
+//}
 
 void TuneupMidiAudioProcessorEditor::referenceNoteInChanged(int noteIn)
 {

@@ -13,8 +13,12 @@
 TuneUpMidiState::TuneUpMidiState()
 {
 	DBG("PluginState for " + applicationName + " initalizing...");
-	File defaultOptionsFile = File(defaultOptionsPath);
-	setDefaultOptionsNode(ValueTree::fromXml(defaultOptionsFile.loadFileAsString()));
+
+	File defaultOptionsFile = File(defaultOptionsFilePath);
+	ValueTree defaultOptionsLoad = ValueTree::fromXml(defaultOptionsFile.loadFileAsString());
+	DBG("Found this default options node:\n" + defaultOptionsLoad.toXmlString());
+	setDefaultOptionsNode(defaultOptionsLoad);
+	DBG("Loaded these default options:\n" + defaultOptionsNode.toXmlString());
 
 	setPluginStateNode(ValueTree(TuneUpIDs::tuneUpMidiStateId));
 
@@ -25,25 +29,12 @@ TuneUpMidiState::TuneUpMidiState()
 	tuning.reset(new Tuning(tuningDefinition.render()));
 
 	midiProcessor.reset(new TuneUpMidiProcessor(originTuning.get(), tuning.get(), notesInOn));
-
-	// TODO: Move this to MIDICCListener interface
-	// fill control change map with empty functions
-	//for (int cc = 0; cc < 128; cc++)
-	//{
-	//	controlChangeMap.emplace(cc, std::function<void(void)>());
-	//}
-
 	midiProcessor->addControlListener(this);
 }
 
 TuneUpMidiState::~TuneUpMidiState()
 {
-	// Save defaultOptions to file
-	File f = File(defaultOptionsPath).getChildFile(applicationName + ".settings");
-	DBG("Writing:\n" + defaultOptionsNode.toXmlString());
-	std::unique_ptr<XmlElement> xml = defaultOptionsNode.createXml();
-	xml->writeToFile(f, "");
-
+	writeDefaultOptionsToFile();
 	tuning = nullptr;
 }
 
@@ -167,6 +158,17 @@ void TuneUpMidiState::resetToDefaultOptions(bool saveToSession, bool sendChange)
 	}
 
 	loadNodeOptions(defaultOptionsNode);
+}
+
+/*
+	Writes current defaultOptionsNode to application directory
+*/
+void TuneUpMidiState::writeDefaultOptionsToFile()
+{
+	File f = File(defaultOptionsFilePath);
+	DBG("Writing default options:\n" + defaultOptionsNode.toXmlString());
+	std::unique_ptr<XmlElement> xml = defaultOptionsNode.createXml();
+	xml->writeToFile(f, "");
 }
 
 /*
