@@ -11,11 +11,12 @@
 #pragma once
 #include "CommonUI.h"
 
-class RegularTemperamentTable : public Component,
+class DynamicTuningTable : public Component,
 								public TableListBoxModel,
 								public ChangeBroadcaster,
 								private Label::Listener,
-								private TextButton::Listener
+								private TextButton::Listener,
+								private Slider::Listener
 {
 public:
 
@@ -32,8 +33,8 @@ public:
 
 public:
 
-	RegularTemperamentTable(ValueTree tuningDefinitionIn);
-	~RegularTemperamentTable();
+	DynamicTuningTable(ValueTree tuningDefinitionIn);
+	~DynamicTuningTable();
 
 	void resized() override;
 
@@ -59,23 +60,22 @@ public:
 
 	//=============================================================================
 
-	// Label::Listener implementation
+	// Label Listener 
 
 	void editorShown(Label* source, TextEditor& editor) override;
 
 	void labelTextChanged(Label* source) override;
 
-	// Button Listener implementation
+	// Button Listener 
 
 	void buttonClicked(Button* button) override;
 
-	//=============================================================================
+	// Slider Listener
 
-	void addNewGenerator(int rowNumber = -1);
-
-	void removeGenerator(int rowNumber);
+	void sliderValueChanged(Slider* slider) override;
 
 	//=============================================================================
+
 
 	void updateContent();
 
@@ -84,10 +84,8 @@ public:
 
 private:
 
-	int numGenerators = 1;
-	Array<double> generatorValues;
-	Array<int> generatorAmounts;
-	Array<int> generatorOffsets;
+	ValueTree definition;
+	ValueTree generatorListNode;
 
 	Font font = Font(11, Font::plain);
 	TableListBox table = { {}, this };

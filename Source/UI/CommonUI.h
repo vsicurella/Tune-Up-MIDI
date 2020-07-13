@@ -68,4 +68,4 @@ public:
 
 class TableLabel : public TableComponent, public Label {};
 class TableButton : public TableComponent, public TextButton {};
-class TableSLider : public TableComponent, public Slider {};
+class TableSlider : public TableComponent, public Slider {};
