@@ -8,9 +8,9 @@
   ==============================================================================
 */
 
-#include "GeneratorBoxModel.h"
+#include "RegularTemperamentTable.h"
 
-GeneratorTable::GeneratorTable(ValueTree tuningDefinitionIn)
+RegularTemperamentTable::RegularTemperamentTable(ValueTree tuningDefinitionIn)
 {
 	TuningDefinition::extractGeneratorProperties(
 		tuningDefinitionIn,
@@ -34,30 +34,30 @@ GeneratorTable::GeneratorTable(ValueTree tuningDefinitionIn)
 	addAndMakeVisible(table);
 }
 
-GeneratorTable::~GeneratorTable()
+RegularTemperamentTable::~RegularTemperamentTable()
 {
 	removeAllChangeListeners();
 }
 
-void GeneratorTable::resized()
+void RegularTemperamentTable::resized()
 {
 	table.setBoundsInset(BorderSize<int>(1));
 	header->resizeAllColumnsToFit(table.getWidth() - table.getVerticalScrollBar().getWidth());
 }
 
-int GeneratorTable::getNumRows()
+int RegularTemperamentTable::getNumRows()
 {
 	// Force having at least one generator with an extra row
 	return jmax(1, numGenerators) + 1;
 }
 
-void GeneratorTable::paintRowBackground(Graphics& g, int rowNumber, int w, int h, bool rowIsSelected)
+void RegularTemperamentTable::paintRowBackground(Graphics& g, int rowNumber, int w, int h, bool rowIsSelected)
 {
 	g.setColour(rowNumber % 2 == 0 ? Colours::grey : Colours::lightgrey);
 	g.fillAll();
 }
 
-void GeneratorTable::paintCell(Graphics& g, int rowNumber, int columnId, int w, int h, bool isSelected)
+void RegularTemperamentTable::paintCell(Graphics& g, int rowNumber, int columnId, int w, int h, bool isSelected)
 {
 	if (columnId == 1 && rowNumber < numGenerators)
 	{
@@ -67,7 +67,7 @@ void GeneratorTable::paintCell(Graphics& g, int rowNumber, int columnId, int w, 
 	}
 }
 
-Component* GeneratorTable::refreshComponentForCell(int rowNumber, int columnId, bool isRowSelected, Component* existingComponentToUpdate)
+Component* RegularTemperamentTable::refreshComponentForCell(int rowNumber, int columnId, bool isRowSelected, Component* existingComponentToUpdate)
 {
 	if (columnId == GeneratorNumber)
 		return nullptr;
@@ -143,7 +143,7 @@ Component* GeneratorTable::refreshComponentForCell(int rowNumber, int columnId, 
 	return nullptr;
 }
 
-int GeneratorTable::getColumnAutoSizeWidth(int columnId)
+int RegularTemperamentTable::getColumnAutoSizeWidth(int columnId)
 {
 	switch (columnId)
 	{
@@ -198,7 +198,7 @@ int GeneratorTable::getColumnAutoSizeWidth(int columnId)
 	}
 }
 
-String GeneratorTable::getCellTooltip(int rowNumber, int columnId)
+String RegularTemperamentTable::getCellTooltip(int rowNumber, int columnId)
 {
 	switch (columnId)
 	{
@@ -222,19 +222,19 @@ String GeneratorTable::getCellTooltip(int rowNumber, int columnId)
 }
 
 
-void GeneratorTable::deleteKeyPressed(int lastRowSelected)
+void RegularTemperamentTable::deleteKeyPressed(int lastRowSelected)
 {
 	if (lastRowSelected > 1 && lastRowSelected < numGenerators)
 		removeGenerator(lastRowSelected);
 }
 
-void GeneratorTable::returnKeyPressed(int lastRowSelected)
+void RegularTemperamentTable::returnKeyPressed(int lastRowSelected)
 {
 	addNewGenerator(lastRowSelected + 1);
 }
 
 
-void GeneratorTable::editorShown(Label* source, TextEditor& editor)
+void RegularTemperamentTable::editorShown(Label* source, TextEditor& editor)
 {
 	// Replace generator value editing with full generator value
 
@@ -249,7 +249,7 @@ void GeneratorTable::editorShown(Label* source, TextEditor& editor)
 	}
 }
 
-void GeneratorTable::labelTextChanged(Label* source)
+void RegularTemperamentTable::labelTextChanged(Label* source)
 {
 	TableLabel* tl = static_cast<TableLabel*>(source);
 	
@@ -277,7 +277,7 @@ void GeneratorTable::labelTextChanged(Label* source)
 	sendChangeMessage();
 }
 
-void GeneratorTable::buttonClicked(Button* button)
+void RegularTemperamentTable::buttonClicked(Button* button)
 {
 	TableButton* tb = static_cast<TableButton*>(button);
 
@@ -291,7 +291,7 @@ void GeneratorTable::buttonClicked(Button* button)
 	}
 }
 
-void GeneratorTable::addNewGenerator(int rowNumber)
+void RegularTemperamentTable::addNewGenerator(int rowNumber)
 {	
 	numGenerators++;
 
@@ -305,7 +305,7 @@ void GeneratorTable::addNewGenerator(int rowNumber)
 	table.updateContent();
 }
 
-void GeneratorTable::removeGenerator(int rowNumber)
+void RegularTemperamentTable::removeGenerator(int rowNumber)
 {
 	numGenerators--;
 
@@ -317,7 +317,7 @@ void GeneratorTable::removeGenerator(int rowNumber)
 	sendChangeMessage();
 }
 
-void GeneratorTable::updateDefinition(ValueTree tuningDefinitionIn)
+void RegularTemperamentTable::updateDefinition(ValueTree tuningDefinitionIn)
 {
 	TuningDefinition::extractGeneratorProperties(
 		tuningDefinitionIn,
@@ -330,17 +330,17 @@ void GeneratorTable::updateDefinition(ValueTree tuningDefinitionIn)
 	table.updateContent();
 }
 
-void GeneratorTable::updateContent()
+void RegularTemperamentTable::updateContent()
 {
 	table.updateContent();
 }
 
-void GeneratorTable::setTableColour(int colourId, Colour colour)
+void RegularTemperamentTable::setTableColour(int colourId, Colour colour)
 {
 	table.setColour(colourId, colour);
 }
 
-ValueTree GeneratorTable::getDefinition() const
+ValueTree RegularTemperamentTable::getDefinition() const
 {
 	return TuningDefinition::createRegularTemperamentDefinition(
 		generatorValues,

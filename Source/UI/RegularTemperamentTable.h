@@ -12,7 +12,7 @@
 #include <JuceHeader.h>
 #include "../TuningDefinition.h"
 
-class GeneratorTable :	public Component, 
+class RegularTemperamentTable :	public Component, 
 						public TableListBoxModel,
 						public ChangeBroadcaster,
 						private Label::Listener,
@@ -31,8 +31,8 @@ public:
 
 public:
 
-	GeneratorTable(ValueTree tuningDefinitionIn);
-	~GeneratorTable();
+	RegularTemperamentTable(ValueTree tuningDefinitionIn);
+	~RegularTemperamentTable();
 
 	void resized() override;
 

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="ocxSOI" name="Tune-Up MIDI!" projectType="audioplug" pluginCharacteristicsValue="pluginIsMidiEffectPlugin,pluginProducesMidiOut,pluginWantsMidiIn"
+<JUCERPROJECT id="ocxSOI" name="Tune-Up MIDI!" projectType="audioplug" pluginCharacteristicsValue="pluginIsSynth,pluginProducesMidiOut,pluginWantsMidiIn"
               pluginChannelConfigs="{1, 1}, {2, 2},{16,16}" companyName="Everytone"
-              pluginFormats="buildStandalone,buildVST3" companyCopyright="MIT License"
+              pluginFormats="buildStandalone,buildVST,buildVST3" companyCopyright="MIT License"
               companyWebsite="everytone.zone" displaySplashScreen="1" jucerFormatVersion="1">
   <MAINGROUP id="L9YdYm" name="Tune-Up MIDI!">
     <GROUP id="{6F056052-FDC6-DFD1-3175-1C32A5B87CD2}" name="Source">
@@ -17,10 +17,10 @@
               file="Source/UI/CreateScaleWindow.cpp"/>
         <FILE id="ckTCEB" name="CreateScaleWindow.h" compile="0" resource="0"
               file="Source/UI/CreateScaleWindow.h"/>
-        <FILE id="wEWQzU" name="GeneratorBoxModel.cpp" compile="1" resource="0"
-              file="Source/UI/GeneratorBoxModel.cpp"/>
-        <FILE id="y5hWGD" name="GeneratorBoxModel.h" compile="0" resource="0"
-              file="Source/UI/GeneratorBoxModel.h"/>
+        <FILE id="wEWQzU" name="RegularTemperamentTable.cpp" compile="1" resource="0"
+              file="Source/UI/RegularTemperamentTable.cpp"/>
+        <FILE id="y5hWGD" name="RegularTemperamentTable.h" compile="0" resource="0"
+              file="Source/UI/RegularTemperamentTable.h"/>
         <FILE id="liynHA" name="MainWindow.cpp" compile="1" resource="0" file="Source/UI/MainWindow.cpp"/>
         <FILE id="rrZt9I" name="MainWindow.h" compile="0" resource="0" file="Source/UI/MainWindow.h"/>
         <FILE id="YFwP6O" name="UnitGrid.h" compile="0" resource="0" file="Source/UI/UnitGrid.h"/>

@@ -11,7 +11,7 @@
 #pragma once
 #include "../IDs.h"
 #include "../TuneUpModes.h"
-#include "GeneratorBoxModel.h"
+#include "RegularTemperamentTable.h"
 #include "UnitGrid.h"
 
 using namespace TuneUpMode;
@@ -66,7 +66,7 @@ private:
 	std::unique_ptr<Label> etPeriodBox;
 
 	// Regular Temperament Controls
-	std::unique_ptr<GeneratorTable> generatorTable;
+	std::unique_ptr<RegularTemperamentTable> generatorTable;
 
 	// Helpers
 	UnitGrid grid;

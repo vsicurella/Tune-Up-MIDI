@@ -52,7 +52,7 @@ CreateTuningWindow::CreateTuningWindow(ValueTree tuningDefinitionIn)
 	etPeriodBox->setEditable(true);
 	etPeriodBox->addListener(this);
 
-	generatorTable.reset(new GeneratorTable(tuningDefinition));
+	generatorTable.reset(new RegularTemperamentTable(tuningDefinition));
 	addChildComponent(generatorTable.get());
 	generatorTable->addChangeListener(this);
 
