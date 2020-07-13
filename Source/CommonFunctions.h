@@ -1,7 +1,7 @@
 /*
   ==============================================================================
 
-    CommonFunctions.h
+    Common.h
     Created: 6 May 2019 7:31:20pm
     Author:  Vincenzo
 
@@ -10,6 +10,11 @@
 
 #pragma once
 #include "JuceHeader.h"
+
+static std::function<double(int)> getStandardTuningFrequency = [](int noteIn)
+{
+	return pow(2, (noteIn - 69) / 12.0) * 440.0;
+};
 
 template <class T, class U>
 struct Pair

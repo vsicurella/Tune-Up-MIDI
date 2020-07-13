@@ -1,8 +1,8 @@
 /*
   ==============================================================================
 
-    GeneratorBoxModel.h
-    Created: 3 Jul 2020 2:57:14pm
+    DynamicTuningTable.h
+    Created: 13 Jul 2020 18:08:18pm
     Author:  Vincenzo
 
   ==============================================================================
@@ -11,7 +11,7 @@
 #pragma once
 #include "CommonUI.h"
 
-class RegularTemperamentTable :	public Component, 
+class RegularTemperamentTable : public Component,
 								public TableListBoxModel,
 								public ChangeBroadcaster,
 								private Label::Listener,
@@ -21,11 +21,13 @@ public:
 
 	enum ColumnType
 	{
-		GeneratorNumber = 1,
+		CCNumber = 1,
+		CCRange,
+		CCCenter,
 		GeneratorValue,
-		GeneratorAmt,
-		GeneratorOffset,
-		GeneratorToggle
+		MinValue,
+		MaxValue,
+		Skew
 	};
 
 public:
@@ -60,7 +62,7 @@ public:
 	// Label::Listener implementation
 
 	void editorShown(Label* source, TextEditor& editor) override;
-	
+
 	void labelTextChanged(Label* source) override;
 
 	// Button Listener implementation
@@ -75,13 +77,10 @@ public:
 
 	//=============================================================================
 
-	void updateDefinition(ValueTree tuningDefinitionIn);
-
 	void updateContent();
 
 	void setTableColour(int colourId, Colour colour);
 
-	ValueTree getDefinition() const;
 
 private:
 

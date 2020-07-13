@@ -9,16 +9,9 @@
 */
 
 #pragma once
+#include "Constants.h"
 #include "TuneUpMidiProcessor.h"
 #include "MidiCCListener.h"
-#include "TuningDefinition.h"
-
-// TODO: Move this elsewhere
-
-//static ValueTree jucerFile = ValueTree::fromXml(File("/Tune-Up MIDI!/Tune-Up MIDI!.jucer").getRelativePathFrom(File::getCurrentWorkingDirectory()));
-static String applicationName = "Tune-Up MIDI!";
-static String applicationFolderPath = File::getSpecialLocation(File::userApplicationDataDirectory).getChildFile(applicationName).getFullPathName();
-static String defaultOptionsFilePath = File(applicationFolderPath).getChildFile(applicationName + ".default").getFullPathName();
 
 class TuneUpMidiState : public MidiCCListener, 
 						public ChangeBroadcaster,

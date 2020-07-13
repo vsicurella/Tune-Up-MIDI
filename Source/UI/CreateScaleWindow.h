@@ -9,10 +9,10 @@
 */
 
 #pragma once
+#include "CommonUI.h"
 #include "../IDs.h"
 #include "../TuneUpModes.h"
 #include "RegularTemperamentTable.h"
-#include "UnitGrid.h"
 
 using namespace TuneUpMode;
 
@@ -70,11 +70,5 @@ private:
 
 	// Helpers
 	UnitGrid grid;
-	int stdGap = 8;
 	int labelWidth = 32;
-
-	String nameTrans = TRANS("Name");
-	String sizeTrans = TRANS("Size");
-	String periodTrans = TRANS("Period");
-	String generatorTrans = TRANS("Generators");
 };

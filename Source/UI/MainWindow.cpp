@@ -53,9 +53,9 @@ TuneUpWindow::TuneUpWindow ()
 
 	for (auto str : { nameTrans, sizeTrans, periodTrans })
 	{
-		int width = font.getStringWidth(str + ":") + stdGap;
-		if (width > labelWidth)
-			labelWidth = width;
+		int width = font.getStringWidth(str + ":") + componentGap;
+		if (width > valueLabelWidth)
+			valueLabelWidth = width;
 	}
 }
 
@@ -83,14 +83,14 @@ void TuneUpWindow::resized()
 
 	descriptionTextBox->setBounds(proportionOfWidth(0.5f), 0, proportionOfWidth(0.5f), getHeight());
 
-	tuningNameLabel->setBounds(0, 0, labelWidth, grid.getUnit(2) - stdGap);
-	tuningNameBox->setBounds(labelWidth, tuningNameLabel->getY(), descriptionTextBox->getX() - labelWidth - stdGap, tuningNameLabel->getHeight());
+	tuningNameLabel->setBounds(0, 0, valueLabelWidth, grid.getUnit(2) - componentGap);
+	tuningNameBox->setBounds(valueLabelWidth, tuningNameLabel->getY(), descriptionTextBox->getX() - valueLabelWidth - componentGap, tuningNameLabel->getHeight());
 	
-	tuningSizeLabel->setBounds(0, grid.getUnit(2), labelWidth, grid.getUnit(2) - stdGap);
-	tuningSizeBox->setBounds(labelWidth, tuningSizeLabel->getY(), descriptionTextBox->getX() - labelWidth - stdGap, tuningSizeLabel->getHeight());
+	tuningSizeLabel->setBounds(0, grid.getUnit(2), valueLabelWidth, grid.getUnit(2) - componentGap);
+	tuningSizeBox->setBounds(valueLabelWidth, tuningSizeLabel->getY(), descriptionTextBox->getX() - valueLabelWidth - componentGap, tuningSizeLabel->getHeight());
 
-	tuningPeriodLabel->setBounds(0, grid.getUnit(4), labelWidth, grid.getUnit(2) - stdGap);
-	tuningPeriodBox->setBounds(labelWidth, tuningPeriodLabel->getY(), descriptionTextBox->getX() - labelWidth - stdGap, tuningPeriodLabel->getHeight());
+	tuningPeriodLabel->setBounds(0, grid.getUnit(4), valueLabelWidth, grid.getUnit(2) - componentGap);
+	tuningPeriodBox->setBounds(valueLabelWidth, tuningPeriodLabel->getY(), descriptionTextBox->getX() - valueLabelWidth - componentGap, tuningPeriodLabel->getHeight());
 }
 
 void TuneUpWindow::setTuningNameLabel(String nameIn)

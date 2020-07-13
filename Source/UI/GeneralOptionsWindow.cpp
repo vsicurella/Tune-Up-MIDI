@@ -202,7 +202,7 @@ void GeneralOptionsWindow::resized()
 	int leftLabelWidth = grid.getX(6);
 	int rightLabelWidth = grid.getX(5);
 	int rightControlWidth = grid.getX(12);
-	int leftControlWidth = rightControlWidth - stdGap / 2;
+	int leftControlWidth = rightControlWidth - componentGap / 2;
 	int buttonWidth = grid.getX(1);
 
 	int rowHeight = grid.getY(2) - 1;

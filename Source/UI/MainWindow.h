@@ -10,7 +10,7 @@
 
 #pragma once
 #include "../TuningDefinition.h"
-#include "UnitGrid.h"
+#include "CommonUI.h"
 
 
 class TuneUpWindow  : public Component
@@ -42,12 +42,6 @@ private:
 
 	// Helpers
 	UnitGrid grid;
-	int stdGap = 8;
-	int labelWidth = 32;
-
-	String nameTrans = TRANS("Name");
-	String sizeTrans = TRANS("Size");
-	String periodTrans = TRANS("Period");
 
     //==============================================================================
 	

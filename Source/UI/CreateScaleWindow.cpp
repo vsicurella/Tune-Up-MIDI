@@ -60,9 +60,9 @@ CreateTuningWindow::CreateTuningWindow(ValueTree tuningDefinitionIn)
 
 	for (auto str : { nameTrans, sizeTrans, periodTrans })
 	{
-		int width = font.getStringWidth(str + ":") + stdGap;
-		if (width > labelWidth)
-			labelWidth = width;
+		int width = font.getStringWidth(str + ":") + componentGap;
+		if (width > valueLabelWidth)
+			valueLabelWidth = width;
 	}
 }
 
@@ -91,16 +91,16 @@ void CreateTuningWindow::resized()
 
 	descriptionBox->setBounds(proportionOfWidth(0.5f), 0, proportionOfWidth(0.5f), getHeight());
 
-	tuningNameLabel->setBounds(0, 0, labelWidth, grid.getUnit(2) - stdGap);
-	tuningNameBox->setBounds(labelWidth, tuningNameLabel->getY(), descriptionBox->getX() - labelWidth - stdGap, tuningNameLabel->getHeight());
+	tuningNameLabel->setBounds(0, 0, valueLabelWidth, grid.getUnit(2) - componentGap);
+	tuningNameBox->setBounds(valueLabelWidth, tuningNameLabel->getY(), descriptionBox->getX() - valueLabelWidth - componentGap, tuningNameLabel->getHeight());
 	
-	etNotesLabel->setBounds(0, grid.getUnit(2), labelWidth, grid.getUnit(2) - stdGap);
-	etNotesSlider->setBounds(labelWidth, etNotesLabel->getY(), descriptionBox->getX() - labelWidth - stdGap, etNotesLabel->getHeight());
+	etNotesLabel->setBounds(0, grid.getUnit(2), valueLabelWidth, grid.getUnit(2) - componentGap);
+	etNotesSlider->setBounds(valueLabelWidth, etNotesLabel->getY(), descriptionBox->getX() - valueLabelWidth - componentGap, etNotesLabel->getHeight());
 	
-	etPeriodLabel->setBounds(0, grid.getUnit(4), labelWidth, grid.getUnit(2) - stdGap);
-	etPeriodBox->setBounds(labelWidth, etPeriodLabel->getY(), descriptionBox->getX() - labelWidth - stdGap, etPeriodLabel->getHeight());
+	etPeriodLabel->setBounds(0, grid.getUnit(4), valueLabelWidth, grid.getUnit(2) - componentGap);
+	etPeriodBox->setBounds(valueLabelWidth, etPeriodLabel->getY(), descriptionBox->getX() - valueLabelWidth - componentGap, etPeriodLabel->getHeight());
 
-	generatorTable->setBounds(0, grid.getUnit(2), proportionOfWidth(0.5f) - stdGap, getHeight() - grid.getUnit(2));
+	generatorTable->setBounds(0, grid.getUnit(2), proportionOfWidth(0.5f) - componentGap, getHeight() - grid.getUnit(2));
 }
 
 void CreateTuningWindow::editorShown(Label* source, TextEditor& editor)

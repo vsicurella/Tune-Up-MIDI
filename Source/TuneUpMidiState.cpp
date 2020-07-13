@@ -13,6 +13,7 @@
 TuneUpMidiState::TuneUpMidiState()
 {
 	DBG("PluginState for " + applicationName + " initalizing...");
+	STD_TUNING = TuningDefinition::getStandardTuningDefinition();
 
 	File defaultOptionsFile = File(defaultOptionsFilePath);
 	ValueTree defaultOptionsLoad = ValueTree::fromXml(defaultOptionsFile.loadFileAsString());
@@ -36,6 +37,7 @@ TuneUpMidiState::~TuneUpMidiState()
 {
 	writeDefaultOptionsToFile();
 	tuning = nullptr;
+	STD_TUNING = ValueTree();
 }
 
 ValueTree TuneUpMidiState::getPluginStateNode()
@@ -135,12 +137,12 @@ void TuneUpMidiState::setDefaultOptionsNode(ValueTree defaultOptionsNodeIn)
 	if (!definitionsList.isValid())
 	{
 		definitionsList = ValueTree(tuningsListId);
-		definitionsList.addChild(TuningDefinition::getStandardTuningDefinition(), 0, nullptr);
+		definitionsList.addChild(STD_TUNING.createCopy(), 0, nullptr);
 		defaultOptionsNode.addChild(definitionsList, 0, nullptr);
 	}
 
 	if (definitionsList.getNumChildren() == 1)
-		definitionsList.addChild(TuningDefinition::getStandardTuningDefinition(), 1, nullptr);
+		definitionsList.addChild(STD_TUNING.createCopy(), 1, nullptr);
 }
 
 /*

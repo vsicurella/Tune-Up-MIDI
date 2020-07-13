@@ -6,8 +6,14 @@
               companyWebsite="everytone.zone" displaySplashScreen="1" jucerFormatVersion="1">
   <MAINGROUP id="L9YdYm" name="Tune-Up MIDI!">
     <GROUP id="{6F056052-FDC6-DFD1-3175-1C32A5B87CD2}" name="Source">
+      <FILE id="YJXCiH" name="Constants.h" compile="0" resource="0" file="Source/Constants.h"/>
       <FILE id="EsX8Oc" name="TuneUpModes.h" compile="0" resource="0" file="Source/TuneUpModes.h"/>
       <GROUP id="{A64A6C41-3A46-2909-27EC-14AB349A9B53}" name="UI">
+        <FILE id="mYtoiK" name="CommonUI.h" compile="0" resource="0" file="Source/UI/CommonUI.h"/>
+        <FILE id="e8QC3S" name="DynamicTuningTable.cpp" compile="1" resource="0"
+              file="Source/UI/DynamicTuningTable.cpp"/>
+        <FILE id="e8VrtD" name="DynamicTuningTable.h" compile="0" resource="0"
+              file="Source/UI/DynamicTuningTable.h"/>
         <FILE id="EI3rXL" name="ButtonBar.h" compile="0" resource="0" file="Source/UI/ButtonBar.h"/>
         <FILE id="vICwns" name="GeneralOptionsWindow.h" compile="0" resource="0"
               file="Source/UI/GeneralOptionsWindow.h"/>

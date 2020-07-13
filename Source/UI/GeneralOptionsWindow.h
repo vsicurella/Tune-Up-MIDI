@@ -9,16 +9,9 @@
 */
 
 #pragma once
-#include "../TuningDefinition.h"
-#include "../TuneUpModes.h"
-#include "UnitGrid.h"
-
-static std::function<double(int)> getStandardTuningFrequency = [](int noteIn)
-{
-	return pow(2, (noteIn - 69) / 12.0) * 440.0;
-};
-
-
+#include "../CommonFunctions.h"
+#include "../Constants.h"
+#include "CommonUI.h"
 
 using namespace TuneUpMode;
 
@@ -30,9 +23,6 @@ class GeneralOptionsWindow :	public Component,
 {
 
 public:
-
-	// Probably should move elsewhere
-	const ValueTree STD_TUNING = TuningDefinition::getStandardTuningDefinition();
 
 	GeneralOptionsWindow();
 	~GeneralOptionsWindow();
@@ -211,13 +201,6 @@ private:
 
 	// Helpers
 	UnitPlane grid;
-	int stdGap = 8;
-
-	String standardTrans = TRANS("Standard") + " (12EDO)";
-	String currentTrans = TRANS("Current Tuning");
-	String browseTrans = TRANS("Browse") + " ...";
-	String reuseTrans = TRANS("Reuse channels when possible");
-	String resetTrans = TRANS("Reset empty channel pitchbend");
 
 private:
 
