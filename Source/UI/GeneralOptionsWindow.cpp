@@ -368,8 +368,9 @@ bool GeneralOptionsWindow::initializeOptions(ValueTree optionsIn)
 				else
 					setTuningIn(STD_TUNING);
 
+
 				dftTun = defaultTuningsListNode.getChild(1);
-				
+
 				if (dftTun.hasType(TuneUpIDs::tuningDefinitionId))
 					setTuningOut(dftTun);
 				else
@@ -381,7 +382,6 @@ bool GeneralOptionsWindow::initializeOptions(ValueTree optionsIn)
 				defaultTuningsListNode.addChild(STD_TUNING, 0, nullptr);
 				defaultTuningsListNode.addChild(STD_TUNING, 1, nullptr);
 			}
-
 		}
 
 		// OPTIONS THAT CAN BE BOTH DEFAULT OR SESSION
@@ -535,7 +535,7 @@ void GeneralOptionsWindow::setDefaultTuningPath(File pathFileIn, bool notifyList
 void GeneralOptionsWindow::setTuningIn(ValueTree tuningInPath, bool notifyListeners)
 {
 	if (defaultTuningsListNode.getNumChildren() > 0)
-		defaultTuningsListNode.getChild(0).copyPropertiesAndChildrenFrom(tuningInPath, nullptr);
+		defaultTuningsListNode.getChild(0) = tuningInPath.createCopy();
 	else
 		defaultTuningsListNode.addChild(tuningInPath, 0, nullptr);
 
@@ -550,8 +550,8 @@ void GeneralOptionsWindow::setTuningOut(ValueTree tuningOutPath, bool notifyList
 
 	if (defaultTuningsListNode.getNumChildren() == 1)
 		defaultTuningsListNode.addChild(tuningOutPath, 1, nullptr);
-	else 
-		defaultTuningsListNode.getChild(1).copyPropertiesAndChildrenFrom(tuningOutPath, nullptr);
+	else
+		defaultTuningsListNode.getChild(1) = tuningOutPath.createCopy();
 
 	if (notifyListeners)
 		void; // TODO

@@ -53,6 +53,10 @@ public:
 
 	Tuning render() const;
 
+	int isValid() const;
+
+	static int isValid(ValueTree definitionIn);
+
 	/*
 		Returns definition for 12EDO
 	*/

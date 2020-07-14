@@ -187,9 +187,20 @@ void TuneUpMidiState::setSessionOptionsNode(ValueTree sessionOptionsNodeIn)
 		pluginStateNode.addChild(sessionOptionsNode, 0, nullptr);
 	}
 	
-	// Ensure it has as tuning list
+	// Ensure it has as valid tuning list
 	ValueTree tuningList = sessionOptionsNode.getChildWithName(TuneUpIDs::tuningsListId);
-	if (!tuningList.isValid() || tuningList.getNumChildren() < 2)
+	bool validTuning = tuningList.isValid() && tuningList.getNumChildren() == 2;
+	
+	// Check if the tunings in the list are valid themselves
+	if (validTuning)
+	{
+		for (auto child : tuningList)
+		{
+			validTuning *= TuningDefinition::isValid(child);
+		}
+	}
+
+	if (!validTuning)
 	{
 		tuningList = ValueTree(TuneUpIDs::tuningsListId);
 		tuningList.addChild(defaultOptionsNode.getChildWithName(tuningsListId).getChild(0).createCopy(), 0, nullptr);
