@@ -59,4 +59,11 @@ namespace TuneUpIDs
 	static Identifier tuningNameId("Name");
 	static Identifier tuningDescriptionId("Description");
 
+	// Dynamic Tuning
+	static Identifier dynamicTuningId("TuningIsDynamic");
+	static Identifier dynamicGenMinId("DynamicGenMin");
+	static Identifier dynamicGenMaxId("DynamicGenMax");
+	static Identifier dynamicGenCenterId("DynamicCenterValue");
+	static Identifier dynamicGenRangeId("DynamicRangeId");
+	static Identifier dynamicGenCCNumId("DynamicCCNumber");
 };

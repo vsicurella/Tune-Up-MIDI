@@ -14,6 +14,20 @@ DynamicTuningTable::DynamicTuningTable(ValueTree tuningDefinitionIn)
 {
 	definition = tuningDefinitionIn;
 	generatorListNode = definition.getChildWithName(TuneUpIDs::generatorListId);
+
+	header = &table.getHeader();
+	header->addColumn("CC #", CCNumber, font.getStringWidth("000"), font.getStringWidth("0"));
+	header->addColumn("CC " + rangeTrans, CCRange, font.getStringWidth("[000,000]"), font.getStringWidth("[0,0]"));
+	header->addColumn("CC " + centerTrans, CCCenter, font.getStringWidth("000"), font.getStringWidth("0"));
+	header->addColumn("Gen.", GeneratorValue, font.getStringWidth("000.000"), font.getStringWidth("000"));
+	header->addColumn("Min", MinValue, font.getStringWidth("000.000"), font.getStringWidth("000"));
+	header->addColumn("Max", MaxValue, font.getStringWidth("000.000"), font.getStringWidth("000"));
+	header->setStretchToFitActive(true);
+
+	table.setColour(ListBox::outlineColourId, Colours::darkgrey);
+	table.setOutlineThickness(1);
+
+	addAndMakeVisible(table);
 }
 
 DynamicTuningTable::~DynamicTuningTable()
@@ -23,7 +37,7 @@ DynamicTuningTable::~DynamicTuningTable()
 
 void DynamicTuningTable::resized()
 {
-
+	table.setBoundsInset(BorderSize<int>(1));
 }
 
 //=============================================================================
@@ -51,7 +65,13 @@ void DynamicTuningTable::paintCell(Graphics& g, int rowNumber, int columnId, int
 
 Component* DynamicTuningTable::refreshComponentForCell(int rowNumber, int columnId, bool isRowSelected, Component* existingComponentToUpdate)
 {
-	if (columnId == ColumnType::CCNumber)
+	ValueTree genNode = generatorListNode.getChild(rowNumber);
+	bool isDynamic = genNode[dynamicTuningId];
+	var value, value2;
+
+	switch (columnId)
+	{
+	case ColumnType::CCNumber:
 	{
 		auto* numberSlider = static_cast<TableSlider*> (existingComponentToUpdate);
 		if (numberSlider == nullptr)
@@ -72,75 +92,168 @@ Component* DynamicTuningTable::refreshComponentForCell(int rowNumber, int column
 		numberSlider->setRowNumber(rowNumber);
 		numberSlider->setColumnId(columnId);
 
+		if (isDynamic)
+			value = genNode[dynamicGenCCNumId];
+		else
+			value = -1;
 
+		numberSlider->setValue(value, dontSendNotification);
+
+		return numberSlider;
 	}
 
-	if (columnId < GeneratorToggle)
+	case ColumnType::CCRange:
 	{
-		if (rowNumber < numGenerators)
+		// TODO: NumberSelector Component
+
+		auto* dualSlider = static_cast<TableSlider*> (existingComponentToUpdate);
+		if (dualSlider == nullptr)
 		{
-			var value;
+			dualSlider = new TableSlider();
+			dualSlider->setName("CCRangeSlider-" + String(rowNumber));
+			dualSlider->setSliderStyle(Slider::SliderStyle::TwoValueHorizontal);
+			dualSlider->setRange(0, 127, 1);
+			dualSlider->addListener(this);
+		}
 
-			switch (columnId)
-			{
-			case GeneratorValue:
-				// Round for display
-				value = roundf((double)generatorValues[rowNumber] * 1000) / 1000.0f;
-				break;
+		dualSlider->setRowNumber(rowNumber);
+		dualSlider->setColumnId(columnId);
 
-			case GeneratorAmt:
-				value = generatorAmounts[rowNumber];
-				break;
+		if (isDynamic)
+		{
+			value = genNode[dynamicGenMinId];
+			value2 = genNode[dynamicGenMaxId];
+		}
+		else
+		{
+			value = 0;
+			value2 = 127;
+		}
 
-			case GeneratorOffset:
-				value = generatorOffsets[rowNumber];
-				break;
-			}
+		dualSlider->setMinAndMaxValues(value, value2, dontSendNotification);
 
-			if (value.isVoid())
-				value = 0;
+		return dualSlider;
+	}
+
+	case ColumnType::CCCenter:
+	{
+		// TODO: LEARN COMPONENT
+
+		auto* numberSlider = static_cast<TableSlider*> (existingComponentToUpdate);
+		if (numberSlider == nullptr)
+		{
+			numberSlider = new TableSlider();
+			numberSlider->setName("CCCenterSlider-" + String(rowNumber));
+			numberSlider->setSliderStyle(Slider::SliderStyle::IncDecButtons);
+			numberSlider->setRange(0, 127, 1);
+			numberSlider->addListener(this);
+		}
+
+		numberSlider->setRowNumber(rowNumber);
+		numberSlider->setColumnId(columnId);
+
+		if (isDynamic)
+		{
+			value = genNode[dynamicGenCenterId];
+		}
+		else
+		{
+			value = 64;
+		}
+
+		numberSlider->setValue(value, dontSendNotification);
+
+		return numberSlider;
+	}
+
+
+	case ColumnType::GeneratorValue:
+	{
+		if (rowNumber < generatorListNode.getNumChildren())
+		{
+			ValueTree genNode = generatorListNode.getChild(rowNumber);
 
 			auto* generatorLabel = static_cast<TableLabel*> (existingComponentToUpdate);
 			if (generatorLabel == nullptr)
 			{
 				generatorLabel = new TableLabel();
-				generatorLabel->setEditable(true);
-				generatorLabel->addListener(this);
 			}
 
 			generatorLabel->setRowNumber(rowNumber);
 			generatorLabel->setColumnId(columnId);
+
+			// Round for display
+			value = roundf((double)genNode[generatorValueId] * 1000) / 1000.0f;
 			generatorLabel->setText(value.toString(), dontSendNotification);
 
 			return generatorLabel;
 		}
-		else
-		{
-			// don't understand why I have to do this
-			delete existingComponentToUpdate;
-		}
 	}
 
-	// Add / Delete Column
-	else if (rowNumber > 0)
-	{
-		auto* button = static_cast<TableButton*>(existingComponentToUpdate);
 
-		if (existingComponentToUpdate == nullptr)
+	case ColumnType::MinValue:
+	{
+		auto* minLabel = static_cast<TableLabel*> (existingComponentToUpdate);
+		if (minLabel == nullptr)
 		{
-			button = new TableButton();
-			button->addListener(this);
+			minLabel = new TableLabel();
+			minLabel->setEditable(true);
+			minLabel->addListener(this);
 		}
 
-		button->setRowNumber(rowNumber);
-		button->setColumnId(columnId);
+		minLabel->setRowNumber(rowNumber);
+		minLabel->setColumnId(columnId);
 
-		if (rowNumber < numGenerators)
-			button->setButtonText("-");
+		if (isDynamic)
+			value = genNode[dynamicGenMinId];
 		else
-			button->setButtonText("+");
+			value = roundf((double)genNode[generatorValueId] * 1000) / 1000.0f;
 
-		return button;
+		minLabel->setText(value.toString(), dontSendNotification);
+
+		return minLabel;
+	}
+
+	case ColumnType::MaxValue:
+	{
+		auto* maxLabel = static_cast<TableLabel*> (existingComponentToUpdate);
+		if (maxLabel == nullptr)
+		{
+			maxLabel = new TableLabel();
+			maxLabel->setEditable(true);
+			maxLabel->addListener(this);
+		}
+
+		maxLabel->setRowNumber(rowNumber);
+		maxLabel->setColumnId(columnId);
+
+		if (isDynamic)
+			value = genNode[dynamicGenMaxId];
+		else
+			value = roundf((double)genNode[generatorValueId] * 1000) / 1000.0f;
+
+		maxLabel->setText(value.toString(), dontSendNotification);
+
+		return maxLabel;
+	}
+
+	//case ColumnType::Skew:
+	//{
+	//	auto* numberSlider = static_cast<TableSlider*> (existingComponentToUpdate);
+	//	if (numberSlider == nullptr)
+	//	{
+	//		numberSlider = new TableSlider();
+	//		numberSlider->setName("SkewSlider-" + String(rowNumber));
+	//		numberSlider->setSliderStyle(Slider::SliderStyle::IncDecButtons);
+	//		numberSlider->setRange(0, 127, 1);
+	//		numberSlider->addListener(this);
+	//	}
+
+	//	numberSlider->setRowNumber(rowNumber);
+	//	numberSlider->setColumnId(columnId);
+
+	//	return numberSlider;
+	//}
 	}
 
 	return nullptr;
@@ -148,20 +261,92 @@ Component* DynamicTuningTable::refreshComponentForCell(int rowNumber, int column
 
 int DynamicTuningTable::getColumnAutoSizeWidth(int columnId)
 {
+	switch (columnId)
+	{
+	case CCNumber:
+	{
+		return font.getStringWidth("00");
+	}
 
+	case CCRange:
+	{
+		return font.getStringWidth("[0, 0]");
+	}
+
+	case CCCenter:
+	{
+		return font.getStringWidth("00");
+	}
+
+	case GeneratorValue:
+	{
+		String genStr, maxGen = "";
+		for (auto gen : generatorListNode)
+		{
+			genStr = gen[TuneUpIDs::generatorValueId].toString();
+			if (genStr.length() > maxGen.length())
+				maxGen = genStr;
+		}
+
+		return font.getStringWidth(maxGen);
+	}
+
+
+	case MinValue:
+	{
+		String genStr, maxGen = "";
+		for (auto gen : generatorListNode)
+		{
+			genStr = gen[TuneUpIDs::dynamicGenMinId].toString();
+			if (genStr.length() > maxGen.length())
+				maxGen = genStr;
+		}
+
+		return font.getStringWidth(maxGen);
+	}
+
+	case MaxValue:
+	{
+		String genStr, maxGen = "";
+		for (auto gen : generatorListNode)
+		{
+			genStr = gen[TuneUpIDs::dynamicGenMaxId].toString();
+			if (genStr.length() > maxGen.length())
+				maxGen = genStr;
+		}
+
+		return font.getStringWidth(maxGen);
+	}
+	}
 }
 
 String DynamicTuningTable::getCellTooltip(int rowNumber, int columnId)
 {
+	switch (columnId)
+	{
+	case CCNumber:
+		return "The MIDI CC Number to control this generator value.";
 
+	case CCRange:
+		return "The MIDI CC value range map the generator value modification to.";
+
+	case CCCenter:
+		return "The MIDI CC value that corresponds to the generator's original value.";
+
+	case GeneratorValue:
+		return "The center generator value in cents.";
+
+	case MinValue:
+		return "The mininum value the generator can be.";
+
+	case MaxValue:
+		return "The maximum value the generator can be.";
+	}
+
+	return "";
 }
 
 void DynamicTuningTable::deleteKeyPressed(int lastRowSelected)
-{
-
-}
-
-void DynamicTuningTable::returnKeyPressed(int lastRowSelected)
 {
 
 }

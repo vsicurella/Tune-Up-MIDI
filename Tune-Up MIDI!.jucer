@@ -10,6 +10,10 @@
       <FILE id="EsX8Oc" name="TuneUpModes.h" compile="0" resource="0" file="Source/TuneUpModes.h"/>
       <GROUP id="{A64A6C41-3A46-2909-27EC-14AB349A9B53}" name="UI">
         <FILE id="mYtoiK" name="CommonUI.h" compile="0" resource="0" file="Source/UI/CommonUI.h"/>
+        <FILE id="Hr6Vk6" name="DynamicOptionsWindow.h" compile="0" resource="0"
+              file="Source/UI/DynamicOptionsWindow.h"/>
+        <FILE id="u0TdR0" name="DynamicOptionsWindow.cpp" compile="1" resource="0"
+              file="Source/UI/DynamicOptionsWindow.cpp"/>
         <FILE id="e8QC3S" name="DynamicTuningTable.cpp" compile="1" resource="0"
               file="Source/UI/DynamicTuningTable.cpp"/>
         <FILE id="e8VrtD" name="DynamicTuningTable.h" compile="0" resource="0"

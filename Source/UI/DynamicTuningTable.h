@@ -27,8 +27,8 @@ public:
 		CCCenter,
 		GeneratorValue,
 		MinValue,
-		MaxValue,
-		Skew
+		MaxValue
+		//Skew
 	};
 
 public:
@@ -55,8 +55,6 @@ public:
 	String getCellTooltip(int rowNumber, int columnId) override;
 
 	void deleteKeyPressed(int lastRowSelected) override;
-
-	void returnKeyPressed(int lastRowSelected) override;
 
 	//=============================================================================
 
