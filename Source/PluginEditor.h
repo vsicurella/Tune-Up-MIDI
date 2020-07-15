@@ -16,6 +16,7 @@
 #include "UI/MainWindow.h"
 #include "UI/CreateScaleWindow.h"
 #include "UI/GeneralOptionsWindow.h"
+#include "UI/DynamicOptionsWindow.h"
 #include "UI/ButtonBar.h"
 #include "UI/UnitGrid.h"
 
@@ -80,12 +81,13 @@ public:
 	
 	//==============================================================================
 
+	void onNewTuning();
 
 	void onFileLoad();
 
 	void reloadPluginState();
 
-	void loadTuning(ValueTree tuningDefinition);
+	void loadTuningIntoState(ValueTree tuningDefinition);
 
 	void setControlMode(ControlMode modeIn);
 
@@ -107,7 +109,7 @@ private:
 	std::unique_ptr<Component /* TODO */> tuningBrowserWindow;
 	std::unique_ptr<GeneralOptionsWindow> generalOptionsWindow;
 	std::unique_ptr<Component /* TODO */> toolboxOptionsWindow;
-	std::unique_ptr<Component /* TODO */> dynamicOptionsWindow;
+	std::unique_ptr<DynamicOptionsWindow> dynamicOptionsWindow;
 
 	Array<Component*> controlWindows;
 

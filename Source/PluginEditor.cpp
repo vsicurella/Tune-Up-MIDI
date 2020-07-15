@@ -27,7 +27,7 @@ TuneupMidiAudioProcessorEditor::TuneupMidiAudioProcessorEditor (
 	mainWindow.reset(new TuneUpWindow());
 	addChildComponent(mainWindow.get());
 
-	createTuningWindow.reset(new CreateTuningWindow(pluginState.getTuningDefinition()));
+	createTuningWindow.reset(new CreateTuningWindow(pluginState.getTuningOutDefinition()));
 	addChildComponent(createTuningWindow.get());
 	createTuningWindow->addChangeListener(this);
 
@@ -40,6 +40,9 @@ TuneupMidiAudioProcessorEditor::TuneupMidiAudioProcessorEditor (
 	generalOptionsWindow->loadSessionOptions(pluginState.getSessionOptionsNode());
 	addChildComponent(generalOptionsWindow.get());
 	generalOptionsWindow->addListener(this);
+
+	dynamicOptionsWindow.reset(new DynamicOptionsWindow(pluginState.getSessionOptionsNode()));
+	addChildComponent(dynamicOptionsWindow.get());
 
 	controlWindows = {
 		mainWindow.get(),
@@ -165,14 +168,15 @@ TuneupMidiAudioProcessorEditor::TuneupMidiAudioProcessorEditor (
 				{ 0, 0, 0, 11 }
 			);
 			break;
-
-
 		case LoadTuningMode:
 
 			break;
 
 		case DynamicOptions:
-
+			bar.addComponents(
+				{ backButton.get(), saveButton.get(), viewButton.get(), optionsButton.get(), dynamicToggleButton.get(), dynamicOptionsButton.get() },
+				{ 0, 0, 0, 5, 5, 2 }
+			);
 			break;
 
 		default: // General and Toolbox Options
@@ -186,13 +190,12 @@ TuneupMidiAudioProcessorEditor::TuneupMidiAudioProcessorEditor (
 
     setSize (500, 200);
 
-	mainWindow->loadTuning(pluginState.getTuning());
+	mainWindow->loadTuning(pluginState.getTuningOut());
 	pluginState.addChangeListener(this);
 
 	setControlMode(MainWindowMode);
 
 	// TEMPORARY
-	dynamicOptionsButton->setEnabled(false);
 	dynamicToggleButton->setEnabled(false);
 	viewButton->setEnabled(false);
 	toolboxButton->setEnabled(false);
@@ -202,7 +205,7 @@ TuneupMidiAudioProcessorEditor::~TuneupMidiAudioProcessorEditor()
 {
 	// Revert to last saved settings if unsaved changes
 	if (currentMode == NewTuningMode)
-		loadTuning(lastTuningDefinition);
+		loadTuningIntoState(lastTuningDefinition);
 
 	midiProcessor.removeChangeListener(this); // TEMP
 
@@ -245,13 +248,13 @@ void TuneupMidiAudioProcessorEditor::resized()
 	Array<Component*> components = bar.getComponents();
 
 	int barWidth = getWidth() - 2 * borderGap;
-	switch (currentMode)
+	if (currentMode == MainWindowMode || currentMode == DynamicOptions)
 	{
-	case MainWindowMode:
+		// Remove spacing between dynamic buttons
 		barWidth -= 4 * componentGap;
-		break;
-
-	default:
+	}
+	else
+	{
 		barWidth -= (components.size() - 1) * componentGap;
 	}
 
@@ -263,8 +266,9 @@ void TuneupMidiAudioProcessorEditor::resized()
 		c = components[i];
 		bool gap = true;
 
-		if (currentMode == MainWindowMode && c->getName() == "dynamicOptionsButton")
-			gap = false; // could put this in a ButtonBarComponent base class
+		if (c->getName() == "dynamicOptionsButton")
+			if (currentMode == MainWindowMode || currentMode == DynamicOptions)
+				gap = false; // could put this in a ButtonBarComponent base class
 
 		c->setBounds(bar.getComponentBounds(c, gap).toNearestInt());
 	}
@@ -297,7 +301,7 @@ void TuneupMidiAudioProcessorEditor::changeListenerCallback(ChangeBroadcaster* s
 
 	else if (source == createTuningWindow.get())
 	{
-		loadTuning(createTuningWindow->getTuningDefinition());
+		loadTuningIntoState(createTuningWindow->getTuningDefinition());
 	}
 }
 
@@ -308,7 +312,7 @@ void TuneupMidiAudioProcessorEditor::buttonClicked(Button* buttonClicked)
 		if (currentMode == NewTuningMode)
 		{
 			// Reset tuning
-			loadTuning(lastTuningDefinition);
+			loadTuningIntoState(lastTuningDefinition);
 		}
 
 		else
@@ -349,6 +353,11 @@ void TuneupMidiAudioProcessorEditor::buttonClicked(Button* buttonClicked)
 	else if (buttonClicked == optionsButton.get())
 	{
 		setControlMode(GeneralOptions);
+	}
+
+	else if (buttonClicked == dynamicOptionsButton.get())
+	{
+		setControlMode(DynamicOptions);
 	}
 }
 
@@ -410,7 +419,23 @@ void TuneupMidiAudioProcessorEditor::resetChannelPitchbendChanged(bool resetPitc
 	pluginState.setResetChannelPitchbend(resetPitchbend);
 }
 
+void TuneupMidiAudioProcessorEditor::onNewTuning()
+{
+	mainWindow->loadTuning(pluginState.getTuningOut());
+	createTuningWindow->setDefinition(pluginState.getTuningOutDefinition());
 
+	if (pluginState.getTuningOutDefinition()[functionalId])
+	{
+		dynamicOptionsButton->setEnabled(true);
+		dynamicOptionsWindow->updateContent();
+	}
+	else
+	{
+		dynamicOptionsButton->setEnabled(false);
+	}
+
+	DBG("GUI updated to Loaded: \n" + pluginState.getTuningOutDefinition().toXmlString());
+}
 
 void TuneupMidiAudioProcessorEditor::onFileLoad()
 {
@@ -419,28 +444,23 @@ void TuneupMidiAudioProcessorEditor::onFileLoad()
 	if (success)
 	{
 		ScalaFile file = scalaFileReader.getScalaFile();
-		loadTuning(TuningDefinition::createStaticTuningDefinition(file.cents, 60, file.name, file.description));
+		loadTuningIntoState(TuningDefinition::createStaticTuningDefinition(file.cents, 60, file.name, file.description));
 	}
 	else
 	{
 		// TODO : Error Loading Scale Alert
 	}
-
 }
 
 void TuneupMidiAudioProcessorEditor::reloadPluginState()
 {
-	mainWindow->loadTuning(pluginState.getTuning());
 	generalOptionsWindow->loadSessionOptions(pluginState.getSessionOptionsNode());
-	createTuningWindow->setDefinition(pluginState.getTuningDefinition());
+	onNewTuning();
 }
 
-void TuneupMidiAudioProcessorEditor::loadTuning(ValueTree tuningDefinition)
+void TuneupMidiAudioProcessorEditor::loadTuningIntoState(ValueTree tuningDefinition)
 {
-	pluginState.setTuningOut(tuningDefinition, true, false);
-	mainWindow->loadTuning(pluginState.getTuning());
-
-	DBG("GUI updated to Loaded: \n" + tuningDefinition.toXmlString());
+	pluginState.setTuningOut(tuningDefinition, true, true);
 }
 
 void TuneupMidiAudioProcessorEditor::setControlMode(ControlMode modeIn)
@@ -459,17 +479,16 @@ void TuneupMidiAudioProcessorEditor::setControlMode(ControlMode modeIn)
 	{
 		midiProcessor.resetNotes();
 		// backup current scale definition
-		lastTuningDefinition = pluginState.getTuningDefinition().createCopy();
+		lastTuningDefinition = pluginState.getTuningOutDefinition().createCopy();
 
 		createTuningWindow->updateTuning();
 		break;
 	}
 
 	case GeneralOptions:
-	{ 
+	{
 		generalOptionsButton->setEnabled(false);
 		toolboxButton->setEnabled(true);
-
 		break;
 	}
 
@@ -477,8 +496,8 @@ void TuneupMidiAudioProcessorEditor::setControlMode(ControlMode modeIn)
 	{
 		generalOptionsButton->setEnabled(true);
 		toolboxButton->setEnabled(false);
+		break;
 	}
-
 	default: // MainWindow
 	{
 		break;

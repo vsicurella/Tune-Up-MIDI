@@ -65,22 +65,22 @@ TuneUpMidiProcessor* TuneUpMidiState::getMidiProcessor()
 	return midiProcessor.get();
 }
 
-ValueTree TuneUpMidiState::getOriginTuningDefinition()
+ValueTree TuneUpMidiState::getTuningInDefinition()
 {
 	return originTuningDefinition.getDefinition();
 }
 
-Tuning* TuneUpMidiState::getOriginTuning()
+Tuning* TuneUpMidiState::getTuningIn()
 {
 	return originTuning.get();
 }
 
-ValueTree TuneUpMidiState::getTuningDefinition()
+ValueTree TuneUpMidiState::getTuningOutDefinition()
 {
 	return tuningDefinition.getDefinition();
 }
 
-Tuning* TuneUpMidiState::getTuning()
+Tuning* TuneUpMidiState::getTuningOut()
 {
 	return tuning.get();
 }

@@ -33,11 +33,11 @@ public:
 
 	TuneUpMidiProcessor* getMidiProcessor();
 
-	ValueTree getOriginTuningDefinition();
-	Tuning* getOriginTuning();
+	ValueTree getTuningInDefinition();
+	Tuning* getTuningIn();
 
-	ValueTree getTuningDefinition();
-	Tuning* getTuning();
+	ValueTree getTuningOutDefinition();
+	Tuning* getTuningOut();
 
 	const MidiKeyboardState& getMidiKeyboardState();
 
