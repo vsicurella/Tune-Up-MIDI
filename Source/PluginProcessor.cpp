@@ -184,9 +184,8 @@ void TuneupMidiAudioProcessor::setStateInformation (const void* data, int sizeIn
 	//stateNode = ValueTree(); // uncomment to test default load
 
 	pluginState->setPluginStateNode(stateNode);
-	pluginState->setSessionOptionsNode(stateNode.getChildWithName(TuneUpIDs::sessionOptionsNodeId));
 
-	if (stateNode.getChildWithName(TuneUpIDs::sessionOptionsNodeId).getNumChildren() > 0)
+	if (stateNode.getChildWithName(TuneUpIDs::optionsNodeId).getNumChildren() > 0)
 		pluginState->resetToSessionOptions(false);
 	else
 		pluginState->resetToDefaultOptions(true, false);

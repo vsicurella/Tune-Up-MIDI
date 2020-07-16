@@ -18,9 +18,9 @@ namespace TuneUpIDs
 	static Identifier tuningsListId("TuningsList");
 
 	// Options
-	static Identifier defaultOptionsNodeId("DefaultOptions");
-	static Identifier sessionOptionsNodeId("SessionOptions");
+	static Identifier optionsNodeId("TuneUpOptions");
 	static Identifier defaultTuningFilePathId("DefaultTuningPath");
+	static Identifier defaultTuningsListId("DefaultTunings");
 	static Identifier referenceNoteInId("ReferenceNoteIn");
 	static Identifier referenceFreqInId("ReferenceFreqIn");
 	static Identifier referenceNoteOutId("ReferenceNoteOut");
@@ -66,4 +66,27 @@ namespace TuneUpIDs
 	static Identifier dynamicGenCenterId("DynamicCenterValue");
 	static Identifier dynamicGenRangeId("DynamicRangeId");
 	static Identifier dynamicGenCCNumId("DynamicCCNumber");
+
+	// TUNE-UP MAIN OPTIONS
+	static Array<Identifier> tuneUpOptionIds =
+	{
+		defaultTuningFilePathId,
+		tuningsListId,
+		referenceNoteInId,
+		referenceFreqInId,
+		referenceNoteOutId,
+		referenceFreqOutId,
+		pitchbendRangeId,
+		channelConfigurationId,
+		channelModeId,
+		voiceLimitId,
+		reuseChannelsId,
+		resetChannelPitchbendId
+	};
+
+	// TUNE-UP PARAMETERS
+	static Array<Identifier> tuneUpParameterIds =
+	{
+		// TODO
+	};
 };

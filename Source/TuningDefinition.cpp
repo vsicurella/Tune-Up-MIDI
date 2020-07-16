@@ -56,7 +56,7 @@ int TuningDefinition::getRootMidiNote() const
 	return definition[rootMidiNoteId];
 }
 
-void TuningDefinition::setDefinition(ValueTree definitionIn)
+void TuningDefinition::setDefinition(ValueTree& definitionIn)
 {
 	definition = definitionIn;
 }

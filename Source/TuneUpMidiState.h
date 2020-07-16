@@ -42,6 +42,11 @@ public:
 	const MidiKeyboardState& getMidiKeyboardState();
 
 	/*
+		Returns the factory default value for a given property
+	*/
+	var getFactoryDefaultValue(Identifier& propertyIn) const;
+
+	/*
 		Sets the parent data node of the instance (but doesn't initialize or pass data down)
 	*/
 	void setPluginStateNode(ValueTree pluginStateNodeIn);
@@ -49,7 +54,7 @@ public:
 	/*
 		Reset to factory default
 	*/
-	void resetToFactoryDefault(bool sendChange = true);
+	void resetToFactoryDefault(bool saveToSession = false, bool sendChange = true);
 
 	/*
 		Sets the default options node of the instance (but doesn't initialize or pass data down)
@@ -59,7 +64,7 @@ public:
 	/*
 		Replaces data with user default options
 	*/
-	void resetToDefaultOptions(bool saveToSession, bool sendChange = true);
+	void resetToDefaultOptions(bool saveToSession = false, bool sendChange = true);
 
 	/*
 		Writes current defaultOptionsNode to application directory
@@ -77,14 +82,9 @@ public:
 	void resetToSessionOptions(bool sendChangeMessage = true);
 
 	/*
-		Writes session data to plugin state
-	*/
-	void writeSessionDataToState();
-
-	/*
 		Passes data from input node, and falls back to defaultOptions if necessary
 	*/
-	void loadNodeOptions(ValueTree nodeOptionsIn);
+	void loadNodeOptions(ValueTree nodeOptionsIn, bool saveToSession = true);
 
 	/*
 		Sets and renders new tuning in definition, leaving tuning out unchanged
@@ -96,25 +96,30 @@ public:
 	*/
 	void setTuningOut(ValueTree definitionIn, bool writeToSession = true, bool sendChangeSignal = false);
 
+	/*
+		Sets and renders tunings in and out
+	*/
+	void setTunings(ValueTree parentOptionsNode, bool writeToSession, bool sendChangeSignal = false);
+
 	// SESSION PARAMETER SETTERS
 
-	void setReferenceNoteIn(int noteIn);
+	void setReferenceNoteIn(int noteIn, bool saveToSession = true);
 
-	void setReferenceFreqIn(double freqIn);
+	void setReferenceFreqIn(double freqIn, bool saveToSession = true);
 
-	void setReferenceNoteOut(int noteIn);
+	void setReferenceNoteOut(int noteIn, bool saveToSession = true);
 
-	void setReferenceFreqOut(double freqIn);
+	void setReferenceFreqOut(double freqIn, bool saveToSession = true);
 
-	void setPitchbendRange(int newPitchBendRange);
+	void setPitchbendRange(int newPitchBendRange, bool saveToSession = true);
 
-	void setVoiceLimit(int limitIn);
+	void setVoiceLimit(int limitIn, bool saveToSession = true);
 
-	void setChannelMode(FreeChannelMode channelModeIn);
+	void setChannelMode(FreeChannelMode channelModeIn, bool saveToSession = true);
 
-	void setReuseChannels(bool reuseChannels);
+	void setReuseChannels(bool reuseChannels, bool saveToSession = true);
 
-	void setResetChannelPitchbend(bool resetPitchbend);
+	void setResetChannelPitchbend(bool resetPitchbend, bool saveToSession = true);
 
 	//=======================================================================================
 
@@ -139,6 +144,8 @@ protected:
 
 private:
 
+	ValueTree factoryDefaultOptionsNode;
+
 	ValueTree pluginStateNode;
 	ValueTree defaultOptionsNode;
 	ValueTree sessionOptionsNode;
@@ -158,27 +165,13 @@ private:
 	TuningDefinition tuningDefinition;
 	std::unique_ptr<Tuning> tuning;
 
-	// Session Options
-	// TODO: generalize this and make it Common
-	Array<Identifier> availableOptions =
-	{
-//		TuneUpIDs::defaultTuningFilePathId,
-//		TuneUpIDs::tuningsListId,
-		TuneUpIDs::referenceNoteInId,
-		TuneUpIDs::referenceFreqInId,
-		TuneUpIDs::referenceNoteOutId,
-		TuneUpIDs::referenceFreqOutId,
-		TuneUpIDs::pitchbendRangeId,
-//		TuneUpIDs::channelConfigurationId,
-		TuneUpIDs::channelModeId,
-		TuneUpIDs::voiceLimitId,
-		TuneUpIDs::reuseChannelsId,
-		TuneUpIDs::resetChannelPitchbendId
-	};
-
-
 	// TODO: make a part of MidiCCListener interface
 	// Midi Control number to function map
 	//std::map<int, std::function<void(int)>> controlChangeMap;
+
+
+private:
+
+	void buildFactoryDefaultOptionsNode();
 
 };

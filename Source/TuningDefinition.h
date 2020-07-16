@@ -49,7 +49,7 @@ public:
 
 	int getRootMidiNote() const;
 
-	void setDefinition(ValueTree definitionIn);
+	void setDefinition(ValueTree& definitionIn);
 
 	Tuning render() const;
 

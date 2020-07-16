@@ -24,7 +24,7 @@ class GeneralOptionsWindow :	public Component,
 
 public:
 
-	GeneralOptionsWindow();
+	GeneralOptionsWindow(ValueTree defaultOptionsIn, ValueTree sessionOptionsNodeIn);
 	~GeneralOptionsWindow();
 
 	void paint(Graphics& g) override;
@@ -42,15 +42,12 @@ public:
 	void textEditorReturnKeyPressed(TextEditor& source) override;
 
 	//================================================================================
-	
-	/*
-		Initializes all available options, and sets them to factory default if necessary.
-		Returns true if the passed in optionsIn node was valid and synchronized.
-		If false, you'll need to synchronize the trees again.
-	*/
-	bool initializeOptions(ValueTree optionsIn);
 
-	void loadSessionOptions(ValueTree sessionOptionsIn);
+	void resetToDefaultOptions(bool notifyListeners = true);
+
+	void resetToSessionOptions(bool notifyListeners = true);
+
+	void loadOptionsNode(ValueTree optionsNodeIn, bool saveAsDefault = false, bool notifyListeners = true);
 
 	ValueTree getDefaultOptionsNode();
 
@@ -182,27 +179,7 @@ private:
 	std::unique_ptr<ToggleButton> reuseChannelsButton;
 	std::unique_ptr<ToggleButton> resetChannelPitchbendButton;
 
-	// TODO: Generalize this and make it Common
-	Array<Identifier> availableOptions = 
-	{
-		TuneUpIDs::defaultTuningFilePathId,
-		TuneUpIDs::tuningsListId,
-		TuneUpIDs::referenceNoteInId,
-		TuneUpIDs::referenceFreqInId,
-		TuneUpIDs::referenceNoteOutId,
-		TuneUpIDs::referenceFreqOutId,
-		TuneUpIDs::pitchbendRangeId,
-		TuneUpIDs::channelConfigurationId,
-		TuneUpIDs::channelModeId,
-		TuneUpIDs::voiceLimitId,
-		TuneUpIDs::reuseChannelsId,
-		TuneUpIDs::resetChannelPitchbendId
-	};
-
 	// Helpers
 	UnitPlane grid;
 
-private:
-
-	void ensureNodeHasTuningListNode(ValueTree nodeIn);
 };

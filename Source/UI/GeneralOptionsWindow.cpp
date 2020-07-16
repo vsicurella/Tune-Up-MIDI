@@ -10,7 +10,7 @@
 
 #include "GeneralOptionsWindow.h"
 
-GeneralOptionsWindow::GeneralOptionsWindow()
+GeneralOptionsWindow::GeneralOptionsWindow(ValueTree defaultOptionsNodeIn, ValueTree sessionOptionsNodeIn)
 	: grid(24, 14)
 {
 	defaultTuningDirLabel.reset(new Label("defaultTuningDirLabel", "Default Load Path:"));
@@ -150,8 +150,12 @@ GeneralOptionsWindow::GeneralOptionsWindow()
 	resetChannelPitchbendButton.reset(new ToggleButton(resetTrans));
 	addAndMakeVisible(resetChannelPitchbendButton.get());
 	resetChannelPitchbendButton->addListener(this);
+	
+	defaultOptionsNode = defaultOptionsNodeIn;
+	defaultTuningsListNode = defaultOptionsNode.getChildWithName(TuneUpIDs::tuningsListId);
 
-	sessionOptionsNode = ValueTree(sessionOptionsNodeId);
+	sessionOptionsNode = sessionOptionsNodeIn;
+	resetToSessionOptions(false);
 }
 
 GeneralOptionsWindow::~GeneralOptionsWindow()
@@ -320,192 +324,105 @@ void GeneralOptionsWindow::textEditorReturnKeyPressed(TextEditor& source)
 
 }
 
-bool GeneralOptionsWindow::initializeOptions(ValueTree optionsIn)
+void GeneralOptionsWindow::resetToDefaultOptions(bool notifyListeners)
 {
-	bool synced = true;
-
-	if (optionsIn.hasType(TuneUpIDs::defaultOptionsNodeId))
-		defaultOptionsNode = optionsIn;
-	else
-	{
-		defaultOptionsNode = ValueTree(TuneUpIDs::defaultOptionsNodeId);
-		synced = false;
-	}
-
-	ensureNodeHasTuningListNode(defaultOptionsNode);
-	defaultTuningsListNode = defaultOptionsNode.getChildWithName(TuneUpIDs::tuningsListId);
-
-	bool hasProperty;
-	var value;
-
-	for (auto prop : availableOptions)
-	{
-		hasProperty = defaultOptionsNode.hasProperty(prop);
-		value = defaultOptionsNode[prop];
-
-		// ONLY DEFAULT OPTIONS
-
-		if (prop == TuneUpIDs::defaultTuningFilePathId)
-		{
-			File f;
-
-			if (!hasProperty)
-				f = File::getSpecialLocation(File::userDocumentsDirectory).getFullPathName();
-			else
-				f = File(value.toString());
-			
-			setDefaultTuningPath(f);
-		}
-
-		else if (prop == TuneUpIDs::tuningsListId)
-		{
-			if (defaultTuningsListNode.getNumChildren() > 0)
-			{
-				ValueTree dftTun = defaultTuningsListNode.getChild(0);
-
-				if (dftTun.hasType(TuneUpIDs::tuningDefinitionId))
-					setTuningIn(dftTun);
-				else
-					setTuningIn(STD_TUNING);
-
-
-				dftTun = defaultTuningsListNode.getChild(1);
-
-				if (dftTun.hasType(TuneUpIDs::tuningDefinitionId))
-					setTuningOut(dftTun);
-				else
-					setTuningOut(STD_TUNING);
-			}
-
-			else
-			{
-				defaultTuningsListNode.addChild(STD_TUNING, 0, nullptr);
-				defaultTuningsListNode.addChild(STD_TUNING, 1, nullptr);
-			}
-		}
-
-		// OPTIONS THAT CAN BE BOTH DEFAULT OR SESSION
-
-		else if (prop == TuneUpIDs::referenceNoteInId)
-		{
-			if (!hasProperty)
-				value = 69;
-
-			setReferenceNoteIn(value, true, true);
-		}
-
-		else if (prop == TuneUpIDs::referenceFreqInId)
-		{
-			if (!hasProperty)
-				value = 440.0;
-
-			setReferenceFreqIn(value, true, true);
-		}
-
-		else if (prop == TuneUpIDs::referenceNoteOutId)
-		{
-			if (!hasProperty)
-				value = 60;
-
-			setReferenceNoteOut(value, true, true);
-		}
-
-		else if (prop == TuneUpIDs::referenceFreqOutId)
-		{
-			if (!hasProperty)
-				value = 261.626;
-
-			setReferenceFreqOut(value, true, true);
-		}
-
-		else if (prop == TuneUpIDs::pitchbendRangeId)
-		{
-			if (!hasProperty)
-				value = 2;
-
-			setPitchbendRange(value, true, true);
-		}
-
-		else if (prop == TuneUpIDs::voiceLimitId)
-		{
-			if (!hasProperty)
-				value = 16;
-
-			setVoiceLimit(value, true, true);
-		}
-
-		else if (prop == TuneUpIDs::channelConfigurationId)
-		{
-			if (!hasProperty)
-				value = 2;
-
-			// TODO
-		}
-
-		else if (prop == TuneUpIDs::channelModeId)
-		{
-			if (!hasProperty)
-				value = 1;
-
-			setChannelMode(FreeChannelMode((int)value), true, true);
-		}
-
-		else if (prop == TuneUpIDs::reuseChannelsId)
-		{
-			if (!hasProperty)
-				value = false;
-
-			setReuseChannels(value, true, true);
-		}
-
-		else if (prop == TuneUpIDs::resetChannelPitchbendId)
-		{
-			if (!hasProperty)
-				value = true;
-
-			setResetChannelPitchbend(value, true, true);
-		}
-	}
-
-	return synced;
+	loadOptionsNode(defaultOptionsNode, false, notifyListeners);
 }
 
-void GeneralOptionsWindow::loadSessionOptions(ValueTree sessionOptionsIn)
+void GeneralOptionsWindow::resetToSessionOptions(bool notifyListeners)
 {
-	for (auto prop : availableOptions)
+	loadOptionsNode(sessionOptionsNode, false, notifyListeners);
+}
+
+void GeneralOptionsWindow::loadOptionsNode(ValueTree optionsNodeIn, bool saveAsDefault, bool notifyListeners)
+{
+	if (optionsNodeIn.hasType(TuneUpIDs::optionsNodeId))
 	{
-		if (!sessionOptionsIn.hasProperty(prop))
-			continue;
+		for (int i = 0; i < optionsNodeIn.getNumProperties(); i++)
+		{
+			Identifier prop = optionsNodeIn.getPropertyName(i);
+			bool hasProperty = optionsNodeIn.hasProperty(prop);
+			var value;
 
-		if (prop == TuneUpIDs::referenceNoteInId)
-			setReferenceNoteIn(sessionOptionsIn[prop]);
+			if (hasProperty)
+				value = optionsNodeIn[prop];
+			else
+				value = defaultOptionsNode[prop];
 
-		else if (prop == TuneUpIDs::referenceFreqInId)
-			setReferenceFreqIn(sessionOptionsIn[prop]);
+			// ONLY DEFAULT OPTIONS
 
-		else if (prop == TuneUpIDs::referenceNoteOutId)
-			setReferenceNoteOut(sessionOptionsIn[prop]);
+			if (prop == TuneUpIDs::defaultTuningFilePathId)
+			{
+				File f = File(value.toString());
+				setDefaultTuningPath(f, notifyListeners);
+			}
 
-		else if (prop == TuneUpIDs::referenceFreqOutId)
-			setReferenceFreqOut(sessionOptionsIn[prop]);
+			else if (prop == TuneUpIDs::defaultTuningsListId)
+			{
+				ValueTree tuningList = optionsNodeIn.getChildWithName(TuneUpIDs::tuningsListId);
+				ValueTree tuningNode = tuningList.getChild(0);
 
-		else if (prop == TuneUpIDs::pitchbendRangeId)
-			setPitchbendRange(sessionOptionsIn[prop]);
+				if (tuningNode.isValid())
+					setTuningIn(tuningNode, notifyListeners);
 
-		else if (prop == TuneUpIDs::voiceLimitId)
-			setVoiceLimit(sessionOptionsIn[prop]);
+				tuningNode = tuningList.getChild(1);
 
-		else if (prop == TuneUpIDs::channelConfigurationId)
-			setChannelConfiguration(/*TODO*/);
+				if (tuningNode.isValid())
+					setTuningOut(tuningNode, notifyListeners);
+			}
 
-		else if (prop == TuneUpIDs::channelModeId)
-			setChannelMode(FreeChannelMode((int)sessionOptionsIn[prop]));
+			// OPTIONS THAT CAN BE BOTH DEFAULT OR SESSION
 
-		else if (prop == TuneUpIDs::reuseChannelsId)
-			setReuseChannels(sessionOptionsIn[prop]);
+			else if (prop == TuneUpIDs::referenceNoteInId)
+			{
+				setReferenceNoteIn(value, true, saveAsDefault, notifyListeners);
+			}
 
-		else if (prop == TuneUpIDs::resetChannelPitchbendId)
-			setResetChannelPitchbend(sessionOptionsIn[prop]);
+			else if (prop == TuneUpIDs::referenceFreqInId)
+			{
+				setReferenceFreqIn(value, true, saveAsDefault, notifyListeners);
+			}
+
+			else if (prop == TuneUpIDs::referenceNoteOutId)
+			{
+				setReferenceNoteOut(value, true, saveAsDefault, notifyListeners);
+			}
+
+			else if (prop == TuneUpIDs::referenceFreqOutId)
+			{
+				setReferenceFreqOut(value, true, saveAsDefault, notifyListeners);
+			}
+
+			else if (prop == TuneUpIDs::pitchbendRangeId)
+			{
+				setPitchbendRange(value, true, saveAsDefault, notifyListeners);
+			}
+
+			else if (prop == TuneUpIDs::voiceLimitId)
+			{
+				setVoiceLimit(value, true, saveAsDefault, notifyListeners);
+			}
+
+			else if (prop == TuneUpIDs::channelConfigurationId)
+			{
+				// TODO
+			}
+
+			else if (prop == TuneUpIDs::channelModeId)
+			{
+				setChannelMode(FreeChannelMode((int)value), true, saveAsDefault, notifyListeners);
+			}
+
+			else if (prop == TuneUpIDs::reuseChannelsId)
+			{
+				setReuseChannels(value, true, saveAsDefault, notifyListeners);
+			}
+
+			else if (prop == TuneUpIDs::resetChannelPitchbendId)
+			{
+				setResetChannelPitchbend(value, true, saveAsDefault, notifyListeners);
+			}
+		}
 	}
 }
 
@@ -535,7 +452,7 @@ void GeneralOptionsWindow::setDefaultTuningPath(File pathFileIn, bool notifyList
 void GeneralOptionsWindow::setTuningIn(ValueTree tuningInPath, bool notifyListeners)
 {
 	if (defaultTuningsListNode.getNumChildren() > 0)
-		defaultTuningsListNode.getChild(0) = tuningInPath.createCopy();
+		defaultTuningsListNode.getChild(0).copyPropertiesAndChildrenFrom(tuningInPath.createCopy(), nullptr);
 	else
 		defaultTuningsListNode.addChild(tuningInPath, 0, nullptr);
 
@@ -551,7 +468,7 @@ void GeneralOptionsWindow::setTuningOut(ValueTree tuningOutPath, bool notifyList
 	if (defaultTuningsListNode.getNumChildren() == 1)
 		defaultTuningsListNode.addChild(tuningOutPath, 1, nullptr);
 	else
-		defaultTuningsListNode.getChild(1) = tuningOutPath.createCopy();
+		defaultTuningsListNode.getChild(1).copyPropertiesAndChildrenFrom(tuningOutPath.createCopy(), nullptr);
 
 	if (notifyListeners)
 		void; // TODO
@@ -693,10 +610,4 @@ void GeneralOptionsWindow::setDynamicTuningMode(bool isDynamicTuning)
 {
 	//sessionOptionsNode.setProperty(TuneUpIDs::dynamicTuningModeId, isDynamicTuning, nullptr);
 	listeners.call(&GeneralOptionsWindow::Listener::dynamicTuningModeChanged, isDynamicTuning);
-}
-
-void GeneralOptionsWindow::ensureNodeHasTuningListNode(ValueTree nodeIn)
-{
-	if (!nodeIn.getChildWithName(TuneUpIDs::tuningsListId).isValid())
-		nodeIn.addChild(ValueTree(TuneUpIDs::tuningsListId), -1, nullptr);
 }

@@ -31,13 +31,7 @@ TuneupMidiAudioProcessorEditor::TuneupMidiAudioProcessorEditor (
 	addChildComponent(createTuningWindow.get());
 	createTuningWindow->addChangeListener(this);
 
-	generalOptionsWindow.reset(new GeneralOptionsWindow());
-	if (!generalOptionsWindow->initializeOptions(pluginState.getDefaultOptionsNode()))
-	{
-		// Update PluginState with factory default options
-		pluginState.setDefaultOptionsNode(generalOptionsWindow->getDefaultOptionsNode());
-	}
-	generalOptionsWindow->loadSessionOptions(pluginState.getSessionOptionsNode());
+	generalOptionsWindow.reset(new GeneralOptionsWindow(pluginState.getDefaultOptionsNode(), pluginState.getSessionOptionsNode()));
 	addChildComponent(generalOptionsWindow.get());
 	generalOptionsWindow->addListener(this);
 
@@ -454,7 +448,7 @@ void TuneupMidiAudioProcessorEditor::onFileLoad()
 
 void TuneupMidiAudioProcessorEditor::reloadPluginState()
 {
-	generalOptionsWindow->loadSessionOptions(pluginState.getSessionOptionsNode());
+	generalOptionsWindow->resetToSessionOptions();
 	onNewTuning();
 }
 
