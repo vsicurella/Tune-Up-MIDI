@@ -84,7 +84,7 @@ public:
 	/*
 		Passes data from input node, and falls back to defaultOptions if necessary
 	*/
-	void loadNodeOptions(ValueTree nodeOptionsIn, bool saveToSession = true);
+	void loadNodeOptions(ValueTree nodeOptionsIn, bool saveToSession = true, bool sendSignal = true);
 
 	/*
 		Sets and renders new tuning in definition, leaving tuning out unchanged
@@ -100,6 +100,11 @@ public:
 		Sets and renders tunings in and out
 	*/
 	void setTunings(ValueTree parentOptionsNode, bool writeToSession, bool sendChangeSignal = false);
+
+	/*
+		Toggles Dynamic Tuning processing
+	*/
+	void setDynamicTuning(bool isDynamicTuning);
 
 	// SESSION PARAMETER SETTERS
 
@@ -128,6 +133,21 @@ public:
 
 	// CC Listener Implementation
 	void controlValueChanged(int controlNumber, int controlValue) override;
+
+	//=======================================================================================
+
+	class Listener
+	{
+	public:
+
+		virtual void optionsLoaded(ValueTree optionsNode) {};
+
+		virtual void tuningInLoaded(ValueTree newTuningInDef, Tuning* tuningInPtr) {};
+
+		virtual void tuningOutLoaded(ValueTree newTuningOutDef, Tuning* tuningOutPtr) {};
+
+		virtual void dynamicTuningModeChanged(bool isDynamic) {};
+	};
 
 private:
 

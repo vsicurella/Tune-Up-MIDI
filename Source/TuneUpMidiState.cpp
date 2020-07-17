@@ -288,7 +288,7 @@ void TuneUpMidiState::resetToSessionOptions(bool sendMsg)
 /*
 	Passes data from input node, and falls back to defaultOptions if necessary
 */
-void TuneUpMidiState::loadNodeOptions(ValueTree nodeOptionsIn, bool saveToSession)
+void TuneUpMidiState::loadNodeOptions(ValueTree nodeOptionsIn, bool saveToSession, bool sendSignal)
 {
 	for (auto prop : tuneUpOptionIds)
 	{
@@ -353,6 +353,9 @@ void TuneUpMidiState::loadNodeOptions(ValueTree nodeOptionsIn, bool saveToSessio
 			setResetChannelPitchbend(value, saveToSession);
 		}
 	}
+
+	if (sendSignal)
+		listeners.call(&TuneUpMidiState::Listener::optionsLoaded, pluginStateNode.getChild(0));
 }
 
 /*
@@ -382,7 +385,7 @@ void TuneUpMidiState::setTuningIn(ValueTree definitionIn, bool writeToSession, b
 	}
 
 	if (success && sendChangeSignal)
-		sendChangeMessage();
+		listeners.call(&TuneUpMidiState::Listener::tuningInLoaded, tuningInDefinition.getDefinition(), tuningIn.get());
 }
 
 /*
@@ -412,18 +415,26 @@ void TuneUpMidiState::setTuningOut(ValueTree definitionIn, bool writeToSession, 
 	}
 
 	if (success && sendChangeSignal)
-		sendChangeMessage();
+		listeners.call(&TuneUpMidiState::Listener::tuningOutLoaded, tuningOutDefinition.getDefinition(), tuningOut.get());
 }
 
 void TuneUpMidiState::setTunings(ValueTree parentOptionsNode, bool writeToSession, bool sendChangeSignal)
 {
-	setTuningIn(parentOptionsNode.getChild(0).getChild(0), writeToSession, false);
-	setTuningOut(parentOptionsNode.getChild(0).getChild(1), writeToSession, false);
-
-	if (sendChangeSignal)
-		sendChangeMessage();
+	setTuningIn(parentOptionsNode.getChild(0).getChild(0), writeToSession, sendChangeSignal);
+	setTuningOut(parentOptionsNode.getChild(0).getChild(1), writeToSession, sendChangeSignal);
 }
 
+/*
+	Toggles Dynamic Tuning processing
+*/
+void TuneUpMidiState::setDynamicTuning(bool isDynamicTuning)
+{
+	dynamicTuningOn = isDynamicTuning;
+
+	// TODO
+
+	listeners.call(TuneUpMidiState::Listener::dynamicTuningModeChanged, dynamicTuningOn);
+}
 
 void TuneUpMidiState::setReferenceNoteIn(int noteIn, bool saveToSession)
 {
