@@ -10,7 +10,7 @@
 
 #include "CreateScaleWindow.h"
 
-CreateTuningWindow::CreateTuningWindow(ValueTree tuningDefinitionIn)
+CreateTuningWindow::CreateTuningWindow(ValueTree sessionOptionsNodeIn)
 	: grid(6)
 {
 	tuningNameLabel.reset(new Label("scaleNameLabel", nameTrans + ':'));
@@ -52,11 +52,11 @@ CreateTuningWindow::CreateTuningWindow(ValueTree tuningDefinitionIn)
 	etPeriodBox->setEditable(true);
 	etPeriodBox->addListener(this);
 
-	generatorTable.reset(new RegularTemperamentTable(tuningDefinition));
+	generatorTable.reset(new RegularTemperamentTable(sessionOptionsNodeIn));
 	addChildComponent(generatorTable.get());
 	generatorTable->addChangeListener(this);
 
-	tuningDefinition = tuningDefinitionIn;
+	sessionOptionsNode = sessionOptionsNodeIn;
 
 	for (auto str : { nameTrans, sizeTrans, periodTrans })
 	{
@@ -149,17 +149,17 @@ void CreateTuningWindow::setMode(CreateTuningMode modeIn)
 	etPeriodBox->setVisible(mode == EqualTemperament);
 }
 
-void CreateTuningWindow::setDefinition(ValueTree definition)
+void CreateTuningWindow::setOptionsNode(ValueTree optionsNodeIn)
 {
-	tuningDefinition = definition;
-	generatorTable->updateDefinition(tuningDefinition);
+	sessionOptionsNode = optionsNodeIn;
+	generatorTable->updateDefinition(optionsNodeIn.getChild(0).getChild(1));
 }
 
 void CreateTuningWindow::updateTuning(bool sendChange)
 {
 	if (mode == EqualTemperament)
 	{
-		tuningDefinition = TuningDefinition::createEqualTemperamentDefinition(
+		newTuning = TuningDefinition::createEqualTemperamentDefinition(
 			etNotesSlider->getValue(),
 			etPeriodBox->getText(),
 			60,
@@ -167,20 +167,20 @@ void CreateTuningWindow::updateTuning(bool sendChange)
 			descriptionBox->getText()
 		);
 
-		generatorTable->updateDefinition(tuningDefinition);
+		generatorTable->updateDefinition(newTuning);
 	}
 
 	else if (mode == RegularTemperament)
 	{
-		tuningDefinition = generatorTable->getDefinition();
+		newTuning = generatorTable->getDefinition();
 
 		String name = tuningNameBox->getText();
 		if (name.length() > 0)
-			tuningDefinition.setProperty(TuneUpIDs::tuningNameId, name, nullptr);
+			newTuning.setProperty(TuneUpIDs::tuningNameId, name, nullptr);
 
 		String desc = descriptionBox->getText();
 		if (desc.length() > 0)
-			tuningDefinition.setProperty(TuneUpIDs::tuningDescriptionId, desc, nullptr);
+			newTuning.setProperty(TuneUpIDs::tuningDescriptionId, desc, nullptr);
 	}
 	
 	if (sendChange)
@@ -189,6 +189,6 @@ void CreateTuningWindow::updateTuning(bool sendChange)
 
 ValueTree CreateTuningWindow::getTuningDefinition() const
 {
-	return tuningDefinition;
+	return newTuning;
 }
 

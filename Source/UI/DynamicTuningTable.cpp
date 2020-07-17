@@ -13,7 +13,6 @@
 DynamicTuningTable::DynamicTuningTable(ValueTree tuningDefinitionIn)
 {
 	definition = tuningDefinitionIn;
-	generatorListNode = definition.getChildWithName(TuneUpIDs::generatorListId);
 
 	header = &table.getHeader();
 	header->addColumn("CC #", CCNumber, font.getStringWidth("000"), font.getStringWidth("0"));
@@ -46,7 +45,7 @@ void DynamicTuningTable::resized()
 
 int DynamicTuningTable::getNumRows()
 {
-	return generatorListNode.getNumChildren();
+	return definition.getChildWithName(TuneUpIDs::generatorListId).getNumChildren();
 }
 
 void DynamicTuningTable::paintRowBackground(Graphics& g, int rowNumber, int w, int h, bool rowIsSelected)
@@ -65,7 +64,7 @@ void DynamicTuningTable::paintCell(Graphics& g, int rowNumber, int columnId, int
 
 Component* DynamicTuningTable::refreshComponentForCell(int rowNumber, int columnId, bool isRowSelected, Component* existingComponentToUpdate)
 {
-	ValueTree genNode = generatorListNode.getChild(rowNumber);
+	ValueTree genNode = definition.getChildWithName(TuneUpIDs::generatorListId).getChild(rowNumber);
 	bool isDynamic = genNode[dynamicTuningId];
 	var value, value2;
 
@@ -169,9 +168,9 @@ Component* DynamicTuningTable::refreshComponentForCell(int rowNumber, int column
 
 	case ColumnType::GeneratorValue:
 	{
-		if (rowNumber < generatorListNode.getNumChildren())
+		if (rowNumber < definition.getChildWithName(TuneUpIDs::generatorListId).getNumChildren())
 		{
-			ValueTree genNode = generatorListNode.getChild(rowNumber);
+			ValueTree genNode = definition.getChildWithName(TuneUpIDs::generatorListId).getChild(rowNumber);
 
 			auto* generatorLabel = static_cast<TableLabel*> (existingComponentToUpdate);
 			if (generatorLabel == nullptr)
@@ -281,7 +280,7 @@ int DynamicTuningTable::getColumnAutoSizeWidth(int columnId)
 	case GeneratorValue:
 	{
 		String genStr, maxGen = "";
-		for (auto gen : generatorListNode)
+		for (auto gen : definition.getChildWithName(TuneUpIDs::generatorListId))
 		{
 			genStr = gen[TuneUpIDs::generatorValueId].toString();
 			if (genStr.length() > maxGen.length())
@@ -295,7 +294,7 @@ int DynamicTuningTable::getColumnAutoSizeWidth(int columnId)
 	case MinValue:
 	{
 		String genStr, maxGen = "";
-		for (auto gen : generatorListNode)
+		for (auto gen : definition.getChildWithName(TuneUpIDs::generatorListId))
 		{
 			genStr = gen[TuneUpIDs::dynamicGenMinId].toString();
 			if (genStr.length() > maxGen.length())
@@ -308,7 +307,7 @@ int DynamicTuningTable::getColumnAutoSizeWidth(int columnId)
 	case MaxValue:
 	{
 		String genStr, maxGen = "";
-		for (auto gen : generatorListNode)
+		for (auto gen : definition.getChildWithName(TuneUpIDs::generatorListId))
 		{
 			genStr = gen[TuneUpIDs::dynamicGenMaxId].toString();
 			if (genStr.length() > maxGen.length())

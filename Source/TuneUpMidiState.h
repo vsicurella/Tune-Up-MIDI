@@ -159,11 +159,11 @@ private:
 	String defaultTuningPath;
 	bool dynamicTuningOn = false;
 
-	TuningDefinition originTuningDefinition;
-	std::unique_ptr<Tuning> originTuning;
+	TuningDefinition tuningInDefinition;
+	std::unique_ptr<Tuning> tuningIn;
 
-	TuningDefinition tuningDefinition;
-	std::unique_ptr<Tuning> tuning;
+	TuningDefinition tuningOutDefinition;
+	std::unique_ptr<Tuning> tuningOut;
 
 	// TODO: make a part of MidiCCListener interface
 	// Midi Control number to function map

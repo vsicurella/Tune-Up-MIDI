@@ -24,7 +24,7 @@ class CreateTuningWindow :	public Component,
 {
 public:
 
-	CreateTuningWindow(ValueTree tuningDefinitionIn /* TODO some recall */);
+	CreateTuningWindow(ValueTree sessionOptionsNodeIn);
 	~CreateTuningWindow();
 
 	void paint(Graphics& g) override;
@@ -40,7 +40,7 @@ public:
 
 	void setMode(CreateTuningMode modeIn);
 
-	void setDefinition(ValueTree definition);
+	void setOptionsNode(ValueTree optionsNodeIn);
 
 	void updateTuning(bool sendChange = true);
 
@@ -51,7 +51,8 @@ public:
 private:
 
 	CreateTuningMode mode;
-	ValueTree tuningDefinition;
+	ValueTree sessionOptionsNode;
+	ValueTree newTuning;
 
 	std::unique_ptr<Label> tuningNameLabel;
 	std::unique_ptr<Label> tuningNameBox;

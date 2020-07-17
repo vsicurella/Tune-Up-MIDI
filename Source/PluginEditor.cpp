@@ -27,7 +27,7 @@ TuneupMidiAudioProcessorEditor::TuneupMidiAudioProcessorEditor (
 	mainWindow.reset(new TuneUpWindow());
 	addChildComponent(mainWindow.get());
 
-	createTuningWindow.reset(new CreateTuningWindow(pluginState.getTuningOutDefinition()));
+	createTuningWindow.reset(new CreateTuningWindow(pluginState.getSessionOptionsNode()));
 	addChildComponent(createTuningWindow.get());
 	createTuningWindow->addChangeListener(this);
 
@@ -416,8 +416,7 @@ void TuneupMidiAudioProcessorEditor::resetChannelPitchbendChanged(bool resetPitc
 void TuneupMidiAudioProcessorEditor::onNewTuning()
 {
 	mainWindow->loadTuning(pluginState.getTuningOut());
-	createTuningWindow->setDefinition(pluginState.getTuningOutDefinition());
-
+ 
 	if (pluginState.getTuningOutDefinition()[functionalId])
 	{
 		dynamicOptionsButton->setEnabled(true);
@@ -428,7 +427,7 @@ void TuneupMidiAudioProcessorEditor::onNewTuning()
 		dynamicOptionsButton->setEnabled(false);
 	}
 
-	DBG("GUI updated to Loaded: \n" + pluginState.getTuningOutDefinition().toXmlString());
+	DBG("GUI updated to Loaded: \n" + pluginState.getSessionOptionsNode().toXmlString());
 }
 
 void TuneupMidiAudioProcessorEditor::onFileLoad()

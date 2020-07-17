@@ -16,38 +16,37 @@ TuneUpMidiState::TuneUpMidiState()
 	STD_TUNING = TuningDefinition::getStandardTuningDefinition();
 	buildFactoryDefaultOptionsNode();
 
+	// Initialize DefaultOptionsNode
+	defaultOptionsNode = ValueTree(TuneUpIDs::optionsNodeId);
 	File defaultOptionsFile = File(defaultOptionsFilePath);
 	ValueTree defaultOptionsLoad = ValueTree::fromXml(defaultOptionsFile.loadFileAsString());
 	DBG("Found this default options node:\n" + defaultOptionsLoad.toXmlString());
 	setDefaultOptionsNode(defaultOptionsLoad);
 	DBG("Loaded these default options:\n" + defaultOptionsNode.toXmlString());
 
-	setPluginStateNode(ValueTree(TuneUpIDs::tuneUpMidiStateId));
+	pluginStateNode = ValueTree(TuneUpIDs::tuneUpMidiStateId);
+	pluginStateNode.appendChild(ValueTree(TuneUpIDs::optionsNodeId), nullptr);
+	sessionOptionsNode = pluginStateNode.getChild(0);
 
-	originTuningDefinition.setDefinition(defaultOptionsNode.getChild(0).getChild(0));
-	originTuning.reset(new Tuning(originTuningDefinition.render()));
+	tuningInDefinition.setDefinition(defaultOptionsNode.getChild(0).getChild(0));
+	tuningIn.reset(new Tuning(tuningInDefinition.render()));
 
-	tuningDefinition.setDefinition(defaultOptionsNode.getChild(0).getChild(1));
-	tuning.reset(new Tuning(tuningDefinition.render()));
+	tuningOutDefinition.setDefinition(defaultOptionsNode.getChild(0).getChild(1));
+	tuningOut.reset(new Tuning(tuningOutDefinition.render()));
 
-	midiProcessor.reset(new TuneUpMidiProcessor(originTuning.get(), tuning.get(), notesInOn));
+	midiProcessor.reset(new TuneUpMidiProcessor(tuningIn.get(), tuningOut.get(), notesInOn));
 	midiProcessor->addControlListener(this);
 }
 
 TuneUpMidiState::~TuneUpMidiState()
 {
 	writeDefaultOptionsToFile();
-	tuning = nullptr;
+	tuningOut = nullptr;
 	STD_TUNING = ValueTree();
 }
 
 ValueTree TuneUpMidiState::getPluginStateNode()
 { 
-	if (!pluginStateNode.getChild(0).isEquivalentTo(sessionOptionsNode))
-	{
-		pluginStateNode.removeAllChildren(nullptr);
-		pluginStateNode.addChild(sessionOptionsNode, 0, nullptr);
-	}
 	return pluginStateNode;
 }
 
@@ -68,22 +67,22 @@ TuneUpMidiProcessor* TuneUpMidiState::getMidiProcessor()
 
 ValueTree TuneUpMidiState::getTuningInDefinition()
 {
-	return originTuningDefinition.getDefinition();
+	return tuningInDefinition.getDefinition();
 }
 
 Tuning* TuneUpMidiState::getTuningIn()
 {
-	return originTuning.get();
+	return tuningIn.get();
 }
 
 ValueTree TuneUpMidiState::getTuningOutDefinition()
 {
-	return tuningDefinition.getDefinition();
+	return tuningOutDefinition.getDefinition();
 }
 
 Tuning* TuneUpMidiState::getTuningOut()
 {
-	return tuning.get();
+	return tuningOut.get();
 }
 
 const MidiKeyboardState& TuneUpMidiState::getMidiKeyboardState()
@@ -184,13 +183,15 @@ void TuneUpMidiState::resetToFactoryDefault(bool saveToSession, bool sendChange)
 */
 void TuneUpMidiState::setDefaultOptionsNode(ValueTree defaultOptionsNodeIn)
 {
-	defaultOptionsNode = defaultOptionsNodeIn;
+	ValueTree nodeToCopy = defaultOptionsNodeIn;
 
 	// Ensure it's the right type, reset if not
 	if (!defaultOptionsNode.hasType(TuneUpIDs::optionsNodeId))
 	{
-		defaultOptionsNode = factoryDefaultOptionsNode.createCopy();
+		defaultOptionsNodeIn = factoryDefaultOptionsNode;
 	}
+
+	defaultOptionsNode.copyPropertiesAndChildrenFrom(nodeToCopy, nullptr);
 
 	// Ensure tuning path exists
 	defaultTuningPath = defaultOptionsNode[TuneUpIDs::defaultTuningFilePathId];
@@ -244,14 +245,15 @@ void TuneUpMidiState::writeDefaultOptionsToFile()
 */
 void TuneUpMidiState::setSessionOptionsNode(ValueTree sessionOptionsNodeIn)
 {
-	sessionOptionsNode = sessionOptionsNodeIn;
-	if (!sessionOptionsNode.hasType(TuneUpIDs::optionsNodeId))
+	// Make sure it's valid
+	ValueTree nodeToCopy = sessionOptionsNodeIn;
+	if (!sessionOptionsNodeIn.hasType(TuneUpIDs::optionsNodeId))
 	{
-		sessionOptionsNode = factoryDefaultOptionsNode.createCopy();
-		pluginStateNode.removeAllChildren(nullptr);
-		pluginStateNode.appendChild(sessionOptionsNode, nullptr);
+		nodeToCopy = factoryDefaultOptionsNode;
 	}
 	
+	sessionOptionsNode.copyPropertiesAndChildrenFrom(nodeToCopy, nullptr);
+
 	// Ensure it has as valid tuning list
 	ValueTree tuningList = sessionOptionsNode.getOrCreateChildWithName(TuneUpIDs::tuningsListId, nullptr);
 	bool validTuning = tuningList.getNumChildren() == 2;
@@ -273,7 +275,6 @@ void TuneUpMidiState::setSessionOptionsNode(ValueTree sessionOptionsNodeIn)
 	}
 
 	DBG("SETSESSION:\n" + sessionOptionsNode.toXmlString());
-
 }
 
 /*
@@ -363,18 +364,21 @@ void TuneUpMidiState::setTuningIn(ValueTree definitionIn, bool writeToSession, b
 
 	if (definitionIn.hasType(TuneUpIDs::tuningDefinitionId))
 	{
-		DBG("NEW TUNING IN SET:\n" + definitionIn.toXmlString());
-
-		originTuningDefinition.setDefinition(definitionIn);
-		originTuning.reset(new Tuning(originTuningDefinition.render()));
-
-		midiProcessor->setTuningIn(originTuning.get());
-		success = true;
-
 		if (writeToSession)
 		{
+			DBG("NEW TUNING IN WRITTEN:\n" + definitionIn.toXmlString());
 			sessionOptionsNode.getChild(0).getChild(0).copyPropertiesAndChildrenFrom(definitionIn, nullptr);
+			tuningInDefinition.setDefinition(sessionOptionsNode);
 		}
+		else
+		{
+			DBG("NEW TUNING IN SET:\n" + definitionIn.toXmlString());
+			tuningInDefinition.setDefinition(definitionIn);
+		}
+
+		tuningIn.reset(new Tuning(tuningInDefinition.render()));
+		midiProcessor->setTuningIn(tuningIn.get());
+		success = true;
 	}
 
 	if (success && sendChangeSignal)
@@ -390,18 +394,21 @@ void TuneUpMidiState::setTuningOut(ValueTree definitionIn, bool writeToSession, 
 
 	if (definitionIn.hasType(TuneUpIDs::tuningDefinitionId))
 	{
-		DBG("NEW TUNING OUT SET:\n" + definitionIn.toXmlString());
-
-		tuningDefinition.setDefinition(definitionIn);
-		tuning.reset(new Tuning(tuningDefinition.render()));
-
-		midiProcessor->setTuningOut(tuning.get());
-		success = true;
-
 		if (writeToSession)
 		{
+			DBG("NEW TUNING OUT WRITTEN:\n" + definitionIn.toXmlString());
 			sessionOptionsNode.getChild(0).getChild(1).copyPropertiesAndChildrenFrom(definitionIn, nullptr);
+			tuningOutDefinition.setDefinition(sessionOptionsNode);
 		}
+		else
+		{
+			DBG("NEW TUNING OUT SET:\n" + definitionIn.toXmlString());
+			tuningOutDefinition.setDefinition(definitionIn);
+		}
+
+		tuningOut.reset(new Tuning(tuningOutDefinition.render()));
+		midiProcessor->setTuningOut(tuningOut.get());
+		success = true;
 	}
 
 	if (success && sendChangeSignal)

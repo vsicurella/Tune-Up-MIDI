@@ -11,12 +11,12 @@
 #pragma once
 #include "CommonUI.h"
 
-class DynamicTuningTable : public Component,
-								public TableListBoxModel,
-								public ChangeBroadcaster,
-								private Label::Listener,
-								private TextButton::Listener,
-								private Slider::Listener
+class DynamicTuningTable :	public Component,
+							public TableListBoxModel,
+							public ChangeBroadcaster,
+							private Label::Listener,
+							private TextButton::Listener,
+							private Slider::Listener
 {
 public:
 
@@ -83,7 +83,6 @@ public:
 private:
 
 	ValueTree definition;
-	ValueTree generatorListNode;
 
 	Font font = Font(11, Font::plain);
 	TableListBox table = { {}, this };
