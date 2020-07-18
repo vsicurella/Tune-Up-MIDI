@@ -184,8 +184,8 @@ TuneupMidiAudioProcessorEditor::TuneupMidiAudioProcessorEditor (
 
     setSize (500, 200);
 
-	mainWindow->loadTuning(pluginState.getTuningOut());
-	pluginState.addChangeListener(this);
+	mainWindow->loadOptionsNode(pluginState.getSessionOptionsNode());
+	pluginState.addListener(this);
 
 	setControlMode(MainWindowMode);
 
@@ -199,7 +199,7 @@ TuneupMidiAudioProcessorEditor::~TuneupMidiAudioProcessorEditor()
 {
 	// Revert to last saved settings if unsaved changes
 	if (currentMode == NewTuningMode)
-		loadTuningIntoState(lastTuningDefinition);
+		loadTuningOutIntoState(lastTuningDefinition);
 
 	midiProcessor.removeChangeListener(this); // TEMP
 
@@ -281,12 +281,7 @@ void TuneupMidiAudioProcessorEditor::resized()
 
 void TuneupMidiAudioProcessorEditor::changeListenerCallback(ChangeBroadcaster* source)
 {
-	if (source == &pluginState)
-	{
-		reloadPluginState();
-	}
-
-	else if (source == &midiProcessor)
+	if (source == &midiProcessor)
 	{
 		// TEMP
 		voiceLimitValue->setText(String(midiProcessor.getTuningNotesOn().size()), dontSendNotification);
@@ -295,7 +290,7 @@ void TuneupMidiAudioProcessorEditor::changeListenerCallback(ChangeBroadcaster* s
 
 	else if (source == createTuningWindow.get())
 	{
-		loadTuningIntoState(createTuningWindow->getTuningDefinition());
+		loadTuningOutIntoState(createTuningWindow->getTuningDefinition());
 	}
 }
 
@@ -306,7 +301,7 @@ void TuneupMidiAudioProcessorEditor::buttonClicked(Button* buttonClicked)
 		if (currentMode == NewTuningMode)
 		{
 			// Reset tuning
-			loadTuningIntoState(lastTuningDefinition);
+			loadTuningOutIntoState(lastTuningDefinition);
 		}
 
 		else
@@ -363,10 +358,29 @@ void TuneupMidiAudioProcessorEditor::comboBoxChanged(ComboBox* comboBoxThatChang
 	}
 }
 
-//void TuneupMidiAudioProcessorEditor::defaultTuningDirectoryChanged(String directoryPath)
-//{
-//	defaultTuningFilePath = directoryPath;
-//}
+//==============================================================================
+
+void TuneupMidiAudioProcessorEditor::optionsLoaded(ValueTree optionsNodeIn)
+{
+	onNewOptionsNode(optionsNodeIn);
+}
+
+void TuneupMidiAudioProcessorEditor::tuningInLoaded(ValueTree tuningInDef, Tuning* tuningInPtr)
+{
+	onNewTuningIn(tuningInDef, tuningInPtr);
+}
+
+void TuneupMidiAudioProcessorEditor::tuningOutLoaded(ValueTree tuningOutDef, Tuning* tuningOutPtr)
+{
+	onNewTuningOut(tuningOutDef, tuningOutPtr);
+}
+
+void TuneupMidiAudioProcessorEditor::dynamicTuningModeChanged(bool isDynamicTuning)
+{
+	// TODO
+}
+
+//==============================================================================
 
 void TuneupMidiAudioProcessorEditor::referenceNoteInChanged(int noteIn)
 {
@@ -413,11 +427,32 @@ void TuneupMidiAudioProcessorEditor::resetChannelPitchbendChanged(bool resetPitc
 	pluginState.setResetChannelPitchbend(resetPitchbend);
 }
 
-void TuneupMidiAudioProcessorEditor::onNewTuning()
+void TuneupMidiAudioProcessorEditor::onFileLoad()
 {
-	mainWindow->loadTuning(pluginState.getTuningOut());
+	bool success = scalaFileReader.open(loadedFile);
+
+	if (success)
+	{
+		ScalaFile file = scalaFileReader.getScalaFile();
+		loadTuningOutIntoState(TuningDefinition::createStaticTuningDefinition(file.cents, 60, file.name, file.description));
+	}
+	else
+	{
+		// TODO : Error Loading Scale Alert
+	}
+}
+
+void TuneupMidiAudioProcessorEditor::onNewTuningIn(ValueTree tuningInDef, Tuning* tuningPtr)
+{
+	// TODO
+	DBG("GUI updated for new Tuning Out: \n" + tuningInDef.toXmlString());
+}
+
+void TuneupMidiAudioProcessorEditor::onNewTuningOut(ValueTree tuningOutDef, Tuning* tuningPtr)
+{
+	mainWindow->updateTuningOutProperties();
  
-	if (pluginState.getTuningOutDefinition()[functionalId])
+	if (tuningOutDef[functionalId])
 	{
 		dynamicOptionsButton->setEnabled(true);
 		dynamicOptionsWindow->updateContent();
@@ -427,31 +462,18 @@ void TuneupMidiAudioProcessorEditor::onNewTuning()
 		dynamicOptionsButton->setEnabled(false);
 	}
 
-	DBG("GUI updated to Loaded: \n" + pluginState.getSessionOptionsNode().toXmlString());
+	DBG("GUI updated for new Tuning Out: \n" + tuningOutDef.toXmlString());
 }
 
-void TuneupMidiAudioProcessorEditor::onFileLoad()
-{
-	bool success = scalaFileReader.open(loadedFile);
-
-	if (success)
-	{
-		ScalaFile file = scalaFileReader.getScalaFile();
-		loadTuningIntoState(TuningDefinition::createStaticTuningDefinition(file.cents, 60, file.name, file.description));
-	}
-	else
-	{
-		// TODO : Error Loading Scale Alert
-	}
-}
-
-void TuneupMidiAudioProcessorEditor::reloadPluginState()
+void TuneupMidiAudioProcessorEditor::onNewOptionsNode(ValueTree optionsNodeIn)
 {
 	generalOptionsWindow->resetToSessionOptions();
-	onNewTuning();
+	mainWindow->loadOptionsNode(optionsNodeIn);
+
+	DBG("GUI updated for new Options node:\n" + optionsNodeIn.toXmlString());
 }
 
-void TuneupMidiAudioProcessorEditor::loadTuningIntoState(ValueTree tuningDefinition)
+void TuneupMidiAudioProcessorEditor::loadTuningOutIntoState(ValueTree tuningDefinition)
 {
 	pluginState.setTuningOut(tuningDefinition, true, true);
 }

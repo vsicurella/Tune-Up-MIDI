@@ -25,6 +25,7 @@
 /**
 */
 class TuneupMidiAudioProcessorEditor  :	public AudioProcessorEditor, 
+										private TuneUpMidiState::Listener,
 										private Button::Listener,
 										private ComboBox::Listener,
 										private GeneralOptionsWindow::Listener,
@@ -50,6 +51,8 @@ public:
     void paint (Graphics&) override;
     void resized() override;
 
+	//==============================================================================
+
 	void changeListenerCallback(ChangeBroadcaster* source) override;
 
 	void buttonClicked(Button* buttonClicked) override;
@@ -57,9 +60,18 @@ public:
 
 	//==============================================================================
 
-	// GeneralOptionsWindow::Listener implementation
+	void optionsLoaded(ValueTree optionsNodeIn) override;
 
-	//void defaultTuningDirectoryChanged(String directoryPath) override;
+	void tuningInLoaded(ValueTree tuningInDef, Tuning* tuningInPtr) override;
+
+	void tuningOutLoaded(ValueTree tuningOutDef, Tuning* tuningOutPtr) override;
+
+	void dynamicTuningModeChanged(bool isDynamicTuning) override;
+
+	//==============================================================================
+
+
+	// GeneralOptionsWindow::Listener implementation
 
 	void referenceNoteInChanged(int noteIn) override;
 
@@ -81,13 +93,17 @@ public:
 	
 	//==============================================================================
 
-	void onNewTuning();
-
 	void onFileLoad();
 
-	void reloadPluginState();
+	void onNewTuningIn(ValueTree tuningInDef, Tuning* tuningPtr);
 
-	void loadTuningIntoState(ValueTree tuningDefinition);
+	void onNewTuningOut(ValueTree tuningOutDef, Tuning* tuningPtr);
+
+	void onNewOptionsNode(ValueTree optionsNode);
+
+	void loadTuningInIntoState(ValueTree tuningDefinition);
+
+	void loadTuningOutIntoState(ValueTree tuningDefinition);
 
 	void setControlMode(ControlMode modeIn);
 

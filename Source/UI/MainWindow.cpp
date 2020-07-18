@@ -47,10 +47,6 @@ TuneUpWindow::TuneUpWindow ()
     descriptionTextBox->setPopupMenuEnabled (true);
 	descriptionTextBox->setTextToShowWhenEmpty(TRANS("No description"), Colours::darkgrey);
 
-	//tuningNameBox->setColour(Label::ColourIds::outlineColourId, Colours::red);
-	//tuningSizeBox->setColour(Label::ColourIds::outlineColourId, Colours::red);
-	//tuningPeriodBox->setColour(Label::ColourIds::outlineColourId, Colours::red);
-
 	for (auto str : { nameTrans, sizeTrans, periodTrans })
 	{
 		int width = font.getStringWidth(str + ":") + componentGap;
@@ -93,6 +89,35 @@ void TuneUpWindow::resized()
 	tuningPeriodBox->setBounds(valueLabelWidth, tuningPeriodLabel->getY(), descriptionTextBox->getX() - valueLabelWidth - componentGap, tuningPeriodLabel->getHeight());
 }
 
+void TuneUpWindow::loadOptionsNode(ValueTree optionsNodeIn)
+{
+	optionsNode = optionsNodeIn;
+	updateTuningOutProperties();
+}
+
+void TuneUpWindow::updateTuningOutProperties()
+{
+	ValueTree tuningOutDefinition = optionsNode.getChildWithName(TuneUpIDs::tuningsListId).getChild(1);
+
+	setTuningNameLabel(tuningOutDefinition[TuneUpIDs::tuningNameId]);
+	setTuningSizeLabel(tuningOutDefinition[TuneUpIDs::tuningSizeId]);
+	setDescriptionText(tuningOutDefinition[TuneUpIDs::tuningDescriptionId]);
+
+	// TODO: Add tuningPeriodId or abstract function
+	double period = 0;
+	if (tuningOutDefinition[TuneUpIDs::functionalId])
+	{
+		period = tuningOutDefinition.getChild(0).getChild(0)[TuneUpIDs::generatorValueId];
+	}
+	else
+	{
+		ValueTree intervalList = tuningOutDefinition.getChild(0);
+		period = intervalList.getChild(intervalList.getNumChildren() - 1)[TuneUpIDs::intervalValueId];
+	}
+	
+	setTuningPeriodLabel(period);
+}
+
 void TuneUpWindow::setTuningNameLabel(String nameIn)
 {
 	tuningNameBox->setText(nameIn, dontSendNotification);
@@ -108,15 +133,8 @@ void TuneUpWindow::setTuningPeriodLabel(double periodIn)
 	tuningPeriodBox->setText(String(periodIn), dontSendNotification);
 }
 
-void TuneUpWindow::setDescription(String descIn)
+void TuneUpWindow::setDescriptionText(String descIn)
 {
 	descriptionTextBox->setText(descIn);
 }
 
-void TuneUpWindow::loadTuning(Tuning* tuningIn)
-{
-	setTuningNameLabel(tuningIn->getName());
-	setTuningSizeLabel(tuningIn->getTuningSize());
-	setTuningPeriodLabel(tuningIn->getPeriodCents());
-	setDescription(tuningIn->getDescription());
-}

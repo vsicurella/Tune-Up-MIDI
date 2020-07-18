@@ -22,12 +22,14 @@ public:
 
 public:
 
-	void loadTuning(Tuning* tuningIn);
+	void loadOptionsNode(ValueTree optionsNodeIn);
+
+	void updateTuningOutProperties();
 
 	void setTuningNameLabel(String nameIn);
 	void setTuningSizeLabel(int numNotesIn);
 	void setTuningPeriodLabel(double periodIn);
-	void setDescription(String descIn);
+	void setDescriptionText(String descIn);
 
 	//==============================================================================
 
@@ -37,6 +39,8 @@ public:
 	//==============================================================================
 
 private:
+
+	ValueTree optionsNode;
 
 	Font font;
 

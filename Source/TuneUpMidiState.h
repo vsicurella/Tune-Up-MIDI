@@ -149,6 +149,10 @@ public:
 		virtual void dynamicTuningModeChanged(bool isDynamic) {};
 	};
 
+	void addListener(TuneUpMidiState::Listener* listenerIn) { listeners.add(listenerIn); }
+
+	void removeListener(TuneUpMidiState::Listener* listenerIn) { listeners.remove(listenerIn); }
+
 private:
 
 	void valueTreeChildAdded(ValueTree& parentTree, ValueTree& childAdded) override;

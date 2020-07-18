@@ -369,9 +369,9 @@ void TuneUpMidiState::setTuningIn(ValueTree definitionIn, bool writeToSession, b
 	{
 		if (writeToSession)
 		{
-			DBG("NEW TUNING IN WRITTEN:\n" + definitionIn.toXmlString());
 			sessionOptionsNode.getChild(0).getChild(0).copyPropertiesAndChildrenFrom(definitionIn, nullptr);
 			tuningInDefinition.setDefinition(sessionOptionsNode);
+			DBG("NEW TUNING IN WRITTEN:\n" + sessionOptionsNode.toXmlString());
 		}
 		else
 		{
@@ -399,9 +399,9 @@ void TuneUpMidiState::setTuningOut(ValueTree definitionIn, bool writeToSession, 
 	{
 		if (writeToSession)
 		{
-			DBG("NEW TUNING OUT WRITTEN:\n" + definitionIn.toXmlString());
 			sessionOptionsNode.getChild(0).getChild(1).copyPropertiesAndChildrenFrom(definitionIn, nullptr);
 			tuningOutDefinition.setDefinition(sessionOptionsNode);
+			DBG("NEW TUNING OUT WRITTEN:\n" + sessionOptionsNode.toXmlString());
 		}
 		else
 		{
@@ -433,7 +433,7 @@ void TuneUpMidiState::setDynamicTuning(bool isDynamicTuning)
 
 	// TODO
 
-	listeners.call(TuneUpMidiState::Listener::dynamicTuningModeChanged, dynamicTuningOn);
+	listeners.call(&TuneUpMidiState::Listener::dynamicTuningModeChanged, dynamicTuningOn);
 }
 
 void TuneUpMidiState::setReferenceNoteIn(int noteIn, bool saveToSession)
