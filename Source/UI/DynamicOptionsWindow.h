@@ -16,7 +16,7 @@ class DynamicOptionsWindow : public Component
 {
 public:
 
-	DynamicOptionsWindow(ValueTree sessionOptionsNodeIn);
+	DynamicOptionsWindow(ValueTree sessionNodeIn);
 	~DynamicOptionsWindow();
 
 
@@ -28,6 +28,8 @@ public:
 
 	//================================================================================
 
+	void loadOptionsNode(ValueTree sessionNodeIn);
+
 	void updateContent();
 
 
@@ -35,7 +37,7 @@ private:
 
 	Font font;
 
-	ValueTree sessionOptionsNode;
+	ValueTree sessionNode;
 	ValueTree tuningOutDefinition;
 	
 	std::unique_ptr<DynamicTuningTable> dynamicTable;

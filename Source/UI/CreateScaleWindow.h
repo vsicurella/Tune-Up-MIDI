@@ -24,7 +24,7 @@ class CreateTuningWindow :	public Component,
 {
 public:
 
-	CreateTuningWindow(ValueTree sessionOptionsNodeIn);
+	CreateTuningWindow(ValueTree sessionNodeIn);
 	~CreateTuningWindow();
 
 	void paint(Graphics& g) override;
@@ -40,7 +40,7 @@ public:
 
 	void setMode(CreateTuningMode modeIn);
 
-	void setOptionsNode(ValueTree optionsNodeIn);
+	void loadOptionsNode(ValueTree optionsNodeIn);
 
 	void updateTuning(bool sendChange = true);
 

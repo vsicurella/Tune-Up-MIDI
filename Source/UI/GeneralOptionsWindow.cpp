@@ -336,7 +336,7 @@ void GeneralOptionsWindow::resetToSessionOptions(bool notifyListeners)
 
 void GeneralOptionsWindow::loadOptionsNode(ValueTree optionsNodeIn, bool saveAsDefault, bool notifyListeners)
 {
-	if (optionsNodeIn.hasType(TuneUpIDs::optionsNodeId))
+	if (optionsNodeIn.hasType(TuneUpIDs::tuneUpMidiSessionId))
 	{
 		for (int i = 0; i < optionsNodeIn.getNumProperties(); i++)
 		{

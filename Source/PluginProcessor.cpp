@@ -185,10 +185,13 @@ void TuneupMidiAudioProcessor::setStateInformation (const void* data, int sizeIn
 
 	pluginState->setPluginStateNode(stateNode);
 
-	if (stateNode.getChildWithName(TuneUpIDs::optionsNodeId).getNumChildren() > 0)
-		pluginState->resetToSessionOptions(false);
+	if	(stateNode.hasType(TuneUpIDs::tuneUpMidiSessionId) 
+		&& stateNode.getNumProperties() > 0 
+		&& stateNode.getNumChildren() == 1
+		)
+		pluginState->resetToPluginState(false);
 	else
-		pluginState->resetToDefaultOptions(true, false);
+		pluginState->resetToDefaultSession(false);
 }
 
 //==============================================================================

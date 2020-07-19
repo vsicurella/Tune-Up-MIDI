@@ -10,7 +10,7 @@
 
 #include "CreateScaleWindow.h"
 
-CreateTuningWindow::CreateTuningWindow(ValueTree sessionOptionsNodeIn)
+CreateTuningWindow::CreateTuningWindow(ValueTree sessionNodeIn)
 	: grid(6)
 {
 	tuningNameLabel.reset(new Label("scaleNameLabel", nameTrans + ':'));
@@ -52,11 +52,11 @@ CreateTuningWindow::CreateTuningWindow(ValueTree sessionOptionsNodeIn)
 	etPeriodBox->setEditable(true);
 	etPeriodBox->addListener(this);
 
-	generatorTable.reset(new RegularTemperamentTable(sessionOptionsNodeIn));
+	generatorTable.reset(new RegularTemperamentTable(sessionNodeIn));
 	addChildComponent(generatorTable.get());
 	generatorTable->addChangeListener(this);
 
-	sessionOptionsNode = sessionOptionsNodeIn;
+	sessionOptionsNode = sessionNodeIn;
 
 	for (auto str : { nameTrans, sizeTrans, periodTrans })
 	{
@@ -149,7 +149,7 @@ void CreateTuningWindow::setMode(CreateTuningMode modeIn)
 	etPeriodBox->setVisible(mode == EqualTemperament);
 }
 
-void CreateTuningWindow::setOptionsNode(ValueTree optionsNodeIn)
+void CreateTuningWindow::loadOptionsNode(ValueTree optionsNodeIn)
 {
 	sessionOptionsNode = optionsNodeIn;
 	generatorTable->updateDefinition(optionsNodeIn.getChild(0).getChild(1));

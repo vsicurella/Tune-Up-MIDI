@@ -98,7 +98,7 @@ void TuneUpWindow::loadOptionsNode(ValueTree optionsNodeIn)
 void TuneUpWindow::updateTuningOutProperties()
 {
 	ValueTree tuningOutDefinition = optionsNode.getChildWithName(TuneUpIDs::tuningsListId).getChild(1);
-
+	DBG("MAINWINDOW:\n" + optionsNode.toXmlString());
 	setTuningNameLabel(tuningOutDefinition[TuneUpIDs::tuningNameId]);
 	setTuningSizeLabel(tuningOutDefinition[TuneUpIDs::tuningSizeId]);
 	setDescriptionText(tuningOutDefinition[TuneUpIDs::tuningDescriptionId]);
@@ -107,7 +107,7 @@ void TuneUpWindow::updateTuningOutProperties()
 	double period = 0;
 	if (tuningOutDefinition[TuneUpIDs::functionalId])
 	{
-		period = tuningOutDefinition.getChild(0).getChild(0)[TuneUpIDs::generatorValueId];
+		period = tuningOutDefinition.getChildWithName(TuneUpIDs::generatorListId).getChild(0)[TuneUpIDs::generatorValueId];
 	}
 	else
 	{

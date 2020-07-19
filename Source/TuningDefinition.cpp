@@ -77,7 +77,7 @@ int TuningDefinition::isValid(ValueTree definitionIn)
 		// Not a tuning definition node
 		return 0;
 
-	if (!definitionIn.getChild(0).isValid() || definitionIn.getChild(0).getNumChildren() < 1)
+	if (definitionIn.getNumChildren() != 1 || definitionIn.getChild(0).getNumChildren() < 1)
 		return -1; // Does not have a valid list of generators or any static intervals
 
 	// TODO

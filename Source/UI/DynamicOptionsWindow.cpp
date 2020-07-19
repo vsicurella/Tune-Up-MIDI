@@ -10,10 +10,10 @@
 
 #include "DynamicOptionsWindow.h"
 
-DynamicOptionsWindow::DynamicOptionsWindow(ValueTree sessionOptionsNodeIn)
+DynamicOptionsWindow::DynamicOptionsWindow(ValueTree sessionNodeIn)
 {
-	sessionOptionsNode = sessionOptionsNodeIn;
-	tuningOutDefinition = sessionOptionsNode.getChildWithName(TuneUpIDs::tuningsListId).getChild(1);
+	sessionNode = sessionNodeIn;
+	tuningOutDefinition = sessionNode.getChildWithName(TuneUpIDs::tuningsListId).getChild(1);
 
 	dynamicTable.reset(new DynamicTuningTable(tuningOutDefinition));
 	addAndMakeVisible(dynamicTable.get());
@@ -40,6 +40,12 @@ void DynamicOptionsWindow::visibilityChanged()
 {
 	if (isVisible())
 		dynamicTable->updateContent();
+}
+
+void DynamicOptionsWindow::loadOptionsNode(ValueTree sessionNodeIn)
+{
+	sessionNode = sessionNodeIn;
+	tuningOutDefinition = sessionNode.getChild(0).getChild(1);
 }
 
 void DynamicOptionsWindow::updateContent()

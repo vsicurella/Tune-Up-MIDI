@@ -17,21 +17,19 @@ TuneUpMidiState::TuneUpMidiState()
 	buildFactoryDefaultOptionsNode();
 
 	// Initialize DefaultOptionsNode
-	defaultOptionsNode = ValueTree(TuneUpIDs::optionsNodeId);
+	defaultSessionNode = ValueTree(TuneUpIDs::tuneUpMidiSessionId);
 	File defaultOptionsFile = File(defaultOptionsFilePath);
 	ValueTree defaultOptionsLoad = ValueTree::fromXml(defaultOptionsFile.loadFileAsString());
 	DBG("Found this default options node:\n" + defaultOptionsLoad.toXmlString());
-	setDefaultOptionsNode(defaultOptionsLoad);
-	DBG("Loaded these default options:\n" + defaultOptionsNode.toXmlString());
+	setDefaultSessionNode(defaultOptionsLoad);
+	DBG("Loaded these default options:\n" + defaultSessionNode.toXmlString());
 
-	pluginStateNode = ValueTree(TuneUpIDs::tuneUpMidiStateId);
-	pluginStateNode.appendChild(ValueTree(TuneUpIDs::optionsNodeId), nullptr);
-	sessionOptionsNode = pluginStateNode.getChild(0);
+	sessionNode = ValueTree(TuneUpIDs::tuneUpMidiSessionId);
 
-	tuningInDefinition.setDefinition(defaultOptionsNode.getChild(0).getChild(0));
+	tuningInDefinition.setDefinition(defaultSessionNode.getChild(0).getChild(0));
 	tuningIn.reset(new Tuning(tuningInDefinition.render()));
 
-	tuningOutDefinition.setDefinition(defaultOptionsNode.getChild(0).getChild(1));
+	tuningOutDefinition.setDefinition(defaultSessionNode.getChild(0).getChild(1));
 	tuningOut.reset(new Tuning(tuningOutDefinition.render()));
 
 	midiProcessor.reset(new TuneUpMidiProcessor(tuningIn.get(), tuningOut.get(), notesInOn));
@@ -40,24 +38,19 @@ TuneUpMidiState::TuneUpMidiState()
 
 TuneUpMidiState::~TuneUpMidiState()
 {
-	writeDefaultOptionsToFile();
+	writeDefaultSessionToFile();
 	tuningOut = nullptr;
 	STD_TUNING = ValueTree();
 }
 
 ValueTree TuneUpMidiState::getPluginStateNode()
 { 
-	return pluginStateNode;
+	return sessionNode;
 }
 
-ValueTree TuneUpMidiState::getDefaultOptionsNode()
+ValueTree TuneUpMidiState::getDefaultSessionNode()
 {
-	return defaultOptionsNode;
-}
-
-ValueTree TuneUpMidiState::getSessionOptionsNode()
-{
-	return sessionOptionsNode;
+	return defaultSessionNode;
 }
 
 TuneUpMidiProcessor* TuneUpMidiState::getMidiProcessor()
@@ -95,120 +88,108 @@ const MidiKeyboardState& TuneUpMidiState::getMidiKeyboardState()
 */
 var TuneUpMidiState::getFactoryDefaultValue(Identifier& propertyIn) const
 {
-	return factoryDefaultOptionsNode[propertyIn];
-}
-
-/*
-	Loads a saved plugin state
-*/
-void TuneUpMidiState::setPluginStateNode(ValueTree pluginStateNodeIn)
-{
-	pluginStateNode = pluginStateNodeIn;
-	if (!pluginStateNode.hasType(TuneUpIDs::tuneUpMidiStateId))
-		pluginStateNode = ValueTree(TuneUpIDs::tuneUpMidiStateId);
-	
-	setSessionOptionsNode(pluginStateNode.getOrCreateChildWithName(TuneUpIDs::optionsNodeId, nullptr));
+	return factoryDefaultSessionNode[propertyIn];
 }
 
 /*
 	Reset to factory default
 */
-void TuneUpMidiState::resetToFactoryDefault(bool saveToSession, bool sendChange)
+void TuneUpMidiState::resetToFactoryDefault(bool callListeners)
 {
 	for (auto prop : tuneUpOptionIds)
 	{
-		var value = getFactoryDefaultValue(prop);
+		var value = factoryDefaultSessionNode[prop];
 
 		if (prop == TuneUpIDs::defaultTuningFilePathId)
 		{
-			defaultOptionsNode.setProperty(prop, value, nullptr);
+			defaultSessionNode.setProperty(prop, value, nullptr);
 		}
 
 		else if (prop == TuneUpIDs::tuningsListId)
 		{
-			setTunings(factoryDefaultOptionsNode, saveToSession, sendChange);
+			setTunings(factoryDefaultSessionNode, callListeners);
 		}
 		else if (prop == TuneUpIDs::referenceNoteInId)
 		{
-			setReferenceNoteIn(value, saveToSession);
+			setReferenceNoteIn(value);
 		}
 
 		else if (prop == TuneUpIDs::referenceFreqInId)
 		{
-			setReferenceFreqIn(value, saveToSession);
+			setReferenceFreqIn(value);
 		}
 
 		else if (prop == TuneUpIDs::referenceNoteOutId)
 		{
-			setReferenceNoteOut(value, saveToSession);
+			setReferenceNoteOut(value);
 		}
 
 		else if (prop == TuneUpIDs::referenceFreqOutId)
 		{
-			setReferenceFreqOut(value, saveToSession);
+			setReferenceFreqOut(value);
 		}
 
 		else if (prop == TuneUpIDs::pitchbendRangeId)
 		{
-			setPitchbendRange(value, saveToSession);
+			setPitchbendRange(value);
 		}
 
 		else if (prop == TuneUpIDs::voiceLimitId)
 		{
-			setVoiceLimit(value, saveToSession);
+			setVoiceLimit(value);
 		}
 
 		else if (prop == TuneUpIDs::channelModeId)
 		{
-			setChannelMode(FreeChannelMode((int)value), saveToSession);
+			setChannelMode(FreeChannelMode((int)value));
 		}
 
 		else if (prop == TuneUpIDs::reuseChannelsId)
 		{
-			setReuseChannels(value, saveToSession);
+			setReuseChannels(value);
 		}
 
 		else if (prop == TuneUpIDs::resetChannelPitchbendId)
 		{
-			setResetChannelPitchbend(value, saveToSession);
+			setResetChannelPitchbend(value);
 		}
 	}
 
-	if (sendChange)
-		sendChangeMessage();
+	if (callListeners)
+		listeners.call(&TuneUpMidiState::Listener::optionsLoaded, sessionNode);
 }
 
 /*
 	Sets the default options node of the instance (but doesn't initialize or pass data down)
 */
-void TuneUpMidiState::setDefaultOptionsNode(ValueTree defaultOptionsNodeIn)
+void TuneUpMidiState::setDefaultSessionNode(ValueTree defaultOptionsNodeIn)
 {
 	ValueTree nodeToCopy = defaultOptionsNodeIn;
 
 	// Ensure it's the right type, reset if not
-	if (!defaultOptionsNode.hasType(TuneUpIDs::optionsNodeId))
+	if (!defaultSessionNode.hasType(TuneUpIDs::tuneUpMidiSessionId))
 	{
-		defaultOptionsNodeIn = factoryDefaultOptionsNode;
+		nodeToCopy = factoryDefaultSessionNode;
 	}
 
-	defaultOptionsNode.copyPropertiesAndChildrenFrom(nodeToCopy, nullptr);
+	defaultSessionNode.copyPropertiesAndChildrenFrom(nodeToCopy, nullptr);
 
 	// Ensure tuning path exists
-	defaultTuningPath = defaultOptionsNode[TuneUpIDs::defaultTuningFilePathId];
+	defaultTuningPath = defaultSessionNode[TuneUpIDs::defaultTuningFilePathId];
 	if (defaultTuningPath.length() == 0)
 	{
 		defaultTuningPath = File::getSpecialLocation(File::userDocumentsDirectory).getFullPathName();
-		defaultOptionsNode.setProperty(TuneUpIDs::defaultTuningFilePathId, defaultTuningPath, nullptr);
+		defaultSessionNode.setProperty(TuneUpIDs::defaultTuningFilePathId, defaultTuningPath, nullptr);
 	}
 
 	// Ensure it has a default tuning definitions list
-	ValueTree definitionsList = defaultOptionsNode.getChildWithName(TuneUpIDs::tuningsListId);
+	ValueTree definitionsList = defaultSessionNode.getChildWithName(TuneUpIDs::tuningsListId);
 
 	if (!definitionsList.isValid())
 	{
 		definitionsList = ValueTree(tuningsListId);
 		definitionsList.addChild(STD_TUNING.createCopy(), 0, nullptr);
-		defaultOptionsNode.addChild(definitionsList, 0, nullptr);
+		defaultSessionNode.addChild(definitionsList, 0, nullptr);
 	}
 
 	if (definitionsList.getNumChildren() == 1)
@@ -218,210 +199,199 @@ void TuneUpMidiState::setDefaultOptionsNode(ValueTree defaultOptionsNodeIn)
 /*
 	Replaces data with user default options
 */
-void TuneUpMidiState::resetToDefaultOptions(bool saveToSession, bool sendChange)
+void TuneUpMidiState::resetToDefaultSession(bool callListeners)
 {
-	if (saveToSession)
-	{
-		pluginStateNode.removeAllChildren(nullptr);
-		pluginStateNode.appendChild(sessionOptionsNode, nullptr);
-	}
-
-	loadNodeOptions(defaultOptionsNode, saveToSession);
+	loadSessionNode(defaultSessionNode.createCopy());
 }
 
 /*
 	Writes current defaultOptionsNode to application directory
 */
-void TuneUpMidiState::writeDefaultOptionsToFile()
+void TuneUpMidiState::writeDefaultSessionToFile()
 {
 	File f = File(defaultOptionsFilePath);
-	DBG("Writing default options:\n" + defaultOptionsNode.toXmlString());
-	std::unique_ptr<XmlElement> xml = defaultOptionsNode.createXml();
+	DBG("Writing default options:\n" + defaultSessionNode.toXmlString());
+	std::unique_ptr<XmlElement> xml = defaultSessionNode.createXml();
 	xml->writeToFile(f, "");
 }
 
 /*
-	Sets the session options node of the instance (but doesn't initialize or pass data down)
+	Sets the session node of the instance (but doesn't initialize or pass data down)
 */
-void TuneUpMidiState::setSessionOptionsNode(ValueTree sessionOptionsNodeIn)
+void TuneUpMidiState::setPluginStateNode(ValueTree pluginStateNodeIn)
 {
 	// Make sure it's valid
-	ValueTree nodeToCopy = sessionOptionsNodeIn;
-	if (!sessionOptionsNodeIn.hasType(TuneUpIDs::optionsNodeId))
+	ValueTree nodeToCopy = pluginStateNodeIn;
+	if (!pluginStateNodeIn.hasType(TuneUpIDs::tuneUpMidiSessionId))
 	{
-		nodeToCopy = factoryDefaultOptionsNode;
+		nodeToCopy = factoryDefaultSessionNode;
 	}
-	
-	sessionOptionsNode.copyPropertiesAndChildrenFrom(nodeToCopy, nullptr);
+
+	if (sessionNode != pluginStateNodeIn)
+		sessionNode.copyPropertiesAndChildrenFrom(nodeToCopy, nullptr);
 
 	// Ensure it has as valid tuning list
-	ValueTree tuningList = sessionOptionsNode.getOrCreateChildWithName(TuneUpIDs::tuningsListId, nullptr);
+	ValueTree tuningList = sessionNode.getOrCreateChildWithName(TuneUpIDs::tuningsListId, nullptr);
 	bool validTuning = tuningList.getNumChildren() == 2;
-	
+
 	// Check if the tunings in the list are valid themselves
 	if (validTuning)
 	{
 		for (auto child : tuningList)
 		{
-			validTuning *= TuningDefinition::isValid(child);
+			validTuning *= TuningDefinition::isValid(child) > 0;
+		}
+	}
+
+	// Check if it's a default node, which has a different ID for the tuning list
+	else
+	{
+		ValueTree defaultTunings = tuningList.getChildWithName(TuneUpIDs::defaultTuningsListId);
+		if (defaultTunings.isValid() && defaultTunings.getNumChildren() == 2)
+		{
+			sessionNode.getChildWithName(TuneUpIDs::defaultTuningsListId).copyPropertiesAndChildrenFrom(defaultTunings, nullptr);
+			validTuning = true;
 		}
 	}
 
 	if (!validTuning)
 	{
 		tuningList.removeAllChildren(nullptr);
-		tuningList.addChild(defaultOptionsNode.getChildWithName(tuningsListId).getChild(0).createCopy(), 0, nullptr);
-		tuningList.addChild(defaultOptionsNode.getChildWithName(tuningsListId).getChild(1).createCopy(), 1, nullptr);
+		tuningList.addChild(defaultSessionNode.getChildWithName(tuningsListId).getChild(0).createCopy(), 0, nullptr);
+		tuningList.addChild(defaultSessionNode.getChildWithName(tuningsListId).getChild(1).createCopy(), 1, nullptr);
 	}
 
-	DBG("SETSESSION:\n" + sessionOptionsNode.toXmlString());
+	DBG("SETSESSION:\n" + sessionNode.toXmlString());
 }
 
 /*
 	Loads session options
 */
-void TuneUpMidiState::resetToSessionOptions(bool sendMsg)
+void TuneUpMidiState::resetToPluginState(bool sendMsg)
 {	
-	loadNodeOptions(sessionOptionsNode);
+	loadSessionNode(sessionNode);
 }
 
 /*
 	Passes data from input node, and falls back to defaultOptions if necessary
 */
-void TuneUpMidiState::loadNodeOptions(ValueTree nodeOptionsIn, bool saveToSession, bool sendSignal)
+void TuneUpMidiState::loadSessionNode(ValueTree nodeOptionsIn, bool callListeners)
 {
 	for (auto prop : tuneUpOptionIds)
 	{
 		ValueTree nodeToUse = nodeOptionsIn;
-		if (!nodeOptionsIn.hasProperty(prop))
-			nodeToUse = defaultOptionsNode;
+		if (!nodeToUse.hasProperty(prop))
+			nodeToUse = defaultSessionNode;
 		
 		var value = nodeToUse[prop];
 
 		if (prop == TuneUpIDs::defaultTuningFilePathId)
 		{
-			defaultOptionsNode.setProperty(prop, value, nullptr);
+			defaultSessionNode.setProperty(prop, value, nullptr);
 		}
 
 		else if (prop == TuneUpIDs::tuningsListId)
 		{
-			setTunings(nodeOptionsIn, saveToSession);
+			// TODO: Improve with default nodes
+			setTunings(nodeOptionsIn);
 		}
 
 		else if (prop == TuneUpIDs::referenceNoteInId)
 		{
-			setReferenceNoteIn(value, saveToSession);
+			setReferenceNoteIn(value);
 		}
 
 		else if (prop == TuneUpIDs::referenceFreqInId)
 		{
-			setReferenceFreqIn(value, saveToSession);
+			setReferenceFreqIn(value);
 		}
 
 		else if (prop == TuneUpIDs::referenceNoteOutId)
 		{
-			setReferenceNoteOut(value, saveToSession);
+			setReferenceNoteOut(value);
 		}
 
 		else if (prop == TuneUpIDs::referenceFreqOutId)
 		{
-			setReferenceFreqOut(value, saveToSession);
+			setReferenceFreqOut(value);
 		}
 
 		else if (prop == TuneUpIDs::pitchbendRangeId)
 		{
-			setPitchbendRange(value, saveToSession);
+			setPitchbendRange(value);
 		}
 
 		else if (prop == TuneUpIDs::voiceLimitId)
 		{
-			setVoiceLimit(value, saveToSession);
+			setVoiceLimit(value);
 		}
 
 		else if (prop == TuneUpIDs::channelModeId)
 		{
-			setChannelMode(FreeChannelMode((int)value), saveToSession);
+			setChannelMode(FreeChannelMode((int)value));
 		}
 
 		else if (prop == TuneUpIDs::reuseChannelsId)
 		{
-			setReuseChannels(value, saveToSession);
+			setReuseChannels(value);
 		}
 
 		else if (prop == TuneUpIDs::resetChannelPitchbendId)
 		{
-			setResetChannelPitchbend(value, saveToSession);
+			setResetChannelPitchbend(value);
 		}
 	}
 
-	if (sendSignal)
-		listeners.call(&TuneUpMidiState::Listener::optionsLoaded, pluginStateNode.getChild(0));
+	if (callListeners)
+		listeners.call(&TuneUpMidiState::Listener::optionsLoaded, sessionNode.getChild(0));
 }
 
 /*
 	Sets and renders new tuning in definition, leaving tuning out unchanged
 */
-void TuneUpMidiState::setTuningIn(ValueTree definitionIn, bool writeToSession, bool sendChangeSignal)
+void TuneUpMidiState::setTuningIn(ValueTree& definitionIn, bool callListeners)
 {
-	bool success = false;
+	ValueTree currentDefinition = sessionNode.getChild(0).getChild(0);
 
-	if (definitionIn.hasType(TuneUpIDs::tuningDefinitionId))
+	if (definitionIn.hasType(TuneUpIDs::tuningDefinitionId) && currentDefinition != definitionIn)
 	{
-		if (writeToSession)
-		{
-			sessionOptionsNode.getChild(0).getChild(0).copyPropertiesAndChildrenFrom(definitionIn, nullptr);
-			tuningInDefinition.setDefinition(sessionOptionsNode);
-			DBG("NEW TUNING IN WRITTEN:\n" + sessionOptionsNode.toXmlString());
-		}
-		else
-		{
-			DBG("NEW TUNING IN SET:\n" + definitionIn.toXmlString());
-			tuningInDefinition.setDefinition(definitionIn);
-		}
+		currentDefinition.copyPropertiesAndChildrenFrom(definitionIn, nullptr);
+		tuningInDefinition.setDefinition(currentDefinition);
+		DBG("NEW TUNING IN WRITTEN:\n" + sessionNode.toXmlString());
 
 		tuningIn.reset(new Tuning(tuningInDefinition.render()));
-		midiProcessor->setTuningIn(tuningIn.get());
-		success = true;
-	}
+		midiProcessor->setTuningIn(tuningIn.get()); // TODO: move out of plugin state? 
 
-	if (success && sendChangeSignal)
-		listeners.call(&TuneUpMidiState::Listener::tuningInLoaded, tuningInDefinition.getDefinition(), tuningIn.get());
+		if (callListeners)
+			listeners.call(&TuneUpMidiState::Listener::tuningInLoaded, tuningInDefinition.getDefinition(), tuningIn.get());
+	}
 }
 
 /*
 	Sets and renders new tuning out definition, leaving tuning in unchanged
 */
-void TuneUpMidiState::setTuningOut(ValueTree definitionIn, bool writeToSession, bool sendChangeSignal)
+void TuneUpMidiState::setTuningOut(ValueTree& definitionIn, bool callListeners)
 {
-	bool success = false;
+	ValueTree currentDefinition = sessionNode.getChild(0).getChild(1);
 
-	if (definitionIn.hasType(TuneUpIDs::tuningDefinitionId))
+	if (definitionIn.hasType(TuneUpIDs::tuningDefinitionId) && currentDefinition != definitionIn)
 	{
-		if (writeToSession)
-		{
-			sessionOptionsNode.getChild(0).getChild(1).copyPropertiesAndChildrenFrom(definitionIn, nullptr);
-			tuningOutDefinition.setDefinition(sessionOptionsNode);
-			DBG("NEW TUNING OUT WRITTEN:\n" + sessionOptionsNode.toXmlString());
-		}
-		else
-		{
-			DBG("NEW TUNING OUT SET:\n" + definitionIn.toXmlString());
-			tuningOutDefinition.setDefinition(definitionIn);
-		}
+		currentDefinition.copyPropertiesAndChildrenFrom(definitionIn, nullptr);
+		tuningOutDefinition.setDefinition(currentDefinition);
+		DBG("NEW TUNING OUT WRITTEN:\n" + sessionNode.toXmlString());
 
 		tuningOut.reset(new Tuning(tuningOutDefinition.render()));
 		midiProcessor->setTuningOut(tuningOut.get());
-		success = true;
-	}
 
-	if (success && sendChangeSignal)
-		listeners.call(&TuneUpMidiState::Listener::tuningOutLoaded, tuningOutDefinition.getDefinition(), tuningOut.get());
+		if (callListeners)
+			listeners.call(&TuneUpMidiState::Listener::tuningOutLoaded, tuningOutDefinition.getDefinition(), tuningOut.get());
+	}
 }
 
-void TuneUpMidiState::setTunings(ValueTree parentOptionsNode, bool writeToSession, bool sendChangeSignal)
+void TuneUpMidiState::setTunings(ValueTree parentOptionsNode, bool callListeners)
 {
-	setTuningIn(parentOptionsNode.getChild(0).getChild(0), writeToSession, sendChangeSignal);
-	setTuningOut(parentOptionsNode.getChild(0).getChild(1), writeToSession, sendChangeSignal);
+	setTuningIn(parentOptionsNode.getChild(0).getChild(0), callListeners);
+	setTuningOut(parentOptionsNode.getChild(0).getChild(1), callListeners);
 }
 
 /*
@@ -436,110 +406,63 @@ void TuneUpMidiState::setDynamicTuning(bool isDynamicTuning)
 	listeners.call(&TuneUpMidiState::Listener::dynamicTuningModeChanged, dynamicTuningOn);
 }
 
-void TuneUpMidiState::setReferenceNoteIn(int noteIn, bool saveToSession)
+void TuneUpMidiState::setReferenceNoteIn(int noteIn)
 {
-	if (saveToSession)
-		sessionOptionsNode.setProperty(TuneUpIDs::referenceNoteInId, noteIn, nullptr);
-
+	sessionNode.setProperty(TuneUpIDs::referenceNoteInId, noteIn, nullptr);
 	midiProcessor->setReferenceNoteIn(noteIn);
 }
 
-void TuneUpMidiState::setReferenceFreqIn(double freqIn, bool saveToSession)
+void TuneUpMidiState::setReferenceFreqIn(double freqIn)
 {
-	if (saveToSession)
-		sessionOptionsNode.setProperty(TuneUpIDs::referenceFreqInId, freqIn, nullptr);
-
+	sessionNode.setProperty(TuneUpIDs::referenceFreqInId, freqIn, nullptr);
 	midiProcessor->setReferenceFreqIn(freqIn);
 }
 
-void TuneUpMidiState::setReferenceNoteOut(int noteIn, bool saveToSession)
+void TuneUpMidiState::setReferenceNoteOut(int noteIn)
 {
-	if (saveToSession)
-		sessionOptionsNode.setProperty(TuneUpIDs::referenceNoteOutId, noteIn, nullptr);
-
+	sessionNode.setProperty(TuneUpIDs::referenceNoteOutId, noteIn, nullptr);
 	midiProcessor->setReferenceNoteOut(noteIn);
 }
 
-void TuneUpMidiState::setReferenceFreqOut(double freqIn, bool saveToSession)
+void TuneUpMidiState::setReferenceFreqOut(double freqIn)
 {
-	if (saveToSession)
-		sessionOptionsNode.setProperty(TuneUpIDs::referenceFreqOutId, freqIn, nullptr);
-
+	sessionNode.setProperty(TuneUpIDs::referenceFreqOutId, freqIn, nullptr);
 	midiProcessor->setReferenceFreqOut(freqIn);
 }
 
-void TuneUpMidiState::setPitchbendRange(int newPitchBendRange, bool saveToSession)
+void TuneUpMidiState::setPitchbendRange(int newPitchBendRange)
 {
-	if (saveToSession)
-		sessionOptionsNode.setProperty(TuneUpIDs::pitchbendRangeId, newPitchBendRange, nullptr);
-
+	sessionNode.setProperty(TuneUpIDs::pitchbendRangeId, newPitchBendRange, nullptr);
 	midiProcessor->setPitchbendRange(newPitchBendRange);
 }
 
-void TuneUpMidiState::setVoiceLimit(int limitIn, bool saveToSession)
+void TuneUpMidiState::setVoiceLimit(int limitIn)
 {
-	if (saveToSession)
-		sessionOptionsNode.setProperty(TuneUpIDs::voiceLimitId, limitIn, nullptr);
+	sessionNode.setProperty(TuneUpIDs::voiceLimitId, limitIn, nullptr);
 	midiProcessor->setVoiceLimit(limitIn);
 }
 
-void TuneUpMidiState::setChannelMode(FreeChannelMode channelModeIn, bool saveToSession)
+void TuneUpMidiState::setChannelMode(FreeChannelMode channelModeIn)
 {
-	if (saveToSession)
-		sessionOptionsNode.setProperty(TuneUpIDs::channelModeId, channelModeIn, nullptr);
-
+	sessionNode.setProperty(TuneUpIDs::channelModeId, channelModeIn, nullptr);
 	midiProcessor->setFreeChannelMode(channelModeIn);
 }
 
-void TuneUpMidiState::setReuseChannels(bool reuseChannels, bool saveToSession)
+void TuneUpMidiState::setReuseChannels(bool reuseChannels)
 {
-	if (saveToSession)
-		sessionOptionsNode.setProperty(TuneUpIDs::reuseChannelsId, reuseChannels, nullptr);
-
+	sessionNode.setProperty(TuneUpIDs::reuseChannelsId, reuseChannels, nullptr);
 	midiProcessor->setReuseChannels(reuseChannels);
 }
 
-void TuneUpMidiState::setResetChannelPitchbend(bool resetPitchbend, bool saveToSession)
+void TuneUpMidiState::setResetChannelPitchbend(bool resetPitchbend)
 {
-	if (saveToSession)
-		sessionOptionsNode.setProperty(TuneUpIDs::resetChannelPitchbendId, resetPitchbend, nullptr);
-
+	sessionNode.setProperty(TuneUpIDs::resetChannelPitchbendId, resetPitchbend, nullptr);
 	midiProcessor->setResetChannelPitchbendWhenEmpty(resetPitchbend);
-}
-
-void TuneUpMidiState::setDynamicTuningPeriodController(int controlNumber)
-{
-	
-}
-
-void TuneUpMidiState::setDynamicTuningGeneratorController(int controlNumber)
-{
-
-}
-
-void TuneUpMidiState::controlValueChanged(int controlNumber, int controlValue)
-{
-
-}
-
-void TuneUpMidiState::valueTreeChildAdded(ValueTree& parentTree, ValueTree& childAdded)
-{
-	
-}
-
-void TuneUpMidiState::valueTreeChildRemoved(ValueTree& parentTree, ValueTree& childRemoved, int childRemovedIndex)
-{
-
-}
-
-void TuneUpMidiState::valueTreePropertyChanged(ValueTree& parentTree, const Identifier& property)
-{
-
 }
 
 void TuneUpMidiState::buildFactoryDefaultOptionsNode()
 {
-	factoryDefaultOptionsNode = ValueTree(TuneUpIDs::optionsNodeId);
+	factoryDefaultSessionNode = ValueTree(TuneUpIDs::tuneUpMidiSessionId);
 
 	for (auto prop : tuneUpOptionIds)
 	{
@@ -552,12 +475,12 @@ void TuneUpMidiState::buildFactoryDefaultOptionsNode()
 			value = File::getSpecialLocation(File::userDocumentsDirectory).getFullPathName();
 		}
 
-		else if (prop == TuneUpIDs::tuningsListId) // TODO implement different defaut tuning in & out
+		else if (prop == TuneUpIDs::defaultTuningsListId)
 		{
 			ValueTree tuningListNode = ValueTree(TuneUpIDs::tuningsListId);
 			tuningListNode.addChild(STD_TUNING.createCopy(), 0, nullptr);
 			tuningListNode.addChild(STD_TUNING.createCopy(), 1, nullptr);
-			factoryDefaultOptionsNode.addChild(tuningListNode, 0, nullptr);
+			factoryDefaultSessionNode.addChild(tuningListNode, 0, nullptr);
 			continue;
 		}
 
@@ -613,6 +536,6 @@ void TuneUpMidiState::buildFactoryDefaultOptionsNode()
 			value = false;
 		}
 
-		factoryDefaultOptionsNode.setProperty(prop, value, nullptr);
+		factoryDefaultSessionNode.setProperty(prop, value, nullptr);
 	}
 }

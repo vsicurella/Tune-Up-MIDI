@@ -107,6 +107,12 @@ public:
 
 	void setControlMode(ControlMode modeIn);
 
+	/*
+		Sets whether or not the DynamicOptionsButton is enabled
+		based on given tuning definition
+	*/
+	void autoToggleDynamicOptions(ValueTree tuningDefinition);
+
 private:
     // Functionality
     TuneupMidiAudioProcessor& processor;

@@ -20,22 +20,20 @@ TuneupMidiAudioProcessorEditor::TuneupMidiAudioProcessorEditor (
     : AudioProcessorEditor (&p), processor (p), midiProcessor(mp), pluginState(ps),
 	grid(23)
 {
-	//defaultTuningFilePath = pluginState.getDefaultOptionsNode()[TuneUpIDs::defaultTuningFilePathId];
-
 	// CONTROL WINDOWS
 	
 	mainWindow.reset(new TuneUpWindow());
 	addChildComponent(mainWindow.get());
 
-	createTuningWindow.reset(new CreateTuningWindow(pluginState.getSessionOptionsNode()));
+	createTuningWindow.reset(new CreateTuningWindow(pluginState.getPluginStateNode()));
 	addChildComponent(createTuningWindow.get());
 	createTuningWindow->addChangeListener(this);
 
-	generalOptionsWindow.reset(new GeneralOptionsWindow(pluginState.getDefaultOptionsNode(), pluginState.getSessionOptionsNode()));
+	generalOptionsWindow.reset(new GeneralOptionsWindow(pluginState.getDefaultSessionNode(), pluginState.getPluginStateNode()));
 	addChildComponent(generalOptionsWindow.get());
 	generalOptionsWindow->addListener(this);
 
-	dynamicOptionsWindow.reset(new DynamicOptionsWindow(pluginState.getSessionOptionsNode()));
+	dynamicOptionsWindow.reset(new DynamicOptionsWindow(pluginState.getPluginStateNode()));
 	addChildComponent(dynamicOptionsWindow.get());
 
 	controlWindows = {
@@ -183,9 +181,8 @@ TuneupMidiAudioProcessorEditor::TuneupMidiAudioProcessorEditor (
 	}
 
     setSize (500, 200);
-
-	mainWindow->loadOptionsNode(pluginState.getSessionOptionsNode());
 	pluginState.addListener(this);
+	onNewOptionsNode(pluginState.getPluginStateNode());
 
 	setControlMode(MainWindowMode);
 
@@ -331,7 +328,7 @@ void TuneupMidiAudioProcessorEditor::buttonClicked(Button* buttonClicked)
 	{
 		FileChooser chooser(
 			"Select your tuning file", 
-			pluginState.getDefaultOptionsNode()[TuneUpIDs::defaultTuningFilePathId].toString()
+			pluginState.getDefaultSessionNode()[TuneUpIDs::defaultTuningFilePathId].toString()
 		);
 		chooser.browseForFileToOpen();
 		loadedFile = chooser.getResult();
@@ -451,31 +448,25 @@ void TuneupMidiAudioProcessorEditor::onNewTuningIn(ValueTree tuningInDef, Tuning
 void TuneupMidiAudioProcessorEditor::onNewTuningOut(ValueTree tuningOutDef, Tuning* tuningPtr)
 {
 	mainWindow->updateTuningOutProperties();
- 
-	if (tuningOutDef[functionalId])
-	{
-		dynamicOptionsButton->setEnabled(true);
-		dynamicOptionsWindow->updateContent();
-	}
-	else
-	{
-		dynamicOptionsButton->setEnabled(false);
-	}
+	autoToggleDynamicOptions(tuningOutDef);
 
 	DBG("GUI updated for new Tuning Out: \n" + tuningOutDef.toXmlString());
 }
 
 void TuneupMidiAudioProcessorEditor::onNewOptionsNode(ValueTree optionsNodeIn)
 {
-	generalOptionsWindow->resetToSessionOptions();
+	createTuningWindow->loadOptionsNode(optionsNodeIn);
+	generalOptionsWindow->loadOptionsNode(optionsNodeIn);
 	mainWindow->loadOptionsNode(optionsNodeIn);
+	dynamicOptionsWindow->loadOptionsNode(optionsNodeIn);
+	autoToggleDynamicOptions(optionsNodeIn.getChild(0).getChild(1));
 
 	DBG("GUI updated for new Options node:\n" + optionsNodeIn.toXmlString());
 }
 
 void TuneupMidiAudioProcessorEditor::loadTuningOutIntoState(ValueTree tuningDefinition)
 {
-	pluginState.setTuningOut(tuningDefinition, true, true);
+	pluginState.setTuningOut(tuningDefinition);
 }
 
 void TuneupMidiAudioProcessorEditor::setControlMode(ControlMode modeIn)
@@ -525,4 +516,21 @@ void TuneupMidiAudioProcessorEditor::setControlMode(ControlMode modeIn)
 	controlWindows[currentMode]->setVisible(true);
 
 	resized();
+}
+
+/*
+	Sets whether or not the DynamicOptionsButton is enabled
+	based on the current Tuning Out definition
+*/
+void TuneupMidiAudioProcessorEditor::autoToggleDynamicOptions(ValueTree tuningDefinition)
+{
+	if (tuningDefinition[TuneUpIDs::functionalId])
+	{
+		dynamicOptionsButton->setEnabled(true);
+		dynamicOptionsWindow->updateContent();
+	}
+	else
+	{
+		dynamicOptionsButton->setEnabled(false);
+	}
 }

@@ -14,8 +14,7 @@
 #include "MidiCCListener.h"
 
 class TuneUpMidiState : public MidiCCListener, 
-						public ChangeBroadcaster,
-						private ValueTree::Listener
+						public ChangeBroadcaster
 {
 
 public:
@@ -27,9 +26,7 @@ public:
 
 	ValueTree getPluginStateNode();
 
-	ValueTree getDefaultOptionsNode();
-
-	ValueTree getSessionOptionsNode();
+	ValueTree getDefaultSessionNode();
 
 	TuneUpMidiProcessor* getMidiProcessor();
 
@@ -47,59 +44,54 @@ public:
 	var getFactoryDefaultValue(Identifier& propertyIn) const;
 
 	/*
+		Reset to factory default
+	*/
+	void resetToFactoryDefault(bool callListeners = true);
+
+	/*
+		Sets the default options node of the instance (but doesn't initialize or pass data down)
+	*/
+	void setDefaultSessionNode(ValueTree defaultOptionsNodeIn);
+
+	/*
+		Replaces data with user default options
+	*/
+	void resetToDefaultSession(bool callListeners = true);
+
+	/*
+		Writes current defaultOptionsNode to application directory
+	*/
+	void writeDefaultSessionToFile();
+
+	/*
 		Sets the parent data node of the instance (but doesn't initialize or pass data down)
 	*/
 	void setPluginStateNode(ValueTree pluginStateNodeIn);
 
 	/*
-		Reset to factory default
-	*/
-	void resetToFactoryDefault(bool saveToSession = false, bool sendChange = true);
-
-	/*
-		Sets the default options node of the instance (but doesn't initialize or pass data down)
-	*/
-	void setDefaultOptionsNode(ValueTree defaultOptionsNodeIn);
-
-	/*
-		Replaces data with user default options
-	*/
-	void resetToDefaultOptions(bool saveToSession = false, bool sendChange = true);
-
-	/*
-		Writes current defaultOptionsNode to application directory
-	*/
-	void writeDefaultOptionsToFile();
-
-	/*
-		Sets the session options node of the instance (but doesn't initialize or pass data down)
-	*/
-	void setSessionOptionsNode(ValueTree sessionOptionsNodeIn);
-
-	/*
 		Sets the session options node and loads the data
 	*/
-	void resetToSessionOptions(bool sendChangeMessage = true);
+	void resetToPluginState(bool callListeners = true);
 
 	/*
 		Passes data from input node, and falls back to defaultOptions if necessary
 	*/
-	void loadNodeOptions(ValueTree nodeOptionsIn, bool saveToSession = true, bool sendSignal = true);
+	void loadSessionNode(ValueTree nodeOptionsIn, bool callListeners = true);
 
 	/*
 		Sets and renders new tuning in definition, leaving tuning out unchanged
 	*/
-	void setTuningIn(ValueTree definitionIn, bool writeToSession = true, bool sendChangeSignal = false);
+	void setTuningIn(ValueTree& definitionIn, bool callListeners = true);
 
 	/*
 		Sets and renders new tuning out definition, leaving tuning in unchanged
 	*/
-	void setTuningOut(ValueTree definitionIn, bool writeToSession = true, bool sendChangeSignal = false);
+	void setTuningOut(ValueTree& definitionIn, bool callListeners = true);
 
 	/*
 		Sets and renders tunings in and out
 	*/
-	void setTunings(ValueTree parentOptionsNode, bool writeToSession, bool sendChangeSignal = false);
+	void setTunings(ValueTree parentOptionsNode, bool callListeners = true);
 
 	/*
 		Toggles Dynamic Tuning processing
@@ -108,31 +100,23 @@ public:
 
 	// SESSION PARAMETER SETTERS
 
-	void setReferenceNoteIn(int noteIn, bool saveToSession = true);
+	void setReferenceNoteIn(int noteIn);
 
-	void setReferenceFreqIn(double freqIn, bool saveToSession = true);
+	void setReferenceFreqIn(double freqIn);
 
-	void setReferenceNoteOut(int noteIn, bool saveToSession = true);
+	void setReferenceNoteOut(int noteIn);
 
-	void setReferenceFreqOut(double freqIn, bool saveToSession = true);
+	void setReferenceFreqOut(double freqIn);
 
-	void setPitchbendRange(int newPitchBendRange, bool saveToSession = true);
+	void setPitchbendRange(int newPitchBendRange);
 
-	void setVoiceLimit(int limitIn, bool saveToSession = true);
+	void setVoiceLimit(int limitIn);
 
-	void setChannelMode(FreeChannelMode channelModeIn, bool saveToSession = true);
+	void setChannelMode(FreeChannelMode channelModeIn);
 
-	void setReuseChannels(bool reuseChannels, bool saveToSession = true);
+	void setReuseChannels(bool reuseChannels);
 
-	void setResetChannelPitchbend(bool resetPitchbend, bool saveToSession = true);
-
-	//=======================================================================================
-
-	void setDynamicTuningPeriodController(int controlNumber);
-	void setDynamicTuningGeneratorController(int controlNumber);
-
-	// CC Listener Implementation
-	void controlValueChanged(int controlNumber, int controlValue) override;
+	void setResetChannelPitchbend(bool resetPitchbend);
 
 	//=======================================================================================
 
@@ -153,26 +137,15 @@ public:
 
 	void removeListener(TuneUpMidiState::Listener* listenerIn) { listeners.remove(listenerIn); }
 
-private:
-
-	void valueTreeChildAdded(ValueTree& parentTree, ValueTree& childAdded) override;
-
-	void valueTreeChildRemoved(ValueTree& parentTree, ValueTree& childRemoved, int childRemovedIndex) override;
-
-	void valueTreePropertyChanged(ValueTree& parentTree, const Identifier& property) override;
-
 protected:
 
 	ListenerList<Listener> listeners;
 
-
 private:
 
-	ValueTree factoryDefaultOptionsNode;
-
-	ValueTree pluginStateNode;
-	ValueTree defaultOptionsNode;
-	ValueTree sessionOptionsNode;
+	ValueTree factoryDefaultSessionNode;
+	ValueTree sessionNode;
+	ValueTree defaultSessionNode;
 
 	MidiKeyboardState midiState;
 
