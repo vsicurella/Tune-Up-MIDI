@@ -228,7 +228,12 @@ void TuneUpMidiState::setPluginStateNode(ValueTree pluginStateNodeIn)
 	}
 
 	if (sessionNode != pluginStateNodeIn)
+	{
 		sessionNode.copyPropertiesAndChildrenFrom(nodeToCopy, nullptr);
+
+		// Sessions don't need the default file path property
+		sessionNode.removeProperty(TuneUpIDs::defaultTuningFilePathId, nullptr);
+	}
 
 	// Ensure it has as valid tuning list
 	ValueTree tuningList = sessionNode.getOrCreateChildWithName(TuneUpIDs::tuningsListId, nullptr);

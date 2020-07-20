@@ -152,9 +152,9 @@ GeneralOptionsWindow::GeneralOptionsWindow(ValueTree defaultOptionsNodeIn, Value
 	resetChannelPitchbendButton->addListener(this);
 	
 	defaultOptionsNode = defaultOptionsNodeIn;
-	defaultTuningsListNode = defaultOptionsNode.getChildWithName(TuneUpIDs::tuningsListId);
-
 	sessionOptionsNode = sessionOptionsNodeIn;
+	
+	resetToDefaultOptions(false);
 	resetToSessionOptions(false);
 }
 
@@ -326,12 +326,30 @@ void GeneralOptionsWindow::textEditorReturnKeyPressed(TextEditor& source)
 
 void GeneralOptionsWindow::resetToDefaultOptions(bool notifyListeners)
 {
-	loadOptionsNode(defaultOptionsNode, false, notifyListeners);
+	loadDefaultNode(defaultOptionsNode, notifyListeners);
 }
 
 void GeneralOptionsWindow::resetToSessionOptions(bool notifyListeners)
 {
 	loadOptionsNode(sessionOptionsNode, false, notifyListeners);
+}
+
+void GeneralOptionsWindow::loadDefaultNode(ValueTree optionsNodeIn, bool notifyListeners)
+{
+	defaultOptionsNode = optionsNodeIn;
+
+	File f = File(defaultOptionsNode[TuneUpIDs::defaultTuningFilePathId]);
+	setDefaultTuningPath(f, notifyListeners);
+	
+	ValueTree tuningList = optionsNodeIn.getChildWithName(TuneUpIDs::tuningsListId);
+
+	if (tuningList.getChild(0).isValid())
+		setTuningIn(tuningList.getChild(0), notifyListeners);
+
+	if (tuningList.getChild(1).isValid())
+		setTuningOut(tuningList.getChild(1), notifyListeners);
+
+	loadOptionsNode(defaultOptionsNode, true, notifyListeners);
 }
 
 void GeneralOptionsWindow::loadOptionsNode(ValueTree optionsNodeIn, bool saveAsDefault, bool notifyListeners)
@@ -349,31 +367,7 @@ void GeneralOptionsWindow::loadOptionsNode(ValueTree optionsNodeIn, bool saveAsD
 			else
 				value = defaultOptionsNode[prop];
 
-			// ONLY DEFAULT OPTIONS
-
-			if (prop == TuneUpIDs::defaultTuningFilePathId)
-			{
-				File f = File(value.toString());
-				setDefaultTuningPath(f, notifyListeners);
-			}
-
-			else if (prop == TuneUpIDs::defaultTuningsListId)
-			{
-				ValueTree tuningList = optionsNodeIn.getChildWithName(TuneUpIDs::tuningsListId);
-				ValueTree tuningNode = tuningList.getChild(0);
-
-				if (tuningNode.isValid())
-					setTuningIn(tuningNode, notifyListeners);
-
-				tuningNode = tuningList.getChild(1);
-
-				if (tuningNode.isValid())
-					setTuningOut(tuningNode, notifyListeners);
-			}
-
-			// OPTIONS THAT CAN BE BOTH DEFAULT OR SESSION
-
-			else if (prop == TuneUpIDs::referenceNoteInId)
+			if (prop == TuneUpIDs::referenceNoteInId)
 			{
 				setReferenceNoteIn(value, true, saveAsDefault, notifyListeners);
 			}
@@ -451,10 +445,10 @@ void GeneralOptionsWindow::setDefaultTuningPath(File pathFileIn, bool notifyList
 
 void GeneralOptionsWindow::setTuningIn(ValueTree tuningInPath, bool notifyListeners)
 {
-	if (defaultTuningsListNode.getNumChildren() > 0)
-		defaultTuningsListNode.getChild(0).copyPropertiesAndChildrenFrom(tuningInPath.createCopy(), nullptr);
+	if (defaultOptionsNode.getChild(0).getNumChildren() > 0)
+		defaultOptionsNode.getChild(0).getChild(0).copyPropertiesAndChildrenFrom(tuningInPath.createCopy(), nullptr);
 	else
-		defaultTuningsListNode.addChild(tuningInPath, 0, nullptr);
+		defaultOptionsNode.getChild(0).appendChild(tuningInPath, nullptr);
 
 	if (notifyListeners)
 		void; // TODO
@@ -462,13 +456,13 @@ void GeneralOptionsWindow::setTuningIn(ValueTree tuningInPath, bool notifyListen
 
 void GeneralOptionsWindow::setTuningOut(ValueTree tuningOutPath, bool notifyListeners)
 {
-	if (defaultTuningsListNode.getNumChildren() == 0)
-		defaultTuningsListNode.addChild(STD_TUNING, 0, nullptr);
+	if (defaultOptionsNode.getChild(0).getNumChildren() == 0)
+		defaultOptionsNode.getChild(0).appendChild(STD_TUNING, nullptr);
 
-	if (defaultTuningsListNode.getNumChildren() == 1)
-		defaultTuningsListNode.addChild(tuningOutPath, 1, nullptr);
+	if (defaultOptionsNode.getChild(0).getNumChildren() == 1)
+		defaultOptionsNode.getChild(0).appendChild(tuningOutPath, nullptr);
 	else
-		defaultTuningsListNode.getChild(1).copyPropertiesAndChildrenFrom(tuningOutPath.createCopy(), nullptr);
+		defaultOptionsNode.getChild(0).getChild(1).copyPropertiesAndChildrenFrom(tuningOutPath.createCopy(), nullptr);
 
 	if (notifyListeners)
 		void; // TODO
@@ -476,8 +470,6 @@ void GeneralOptionsWindow::setTuningOut(ValueTree tuningOutPath, bool notifyList
 
 void GeneralOptionsWindow::setReferenceNoteIn(int noteIn, bool updateUI, bool saveAsDefault, bool notifyListeners)
 {
-	//sessionOptionsNode.setProperty(TuneUpIDs::referenceNoteInId, noteIn, nullptr);
-
 	if (updateUI)
 		referenceNoteInSlider->setValue(noteIn, dontSendNotification);
 
@@ -490,8 +482,6 @@ void GeneralOptionsWindow::setReferenceNoteIn(int noteIn, bool updateUI, bool sa
 
 void GeneralOptionsWindow::setReferenceFreqIn(double freqIn, bool updateUI, bool saveAsDefault, bool notifyListeners)
 {
-	//sessionOptionsNode.setProperty(TuneUpIDs::referenceFreqInId, freqIn, nullptr);
-
 	if (updateUI)
 		referenceFreqInSlider->setValue(freqIn, dontSendNotification);
 
@@ -504,8 +494,6 @@ void GeneralOptionsWindow::setReferenceFreqIn(double freqIn, bool updateUI, bool
 
 void GeneralOptionsWindow::setReferenceNoteOut(int noteIn, bool updateUI, bool saveAsDefault, bool notifyListeners)
 {
-	//sessionOptionsNode.setProperty(TuneUpIDs::referenceNoteOutId, noteIn, nullptr);
-
 	if (updateUI)
 		referenceNoteOutSlider->setValue(noteIn, dontSendNotification);
 
@@ -518,8 +506,6 @@ void GeneralOptionsWindow::setReferenceNoteOut(int noteIn, bool updateUI, bool s
 
 void GeneralOptionsWindow::setReferenceFreqOut(double freqIn, bool updateUI, bool saveAsDefault, bool notifyListeners)
 {
-	//sessionOptionsNode.setProperty(TuneUpIDs::referenceFreqOutId, freqIn, nullptr);
-
 	if (updateUI)
 		referenceFreqOutSlider->setValue(freqIn, dontSendNotification);
 
@@ -532,8 +518,6 @@ void GeneralOptionsWindow::setReferenceFreqOut(double freqIn, bool updateUI, boo
 
 void GeneralOptionsWindow::setPitchbendRange(int pitchbendRangeIn, bool updateUI, bool saveAsDefault, bool notifyListeners)
 {
-	//sessionOptionsNode.setProperty(TuneUpIDs::pitchbendRangeId, pitchbendRangeIn, nullptr);
-
 	if (updateUI)
 		pitchbendRangeSlider->setValue(pitchbendRangeIn, dontSendNotification);
 
@@ -552,8 +536,6 @@ void GeneralOptionsWindow::setChannelConfiguration(/* TODO */ bool updateUI, boo
 
 void GeneralOptionsWindow::setChannelMode(TuneUpMode::FreeChannelMode modeIn, bool updateUI, bool saveAsDefault, bool notifyListeners)
 {
-	//sessionOptionsNode.setProperty(TuneUpIDs::channelModeId, modeIn, nullptr);
-
 	if (updateUI)
 		channelModeBox->setSelectedId(modeIn, dontSendNotification);
 
@@ -566,8 +548,6 @@ void GeneralOptionsWindow::setChannelMode(TuneUpMode::FreeChannelMode modeIn, bo
 
 void GeneralOptionsWindow::setVoiceLimit(int limitIn, bool updateUI, bool saveAsDefault, bool notifyListeners)
 {
-	//sessionOptionsNode.setProperty(TuneUpIDs::voiceLimitId, limitIn, nullptr);
-
 	if (updateUI)
 		voiceLimitSlider->setValue(limitIn, dontSendNotification);
 
@@ -580,8 +560,6 @@ void GeneralOptionsWindow::setVoiceLimit(int limitIn, bool updateUI, bool saveAs
 
 void GeneralOptionsWindow::setResetChannelPitchbend(bool resetChannels, bool updateUI, bool saveAsDefault, bool notifyListeners)
 {
-	//sessionOptionsNode.setProperty(TuneUpIDs::resetChannelPitchbendId, resetChannels, nullptr);
-
 	if (updateUI)
 		resetChannelPitchbendButton->setToggleState(resetChannels, dontSendNotification);
 
@@ -594,8 +572,6 @@ void GeneralOptionsWindow::setResetChannelPitchbend(bool resetChannels, bool upd
 
 void GeneralOptionsWindow::setReuseChannels(bool reuseChannels, bool updateUI, bool saveAsDefault, bool notifyListeners)
 {
-	//sessionOptionsNode.setProperty(TuneUpIDs::reuseChannelsId, reuseChannels, nullptr);
-
 	if (updateUI)
 		reuseChannelsButton->setToggleState(reuseChannels, dontSendNotification);
 
@@ -608,6 +584,5 @@ void GeneralOptionsWindow::setReuseChannels(bool reuseChannels, bool updateUI, b
 
 void GeneralOptionsWindow::setDynamicTuningMode(bool isDynamicTuning)
 {
-	//sessionOptionsNode.setProperty(TuneUpIDs::dynamicTuningModeId, isDynamicTuning, nullptr);
 	listeners.call(&GeneralOptionsWindow::Listener::dynamicTuningModeChanged, isDynamicTuning);
 }

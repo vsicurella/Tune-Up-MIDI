@@ -47,6 +47,8 @@ public:
 
 	void resetToSessionOptions(bool notifyListeners = true);
 
+	void loadDefaultNode(ValueTree optionsNodeIn, bool notifyListeners = true);
+
 	void loadOptionsNode(ValueTree optionsNodeIn, bool saveAsDefault = false, bool notifyListeners = true);
 
 	ValueTree getDefaultOptionsNode();
@@ -137,8 +139,6 @@ private:
 
 	ValueTree defaultOptionsNode;
 	ValueTree sessionOptionsNode;
-
-	ValueTree defaultTuningsListNode;
 
 	std::unique_ptr<Label> defaultTuningDirLabel;
 	std::unique_ptr<TextEditor> defaultTuningDirEditor;
