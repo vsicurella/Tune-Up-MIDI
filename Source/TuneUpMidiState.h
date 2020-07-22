@@ -114,6 +114,8 @@ public:
 
 	void setChannelMode(FreeChannelMode channelModeIn);
 
+	void setChannelConfiguration(ValueTree channelPropertiesNodeIn);
+
 	void setReuseChannels(bool reuseChannels);
 
 	void setResetChannelPitchbend(bool resetPitchbend);

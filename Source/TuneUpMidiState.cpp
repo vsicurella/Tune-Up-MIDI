@@ -26,10 +26,10 @@ TuneUpMidiState::TuneUpMidiState()
 
 	sessionNode = ValueTree(TuneUpIDs::tuneUpMidiSessionId);
 
-	tuningInDefinition.setDefinition(defaultSessionNode.getChild(0).getChild(0));
+	tuningInDefinition.setDefinition(defaultSessionNode.getChildWithName(TuneUpIDs::defaultTuningsListId).getChild(0));
 	tuningIn.reset(new Tuning(tuningInDefinition.render()));
 
-	tuningOutDefinition.setDefinition(defaultSessionNode.getChild(0).getChild(1));
+	tuningOutDefinition.setDefinition(defaultSessionNode.getChildWithName(TuneUpIDs::defaultTuningsListId).getChild(1));
 	tuningOut.reset(new Tuning(tuningOutDefinition.render()));
 
 	midiProcessor.reset(new TuneUpMidiProcessor(tuningIn.get(), tuningOut.get(), notesInOn));
@@ -194,6 +194,36 @@ void TuneUpMidiState::setDefaultSessionNode(ValueTree defaultOptionsNodeIn)
 
 	if (definitionsList.getNumChildren() == 1)
 		definitionsList.addChild(STD_TUNING.createCopy(), 1, nullptr);
+
+	// Ensure it has a default MIDI channel configuration
+	ValueTree channelProperties = defaultSessionNode.getOrCreateChildWithName(TuneUpIDs::channelPropertiesNodeId, nullptr);
+
+	// Ensure there are exactly 16 channel node children
+	int numChannels = channelProperties.getNumChildren();
+	if (numChannels != 16)
+	{
+		int ch = 0;
+		for (auto child : channelProperties)
+		{
+			if (ch < 16)
+				child.setProperty(TuneUpIDs::channelNumberId, ch + 1, nullptr);
+			else
+				channelProperties.removeChild(child, nullptr);
+
+			ch++;
+		}
+
+		numChannels = channelProperties.getNumChildren();
+
+		while (ch < 16)
+		{
+			ValueTree channelNode = ValueTree(TuneUpIDs::channelNodeId);
+			channelNode.setProperty(TuneUpIDs::channelNumberId, ch + 1, nullptr);
+			channelNode.setProperty(TuneUpIDs::channelUsedId, 1, nullptr);
+			channelProperties.addChild(channelNode, ch, nullptr);
+			ch++;
+		}
+	}
 }
 
 /*
@@ -266,6 +296,14 @@ void TuneUpMidiState::setPluginStateNode(ValueTree pluginStateNodeIn)
 		tuningList.addChild(defaultSessionNode.getChildWithName(tuningsListId).getChild(1).createCopy(), 1, nullptr);
 	}
 
+	// Check if it has a MIDI Channel Configuration
+	ValueTree channelProperties = sessionNode.getOrCreateChildWithName(TuneUpIDs::channelPropertiesNodeId, nullptr);
+	if (channelProperties.getNumChildren() != 16)
+	{
+		channelProperties.copyPropertiesAndChildrenFrom(defaultSessionNode.getChildWithName(TuneUpIDs::channelPropertiesNodeId), nullptr);
+		// TODO: merge rather than copy?
+	}
+
 	DBG("SETSESSION:\n" + sessionNode.toXmlString());
 }
 
@@ -282,9 +320,12 @@ void TuneUpMidiState::resetToPluginState(bool sendMsg)
 */
 void TuneUpMidiState::loadSessionNode(ValueTree nodeOptionsIn, bool callListeners)
 {
+	ValueTree nodeToUse;
+
 	for (auto prop : tuneUpOptionIds)
 	{
-		ValueTree nodeToUse = nodeOptionsIn;
+		nodeToUse = nodeOptionsIn;
+
 		if (!nodeToUse.hasProperty(prop))
 			nodeToUse = defaultSessionNode;
 		
@@ -347,8 +388,12 @@ void TuneUpMidiState::loadSessionNode(ValueTree nodeOptionsIn, bool callListener
 		}
 	}
 
+	nodeToUse = nodeOptionsIn;
+	ValueTree channelProperties = nodeToUse.getChildWithName(TuneUpIDs::channelPropertiesNodeId);
+	
+
 	if (callListeners)
-		listeners.call(&TuneUpMidiState::Listener::optionsLoaded, sessionNode.getChild(0));
+		listeners.call(&TuneUpMidiState::Listener::optionsLoaded, sessionNode);
 }
 
 /*
@@ -356,7 +401,7 @@ void TuneUpMidiState::loadSessionNode(ValueTree nodeOptionsIn, bool callListener
 */
 void TuneUpMidiState::setTuningIn(ValueTree& definitionIn, bool callListeners)
 {
-	ValueTree currentDefinition = sessionNode.getChild(0).getChild(0);
+	ValueTree currentDefinition = sessionNode.getChildWithName(TuneUpIDs::tuningsListId).getChild(0);
 
 	if (definitionIn.hasType(TuneUpIDs::tuningDefinitionId) && currentDefinition != definitionIn)
 	{
@@ -377,7 +422,7 @@ void TuneUpMidiState::setTuningIn(ValueTree& definitionIn, bool callListeners)
 */
 void TuneUpMidiState::setTuningOut(ValueTree& definitionIn, bool callListeners)
 {
-	ValueTree currentDefinition = sessionNode.getChild(0).getChild(1);
+	ValueTree currentDefinition = sessionNode.getChildWithName(TuneUpIDs::tuningsListId).getChild(1);
 
 	if (definitionIn.hasType(TuneUpIDs::tuningDefinitionId) && currentDefinition != definitionIn)
 	{
@@ -395,8 +440,13 @@ void TuneUpMidiState::setTuningOut(ValueTree& definitionIn, bool callListeners)
 
 void TuneUpMidiState::setTunings(ValueTree parentOptionsNode, bool callListeners)
 {
-	setTuningIn(parentOptionsNode.getChild(0).getChild(0), callListeners);
-	setTuningOut(parentOptionsNode.getChild(0).getChild(1), callListeners);
+	ValueTree tuningsList = parentOptionsNode.getChildWithName(TuneUpIDs::tuningsListId);
+	
+	if (!tuningsList.isValid())
+		tuningsList = defaultSessionNode.getChildWithName(TuneUpIDs::defaultTuningsListId);
+
+	setTuningIn(tuningsList.getChild(0), callListeners);
+	setTuningOut(tuningsList.getChild(1), callListeners);
 }
 
 /*
@@ -453,6 +503,15 @@ void TuneUpMidiState::setChannelMode(FreeChannelMode channelModeIn)
 	midiProcessor->setFreeChannelMode(channelModeIn);
 }
 
+void TuneUpMidiState::setChannelConfiguration(ValueTree channelPropertiesNodeIn)
+{
+	if (!channelPropertiesNodeIn.hasType(channelPropertiesNodeId) || channelPropertiesNodeIn.getNumChildren() != 16)
+		channelPropertiesNodeIn = defaultSessionNode;
+
+	sessionNode.getOrCreateChildWithName(TuneUpIDs::channelPropertiesNodeId, nullptr).copyPropertiesAndChildrenFrom(channelPropertiesNodeIn, nullptr);
+	midiProcessor->setChannelConfiguration(sessionNode.getChildWithName(TuneUpIDs::channelPropertiesNodeId));
+}
+
 void TuneUpMidiState::setReuseChannels(bool reuseChannels)
 {
 	sessionNode.setProperty(TuneUpIDs::reuseChannelsId, reuseChannels, nullptr);
@@ -485,7 +544,7 @@ void TuneUpMidiState::buildFactoryDefaultOptionsNode()
 			ValueTree tuningListNode = ValueTree(TuneUpIDs::tuningsListId);
 			tuningListNode.addChild(STD_TUNING.createCopy(), 0, nullptr);
 			tuningListNode.addChild(STD_TUNING.createCopy(), 1, nullptr);
-			factoryDefaultSessionNode.addChild(tuningListNode, 0, nullptr);
+			factoryDefaultSessionNode.appendChild(tuningListNode, nullptr);
 			continue;
 		}
 
@@ -521,9 +580,19 @@ void TuneUpMidiState::buildFactoryDefaultOptionsNode()
 			value = 16;
 		}
 
-		else if (prop == TuneUpIDs::channelConfigurationId)
+		else if (prop == TuneUpIDs::channelPropertiesNodeId)
 		{
-			// TODO
+			// Ensure there are exactly 16 channel node children
+			ValueTree channelProperties;
+			for (int ch = 0; ch < 16; ch++)
+			{
+				ValueTree channelNode = ValueTree(TuneUpIDs::channelNodeId);
+				channelNode.setProperty(TuneUpIDs::channelNumberId, ch + 1, nullptr);
+				channelNode.setProperty(TuneUpIDs::channelUsedId, 1, nullptr);
+				channelProperties.addChild(channelNode, ch, nullptr);
+			}
+
+			factoryDefaultSessionNode.appendChild(channelProperties, nullptr);
 		}
 
 		else if (prop == TuneUpIDs::channelModeId)
