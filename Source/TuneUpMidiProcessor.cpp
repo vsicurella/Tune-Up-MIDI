@@ -108,6 +108,23 @@ void TuneUpMidiProcessor::setFreeChannelMode(FreeChannelMode channelModeIn)
 	channelAssigner.setRoundRobinMode(channelModeIn == FreeChannelMode::RoundRobin);
 }
 
+void TuneUpMidiProcessor::setChannelConfiguration(ValueTree channelPropertiesNodeIn)
+{
+	channelsToSkip.clear();
+
+	for (auto ch : channelPropertiesNodeIn)
+	{
+		if (ch.hasType(TuneUpIDs::channelNodeId) && (int)ch[TuneUpIDs::channelUsedId] == 0)
+		{
+			channelsToSkip.add((int)ch[TuneUpIDs::channelNumberId]);
+		}
+	}
+
+	channelAssigner.setChannelsToSkip(channelsToSkip);
+
+	// TODO
+}
+
 void TuneUpMidiProcessor::setReuseChannels(bool reuseChannels)
 {
 	channelAssigner.setOneChannelPerNote(!reuseChannels);

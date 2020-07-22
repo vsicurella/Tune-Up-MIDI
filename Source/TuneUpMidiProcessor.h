@@ -55,6 +55,8 @@ public:
 
 	void setFreeChannelMode(FreeChannelMode channelModeIn);
 
+	void setChannelConfiguration(ValueTree channelPropertiesNodeIn);
+
 	void setReuseChannels(bool reuseChannels);
 
 	void setResetChannelPitchbendWhenEmpty(bool resetPitchbend);
@@ -102,6 +104,8 @@ private:
 	int ccSmpl = 0;
 
 	//std::unique_ptr<MPEInstrument> mpeInst;
+
+	Array<int> channelsToSkip;
 	
 	TuneUpMidiChannelAssigner channelAssigner;
 	std::unique_ptr<MidiNoteTuner> retuner;

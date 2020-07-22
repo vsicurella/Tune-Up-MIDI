@@ -52,6 +52,10 @@ public:
 	void setOneChannelPerNote(bool oneNoteEach);
 	void setRoundRobinMode(bool roundRobin);
 
+	void setVoiceLimit(int voiceLimitIn);
+
+	void setChannelsToSkip(Array<int> channelsToSkip);
+
 	/*
 		Returns midi channel 0 - 15
 	*/
@@ -103,5 +107,4 @@ public:
     
     int getNumNotesOn() const;
     
-    void setVoiceLimit(int voiceLimitIn);
 };

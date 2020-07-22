@@ -46,6 +46,13 @@ void TuneUpMidiChannelAssigner::setRoundRobinMode(bool roundRobin)
 	roundRobinMode = roundRobin;
 }
 
+void TuneUpMidiChannelAssigner::setChannelsToSkip(Array<int> channelsToSkipIn)
+{
+	channelsToSkip = channelsToSkipIn;
+
+	// TODO ?
+}
+
 int TuneUpMidiChannelAssigner::findNextFreeChannel() const
 {
 	if (numNotesOn <= voiceLimit)
