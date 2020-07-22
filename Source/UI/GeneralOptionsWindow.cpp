@@ -119,9 +119,10 @@ GeneralOptionsWindow::GeneralOptionsWindow(ValueTree defaultOptionsNodeIn, Value
 	addAndMakeVisible(channelControlLabel.get());
 	channelControlLabel->setJustificationType(Justification::centredRight);
 
-	channelController.reset(new Component("channelController"));
-	//addAndMakeVisible(channelController.get());
-	// TODO
+	channelController.reset(new ChannelConfigureComponent());
+	addAndMakeVisible(channelController.get());
+	channelController->setLayout(ChannelConfigureComponent::Layout::Rectangle);
+	channelController->setLabelWidth(componentGap * 3);
 
 	channelModeLabel.reset(new Label("channelModeLabel", "Free Channel Mode:"));
 	addAndMakeVisible(channelModeLabel.get());
@@ -238,7 +239,7 @@ void GeneralOptionsWindow::resized()
 	channelModeLabel->setBounds(rightHalfX, defaultTuningOutLabel->getY(), rightLabelWidth, rowHeight);
 	channelModeBox->setBounds(channelModeLabel->getRight(), channelModeLabel->getY(), rightControlWidth - channelModeLabel->getWidth(), rowHeight);
 	channelControlLabel->setBounds(rightHalfX, referenceNoteInLabel->getY(), rightLabelWidth, rowHeight);
-	channelController->setBounds(channelControlLabel->getRight(), channelControlLabel->getY(), rightControlWidth - channelControlLabel->getWidth(), rowHeight);
+	channelController->setBounds(channelControlLabel->getRight(), channelControlLabel->getY(), rightControlWidth - channelControlLabel->getWidth(), rowHeight * 2);
 	reuseChannelsButton->setBounds(rightHalfX, referenceNoteOutLabel->getY(), rightControlWidth, rowHeight);
 	resetChannelPitchbendButton->setBounds(rightHalfX, referenceFreqOutLabel->getY(), rightControlWidth, rowHeight);
 }
@@ -397,11 +398,6 @@ void GeneralOptionsWindow::loadOptionsNode(ValueTree optionsNodeIn, bool saveAsD
 				setVoiceLimit(value, true, saveAsDefault, notifyListeners);
 			}
 
-			else if (prop == TuneUpIDs::channelConfigurationId)
-			{
-				// TODO
-			}
-
 			else if (prop == TuneUpIDs::channelModeId)
 			{
 				setChannelMode(FreeChannelMode((int)value), true, saveAsDefault, notifyListeners);
@@ -417,6 +413,12 @@ void GeneralOptionsWindow::loadOptionsNode(ValueTree optionsNodeIn, bool saveAsD
 				setResetChannelPitchbend(value, true, saveAsDefault, notifyListeners);
 			}
 		}
+
+		ValueTree channelProperties = optionsNodeIn.getChildWithName(TuneUpIDs::channelPropertiesNodeId);
+		if (!channelProperties.isValid() || channelProperties.getNumChildren() != 16)
+			channelProperties = defaultOptionsNode.getChildWithName(TuneUpIDs::channelPropertiesNodeId);
+		
+		setChannelProperties(channelProperties, true, saveAsDefault, notifyListeners);
 	}
 }
 
@@ -462,7 +464,11 @@ void GeneralOptionsWindow::setTuningOut(ValueTree tuningOutPath, bool notifyList
 	if (defaultOptionsNode.getChild(0).getNumChildren() == 1)
 		defaultOptionsNode.getChild(0).appendChild(tuningOutPath, nullptr);
 	else
-		defaultOptionsNode.getChild(0).getChild(1).copyPropertiesAndChildrenFrom(tuningOutPath.createCopy(), nullptr);
+	{
+		ValueTree tuningOut = defaultOptionsNode.getChild(0).getChild(1);
+		if (tuningOut != tuningOutPath)
+			tuningOut.copyPropertiesAndChildrenFrom(tuningOutPath.createCopy(), nullptr);
+	}
 
 	if (notifyListeners)
 		void; // TODO
@@ -528,10 +534,21 @@ void GeneralOptionsWindow::setPitchbendRange(int pitchbendRangeIn, bool updateUI
 		listeners.call(&GeneralOptionsWindow::Listener::pitchbendRangeChanged, pitchbendRangeIn);
 }
 
-void GeneralOptionsWindow::setChannelConfiguration(/* TODO */ bool updateUI, bool saveAsDefault, bool notifyListeners)
+void GeneralOptionsWindow::setChannelProperties(ValueTree channelPropertiesNodeIn, bool updateUI, bool saveAsDefault, bool notifyListeners)
 {
-	/* TODO */
-	//generalOptionsNode.setProperty(TuneUpIDs::channelConfigurationId, , nullptr);
+	if (updateUI)
+		channelController->loadChannelPropertiesNode(channelPropertiesNodeIn);
+
+	if (saveAsDefault)
+	{
+		ValueTree defaultChannelPropertiesNode = defaultOptionsNode.getChildWithName(TuneUpIDs::channelPropertiesNodeId);
+		if (channelPropertiesNodeIn != defaultChannelPropertiesNode)
+			defaultChannelPropertiesNode.copyPropertiesAndChildrenFrom(channelPropertiesNodeIn, nullptr);
+	}
+
+	if (notifyListeners)
+		listeners.call(&GeneralOptionsWindow::Listener::channelPropertiesNodeChanged);
+	
 }
 
 void GeneralOptionsWindow::setChannelMode(TuneUpMode::FreeChannelMode modeIn, bool updateUI, bool saveAsDefault, bool notifyListeners)

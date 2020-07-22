@@ -25,12 +25,24 @@ namespace TuneUpIDs
 	static Identifier referenceNoteOutId("ReferenceNoteOut");
 	static Identifier referenceFreqOutId("ReferenceFreqOut");
 	static Identifier pitchbendRangeId("PitchbendRange");
-	static Identifier channelConfigurationId("ChannelConfiguration");
 	static Identifier channelModeId("ChannelMode");
 	static Identifier voiceLimitId("VoiceLimit");
 	static Identifier reuseChannelsId("ReuseChannels");
 	static Identifier resetChannelPitchbendId("ResetChannelPitchbend");
 	static Identifier dynamicTuningModeId("DynamicTuningMode");
+
+	// Channels
+	static Identifier channelPropertiesNodeId("ChannelProperties");
+	static Identifier channelLayout("ChannelComponentLayout");
+	static Identifier channelOrientation("ChannelComponentOrientation");
+	static Identifier channelControllerBackgroundColour("ChannelControllerBackgroundColour");
+	static Identifier channelUsedColourId("ChannelUsedColour");
+	static Identifier channelUnusedColourId("ChannelUnusedColour");
+	static Identifier channelOnColourId("ChannelOnColour");
+	static Identifier channelControllerTextColourId("ChannelControllerTextColour");
+	static Identifier channelNodeId("ChannelNode");
+	static Identifier channelNumberId("ChannelNumber");
+	static Identifier channelUsedId("ChannelUsed");
 
 	// Control Values
 	static Identifier ccListId("CCList");
@@ -42,7 +54,6 @@ namespace TuneUpIDs
 	static Identifier ccValueDefaultId("CCDefaultValue");
 
 	// Tuning Definition
-
 	static Identifier tuningDefinitionId("TuningDefinition");
 	static Identifier functionalId("TuningIsFunctional");
 	static Identifier tuningSizeId("TuningSize");
@@ -76,7 +87,6 @@ namespace TuneUpIDs
 		referenceNoteOutId,
 		referenceFreqOutId,
 		pitchbendRangeId,
-		channelConfigurationId,
 		channelModeId,
 		voiceLimitId,
 		reuseChannelsId,
@@ -87,5 +97,15 @@ namespace TuneUpIDs
 	static Array<Identifier> tuneUpParameterIds =
 	{
 		// TODO
+	};
+
+	// CHANNEL CONTROLLER COLOURS
+	static Array<Identifier> channelControllerColours =
+	{
+		channelControllerBackgroundColour,
+		channelUsedColourId,
+		channelUnusedColourId,
+		channelOnColourId,
+		channelControllerTextColourId
 	};
 };

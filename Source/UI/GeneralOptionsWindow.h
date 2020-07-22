@@ -12,6 +12,7 @@
 #include "../CommonFunctions.h"
 #include "../Constants.h"
 #include "CommonUI.h"
+#include "ChannelConfigureComponent.h"
 
 using namespace TuneUpMode;
 
@@ -75,7 +76,7 @@ public:
 
 	void setPitchbendRange(int pitchbendRangeIn, bool updateUI = true, bool saveAsDefault = false, bool notifyListeners = true);
 
-	void setChannelConfiguration(/* TODO */ bool updateUI = true, bool saveAsDefault = false, bool notifyListeners = true);
+	void setChannelProperties(ValueTree channelPropertiesNodeIn, bool updateUI = true, bool saveAsDefault = false, bool notifyListeners = true);
 
 	void setChannelMode(TuneUpMode::FreeChannelMode modeIn, bool updateUI = true, bool saveAsDefault = false, bool notifyListeners = true);
 
@@ -111,7 +112,7 @@ public:
 
 		virtual void pitchbendRangeChanged(int pitchbendRangeIn) {};
 
-		virtual void channelConfigurationChanged(/* TODO */) {};
+		virtual void channelPropertiesNodeChanged(/* TODO */) {};
 
 		virtual void channelModeChanged(TuneUpMode::FreeChannelMode modeIn) {};
 
@@ -168,7 +169,7 @@ private:
 	std::unique_ptr<Slider> pitchbendRangeSlider;
 	
 	std::unique_ptr<Label> channelControlLabel;
-	std::unique_ptr<Component /* TODO */> channelController;
+	std::unique_ptr<ChannelConfigureComponent> channelController;
 
 	std::unique_ptr<Label> channelModeLabel;
 	std::unique_ptr<ComboBox> channelModeBox;
