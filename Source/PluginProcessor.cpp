@@ -187,7 +187,7 @@ void TuneupMidiAudioProcessor::setStateInformation (const void* data, int sizeIn
 
 	if	(stateNode.hasType(TuneUpIDs::tuneUpMidiSessionId) 
 		&& stateNode.getNumProperties() > 0 
-		&& stateNode.getNumChildren() == 1
+		&& stateNode.getNumChildren() > 0
 		)
 		pluginState->resetToPluginState(false);
 	else

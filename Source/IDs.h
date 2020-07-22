@@ -81,6 +81,7 @@ namespace TuneUpIDs
 	static Array<Identifier> tuneUpOptionIds =
 	{
 		defaultTuningFilePathId,
+		defaultTuningsListId,
 		tuningsListId,
 		referenceNoteInId,
 		referenceFreqInId,

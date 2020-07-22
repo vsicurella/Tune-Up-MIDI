@@ -62,9 +62,9 @@ public:
 
 	void setDefaultTuningPath(File pathFileIn, bool notifyListeners = true);
 
-	void setTuningIn(ValueTree tuningInDefinition, bool notifyListeners = true);
+	void setDefaultTuningIn(ValueTree tuningInDefinition, bool notifyListeners = true);
 
-	void setTuningOut(ValueTree tuningOutDefinition, bool notifyListeners = true);
+	void setDefaultTuningOut(ValueTree tuningOutDefinition, bool notifyListeners = true);
 
 	void setReferenceNoteIn(int noteIn, bool updateUI = true, bool saveAsDefault = false, bool notifyListeners = true);
 

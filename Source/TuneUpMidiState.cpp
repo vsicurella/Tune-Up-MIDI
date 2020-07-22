@@ -167,7 +167,7 @@ void TuneUpMidiState::setDefaultSessionNode(ValueTree defaultOptionsNodeIn)
 	ValueTree nodeToCopy = defaultOptionsNodeIn;
 
 	// Ensure it's the right type, reset if not
-	if (!defaultSessionNode.hasType(TuneUpIDs::tuneUpMidiSessionId))
+	if (!nodeToCopy.hasType(TuneUpIDs::tuneUpMidiSessionId))
 	{
 		nodeToCopy = factoryDefaultSessionNode;
 	}
@@ -183,11 +183,10 @@ void TuneUpMidiState::setDefaultSessionNode(ValueTree defaultOptionsNodeIn)
 	}
 
 	// Ensure it has a default tuning definitions list
-	ValueTree definitionsList = defaultSessionNode.getChildWithName(TuneUpIDs::tuningsListId);
+	ValueTree definitionsList = defaultSessionNode.getOrCreateChildWithName(TuneUpIDs::defaultTuningsListId, nullptr);
 
 	if (!definitionsList.isValid())
 	{
-		definitionsList = ValueTree(tuningsListId);
 		definitionsList.addChild(STD_TUNING.createCopy(), 0, nullptr);
 		defaultSessionNode.addChild(definitionsList, 0, nullptr);
 	}
@@ -199,31 +198,8 @@ void TuneUpMidiState::setDefaultSessionNode(ValueTree defaultOptionsNodeIn)
 	ValueTree channelProperties = defaultSessionNode.getOrCreateChildWithName(TuneUpIDs::channelPropertiesNodeId, nullptr);
 
 	// Ensure there are exactly 16 channel node children
-	int numChannels = channelProperties.getNumChildren();
-	if (numChannels != 16)
-	{
-		int ch = 0;
-		for (auto child : channelProperties)
-		{
-			if (ch < 16)
-				child.setProperty(TuneUpIDs::channelNumberId, ch + 1, nullptr);
-			else
-				channelProperties.removeChild(child, nullptr);
-
-			ch++;
-		}
-
-		numChannels = channelProperties.getNumChildren();
-
-		while (ch < 16)
-		{
-			ValueTree channelNode = ValueTree(TuneUpIDs::channelNodeId);
-			channelNode.setProperty(TuneUpIDs::channelNumberId, ch + 1, nullptr);
-			channelNode.setProperty(TuneUpIDs::channelUsedId, 1, nullptr);
-			channelProperties.addChild(channelNode, ch, nullptr);
-			ch++;
-		}
-	}
+	if (channelProperties.getNumChildren() != 16)
+		channelProperties.copyPropertiesAndChildrenFrom(factoryDefaultSessionNode.getChildWithName(TuneUpIDs::channelPropertiesNodeId), nullptr);
 }
 
 /*
@@ -281,10 +257,11 @@ void TuneUpMidiState::setPluginStateNode(ValueTree pluginStateNodeIn)
 	// Check if it's a default node, which has a different ID for the tuning list
 	else
 	{
-		ValueTree defaultTunings = tuningList.getChildWithName(TuneUpIDs::defaultTuningsListId);
+		ValueTree defaultTunings = sessionNode.getChildWithName(TuneUpIDs::defaultTuningsListId);
 		if (defaultTunings.isValid() && defaultTunings.getNumChildren() == 2)
 		{
-			sessionNode.getChildWithName(TuneUpIDs::defaultTuningsListId).copyPropertiesAndChildrenFrom(defaultTunings, nullptr);
+			tuningList.copyPropertiesAndChildrenFrom(defaultTunings, nullptr);
+			sessionNode.removeChild(defaultTunings, nullptr);
 			validTuning = true;
 		}
 	}
@@ -292,8 +269,8 @@ void TuneUpMidiState::setPluginStateNode(ValueTree pluginStateNodeIn)
 	if (!validTuning)
 	{
 		tuningList.removeAllChildren(nullptr);
-		tuningList.addChild(defaultSessionNode.getChildWithName(tuningsListId).getChild(0).createCopy(), 0, nullptr);
-		tuningList.addChild(defaultSessionNode.getChildWithName(tuningsListId).getChild(1).createCopy(), 1, nullptr);
+		tuningList.addChild(defaultSessionNode.getChildWithName(TuneUpIDs::defaultTuningsListId).getChild(0).createCopy(), 0, nullptr);
+		tuningList.addChild(defaultSessionNode.getChildWithName(TuneUpIDs::defaultTuningsListId).getChild(1).createCopy(), 1, nullptr);
 	}
 
 	// Check if it has a MIDI Channel Configuration
@@ -541,7 +518,7 @@ void TuneUpMidiState::buildFactoryDefaultOptionsNode()
 
 		else if (prop == TuneUpIDs::defaultTuningsListId)
 		{
-			ValueTree tuningListNode = ValueTree(TuneUpIDs::tuningsListId);
+			ValueTree tuningListNode = ValueTree(TuneUpIDs::defaultTuningsListId);
 			tuningListNode.addChild(STD_TUNING.createCopy(), 0, nullptr);
 			tuningListNode.addChild(STD_TUNING.createCopy(), 1, nullptr);
 			factoryDefaultSessionNode.appendChild(tuningListNode, nullptr);
@@ -610,6 +587,21 @@ void TuneUpMidiState::buildFactoryDefaultOptionsNode()
 			value = false;
 		}
 
-		factoryDefaultSessionNode.setProperty(prop, value, nullptr);
+		if (!value.isVoid())
+			factoryDefaultSessionNode.setProperty(prop, value, nullptr);
 	}
+
+	// Build channel properties
+	ValueTree channelProperties = ValueTree(TuneUpIDs::channelPropertiesNodeId);
+	for (int ch = 0; ch < 16; ch++)
+	{
+		ValueTree channelNode = ValueTree(TuneUpIDs::channelNodeId);
+		channelNode.setProperty(TuneUpIDs::channelNumberId, ch + 1, nullptr);
+		channelNode.setProperty(TuneUpIDs::channelUsedId, 1, nullptr);
+		channelProperties.addChild(channelNode, ch, nullptr);
+	}
+
+	factoryDefaultSessionNode.appendChild(channelProperties, nullptr);
+
+	DBG("Factory Settings built:\n" + factoryDefaultSessionNode.toXmlString());
 }

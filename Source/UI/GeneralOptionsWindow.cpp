@@ -338,18 +338,6 @@ void GeneralOptionsWindow::resetToSessionOptions(bool notifyListeners)
 void GeneralOptionsWindow::loadDefaultNode(ValueTree optionsNodeIn, bool notifyListeners)
 {
 	defaultOptionsNode = optionsNodeIn;
-
-	File f = File(defaultOptionsNode[TuneUpIDs::defaultTuningFilePathId]);
-	setDefaultTuningPath(f, notifyListeners);
-	
-	ValueTree tuningList = optionsNodeIn.getChildWithName(TuneUpIDs::tuningsListId);
-
-	if (tuningList.getChild(0).isValid())
-		setTuningIn(tuningList.getChild(0), notifyListeners);
-
-	if (tuningList.getChild(1).isValid())
-		setTuningOut(tuningList.getChild(1), notifyListeners);
-
 	loadOptionsNode(defaultOptionsNode, true, notifyListeners);
 }
 
@@ -357,6 +345,8 @@ void GeneralOptionsWindow::loadOptionsNode(ValueTree optionsNodeIn, bool saveAsD
 {
 	if (optionsNodeIn.hasType(TuneUpIDs::tuneUpMidiSessionId))
 	{
+		// Load properties
+
 		for (int i = 0; i < optionsNodeIn.getNumProperties(); i++)
 		{
 			Identifier prop = optionsNodeIn.getPropertyName(i);
@@ -414,6 +404,26 @@ void GeneralOptionsWindow::loadOptionsNode(ValueTree optionsNodeIn, bool saveAsD
 			}
 		}
 
+		// Load non-iterable properties/children
+
+		// These first two should only exist in a defaultSessionNode
+		if (saveAsDefault && optionsNodeIn.hasProperty(TuneUpIDs::defaultTuningFilePathId))
+		{
+			File f = File(optionsNodeIn[TuneUpIDs::defaultTuningFilePathId]);
+			setDefaultTuningPath(f, notifyListeners);
+		}
+
+		if (saveAsDefault && optionsNodeIn.hasProperty(TuneUpIDs::defaultTuningsListId))
+		{
+			ValueTree tuningList = optionsNodeIn.getChildWithName(TuneUpIDs::defaultTuningsListId);
+
+			if (tuningList.getChild(0).isValid())
+				setDefaultTuningIn(tuningList.getChild(0), notifyListeners);
+
+			if (tuningList.getChild(1).isValid())
+				setDefaultTuningOut(tuningList.getChild(1), notifyListeners);
+		}
+
 		ValueTree channelProperties = optionsNodeIn.getChildWithName(TuneUpIDs::channelPropertiesNodeId);
 		if (!channelProperties.isValid() || channelProperties.getNumChildren() != 16)
 			channelProperties = defaultOptionsNode.getChildWithName(TuneUpIDs::channelPropertiesNodeId);
@@ -445,7 +455,7 @@ void GeneralOptionsWindow::setDefaultTuningPath(File pathFileIn, bool notifyList
 	}
 }
 
-void GeneralOptionsWindow::setTuningIn(ValueTree tuningInPath, bool notifyListeners)
+void GeneralOptionsWindow::setDefaultTuningIn(ValueTree tuningInPath, bool notifyListeners)
 {
 	if (defaultOptionsNode.getChild(0).getNumChildren() > 0)
 		defaultOptionsNode.getChild(0).getChild(0).copyPropertiesAndChildrenFrom(tuningInPath.createCopy(), nullptr);
@@ -456,7 +466,7 @@ void GeneralOptionsWindow::setTuningIn(ValueTree tuningInPath, bool notifyListen
 		void; // TODO
 }
 
-void GeneralOptionsWindow::setTuningOut(ValueTree tuningOutPath, bool notifyListeners)
+void GeneralOptionsWindow::setDefaultTuningOut(ValueTree tuningOutPath, bool notifyListeners)
 {
 	if (defaultOptionsNode.getChild(0).getNumChildren() == 0)
 		defaultOptionsNode.getChild(0).appendChild(STD_TUNING, nullptr);
