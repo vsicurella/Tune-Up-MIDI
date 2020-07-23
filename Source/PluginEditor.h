@@ -87,6 +87,8 @@ public:
 
 	void channelModeChanged(FreeChannelMode channelModeIn) override;
 
+	void channelConfigurationChanged(ValueTree channelPropertiesNode) override;
+
 	void reuseChannelsChanged(bool reuseChannels) override;
 
 	void resetChannelPitchbendChanged(bool resetPitchbend) override;

@@ -18,16 +18,20 @@ ChannelConfigureComponent::ChannelConfigureComponent()
 
 	// Default colours
 	setColour(ChannelConfigureComponent::ColourIds::backgroundColourId, Colour());
-	setColour(ChannelConfigureComponent::ColourIds::channelUsedColourId, Colours::beige);
+	setColour(ChannelConfigureComponent::ColourIds::channelUsedColourId, Colours::lightgoldenrodyellow);
 	setColour(ChannelConfigureComponent::ColourIds::channelUnusedColourId, Colours::darkgrey);
 	setColour(ChannelConfigureComponent::ColourIds::channelOnColourId, Colours::cadetblue);
-	setColour(ChannelConfigureComponent::ColourIds::labelTextColourId, Colours::black);
+	setColour(ChannelConfigureComponent::ColourIds::labelTextColourId, Colours::white);
 
-	setLabelWidth(24);
+	updateChannelColours();
+
+	// Default layout
+	setLayout(layout);
 }
 
 ChannelConfigureComponent::~ChannelConfigureComponent()
 {
+	removeAllChangeListeners();
 }
 
 void ChannelConfigureComponent::paint (juce::Graphics& g)
@@ -38,26 +42,31 @@ void ChannelConfigureComponent::paint (juce::Graphics& g)
 	if (channelPropertiesNode.isValid())
 	{
 		Colour channelColour;
+		juce::Rectangle<float> chRect;
 		for (int ch = 0; ch < 16; ch++)
 		{
+			chRect = channelRectangles[ch];
 			channelColour = channelPropertyColours[ch];
 
 			if (ch == mouseOverChannel)
 			{
-				channelColour.brighter();
+				channelColour = channelColour.contrasting(0.25f);
 			}
 
 			// TODO: check if channel has note (or do callback)
 
 			g.setColour(channelColour);
-			g.fillRect(channelRectangles[ch]);
+			g.fillRect(chRect);
+
+			g.setColour(Colours::black);
+			g.drawRect(chRect);
 		}
 
 		g.setColour(findColour(ChannelConfigureComponent::ColourIds::labelTextColourId));
 
 		for (int i = 0; i < channelsLabelled.size(); i++)
 		{
-			int translation = -1 * (i % 2 == 0) ? 1 : -1;
+			int translation = (i % 2 == 0) ? -1 : 1;
 			g.drawFittedText(
 				String(channelsLabelled[i] + 1),
 				channelRectangles[channelsLabelled[i]]
@@ -70,17 +79,57 @@ void ChannelConfigureComponent::paint (juce::Graphics& g)
 		}
 	}
 
-	g.setColour(Colours::rebeccapurple);
-	g.drawRect(0.0f, 0.0f, (float)getWidth(), (float)getHeight(), 2.0f);
+	g.setColour(Colours::black);
+	g.drawRect(0.0f, 0.0f, (float)getWidth(), (float)getHeight(), 1.0f);
 }
 
 void ChannelConfigureComponent::resized()
 {
-	// Auto-size based on layout
-	squareWidth = jmin((getWidth() - targetLabelWidth * 2) / (float) sizeFactor, getHeight() / (float) otherSizeFactor);
-	labelWidth = (getWidth() - squareWidth * sizeFactor) / 2.0f;
+	int squareWidth = round((getWidth() - labelWidth * 2) / (float)sizeFactor);
+
+	// adjust size from rounding error
+	labelWidth = (getWidth() - squareWidth * sizeFactor) / 2;
+	channelControlWidth = getWidth() - labelWidth * 2;
+	squareWidth = channelControlWidth / sizeFactor;
+
+	channelSize.setXY(
+		squareWidth,
+		round(getHeight() / otherSizeFactor)
+	);
 
 	updateChannelRectangles();
+}
+
+void ChannelConfigureComponent::mouseMove(const MouseEvent& event)
+{
+	int channelNum = findChannelMouseOver(event);
+	
+	if (mouseOverChannel != channelNum)
+	{
+		mouseOverChannel = channelNum;
+		repaint();
+	}
+}
+
+void ChannelConfigureComponent::mouseDown(const MouseEvent& event)
+{
+	lastChannelMouseClicked = mouseOverChannel;
+
+	ValueTree channelNode = channelPropertiesNode.getChild(lastChannelMouseClicked);
+	channelNode.setProperty(TuneUpIDs::channelUsedId, !(bool)channelNode[TuneUpIDs::channelUsedId], nullptr);
+	
+	sendChangeMessage();
+
+	updateChannelColours();
+	repaint();
+
+	// TODO - more options
+}
+
+void ChannelConfigureComponent::mouseExit(const MouseEvent& event)
+{
+	mouseOverChannel = -1;
+	repaint();
 }
 
 void ChannelConfigureComponent::loadChannelPropertiesNode(ValueTree channelPropertiesIn)
@@ -88,13 +137,12 @@ void ChannelConfigureComponent::loadChannelPropertiesNode(ValueTree channelPrope
 	if (channelPropertiesIn.hasType(TuneUpIDs::channelPropertiesNodeId))
 	{
 		channelPropertiesNode = channelPropertiesIn;
-		setLayout(ChannelConfigureComponent::Layout((int)channelPropertiesNode[TuneUpIDs::channelLayout]));
 
-		for (int i = 0; i < channelControllerColours.size(); i++)
-			setColour(
-				appToClassColourIds[i], 
-				Colour::fromString(channelPropertiesNode[channelControllerColours[i]].toString())
-			);
+		//for (int i = 0; i < channelControllerColours.size(); i++)
+		//	setColour(
+		//		appToClassColourIds[i], 
+		//		Colour::fromString(channelPropertiesNode[channelControllerColours[i]].toString())
+		//	);
 
 		updateChannelColours();
 	}
@@ -102,8 +150,10 @@ void ChannelConfigureComponent::loadChannelPropertiesNode(ValueTree channelPrope
 
 void ChannelConfigureComponent::setLabelWidth(int widthIn)
 {
-	targetLabelWidth = widthIn;
-	resized();
+	labelWidth = widthIn;
+
+	if (!getBounds().isEmpty())
+		resized();
 }
 
 void ChannelConfigureComponent::setLayout(ChannelConfigureComponent::Layout layoutIn)
@@ -140,9 +190,9 @@ int ChannelConfigureComponent::findChannelMouseOver(const MouseEvent& eventIn)
 {
 	int channelNum = -1;
 
-	if (getBounds().contains(eventIn.getPosition()))
+	if (channelBounds.contains(eventIn.getPosition()))
 	{
-		channelNum = (eventIn.x - (2 * labelWidth)) / squareWidth + eventIn.y / squareWidth * 8;
+		channelNum = (eventIn.x - labelWidth) / channelSize.x + eventIn.y / channelSize.y * 8;
 	}
 
 	return channelNum;
@@ -156,11 +206,13 @@ void ChannelConfigureComponent::updateChannelRectangles()
 	{
 		for (int col = 0; col < format.x; col++)
 		{
-			Point<float> cornerTL = Point<float>(labelWidth + col * squareWidth, row * squareWidth);
-			Point<float> cornerBR = Point<float>(cornerTL.x + squareWidth, cornerTL.y + squareWidth);
+			Point<float> cornerTL = Point<float>(labelWidth + col * channelSize.x, row * channelSize.y);
+			Point<float> cornerBR = Point<float>(cornerTL.x + channelSize.x, cornerTL.y + channelSize.y);
 			channelRectangles.add(juce::Rectangle<float>(cornerTL, cornerBR));
 		}
 	}
+
+	channelBounds = juce::Rectangle<int>(labelWidth, 0, channelControlWidth, getHeight());
 }
 
 void ChannelConfigureComponent::updateChannelColours()
@@ -183,5 +235,11 @@ void ChannelConfigureComponent::updateLayoutFormat()
 		? Point<int>(sizeFactor, otherSizeFactor) // Horizontal
 		: Point<int>({ otherSizeFactor, sizeFactor }); // Vertical
 
-	resized();
+	if (!getBounds().isEmpty())
+		resized();
+}
+
+ValueTree ChannelConfigureComponent::getChannelPropertiesNode()
+{
+	return channelPropertiesNode;
 }

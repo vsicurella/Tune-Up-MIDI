@@ -18,7 +18,8 @@
 /*
 	A grid representing MIDI channels with mouse interaction to change channel properties.
 */
-class ChannelConfigureComponent  : public juce::Component
+class ChannelConfigureComponent  :	public juce::Component,
+									public juce::ChangeBroadcaster
 {
 public:
 
@@ -52,6 +53,14 @@ public:
     void paint (juce::Graphics&) override;
     void resized() override;
 
+	void mouseMove(const MouseEvent& event) override;
+
+	void mouseDown(const MouseEvent& event) override;
+
+	void mouseExit(const MouseEvent& event) override;
+
+	//====================================================================================
+
 	void loadChannelPropertiesNode(ValueTree channelPropertiesIn);
 
 	void setLabelWidth(int widthIn);
@@ -64,6 +73,8 @@ public:
 
 	void updateChannelColours();
 
+	ValueTree getChannelPropertiesNode();
+
 private:
 
 	ValueTree channelPropertiesNode;
@@ -71,9 +82,8 @@ private:
 	ChannelConfigureComponent::Layout layout = ChannelConfigureComponent::Layout::Rectangle;
 	ChannelConfigureComponent::Orientation orientation = ChannelConfigureComponent::Orientation::Horizontal;
 
-	int targetLabelWidth;
 	int labelWidth;
-	int squareWidth;
+	Point<int> channelSize;
 
 	int sizeFactor;
 	int otherSizeFactor;
@@ -83,10 +93,15 @@ private:
 	Array<Colour> channelPropertyColours;
 	Array<int> channelsLabelled;
 
-	int lastChannelMouseClicked = 0;
-	int mouseOverChannel = 0;
+	int lastChannelMouseClicked = -1;
+	int mouseOverChannel = -1;
 	Point<double> mousePosition;
 
+	// DRAWING HELPERS
+	int channelControlWidth;
+	juce::Rectangle<int> channelBounds;
+
+	
 	Array<int> appToClassColourIds =
 	{
 		ChannelConfigureComponent::ColourIds::backgroundColourId,

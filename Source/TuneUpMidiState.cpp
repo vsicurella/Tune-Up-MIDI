@@ -197,9 +197,10 @@ void TuneUpMidiState::setDefaultSessionNode(ValueTree defaultOptionsNodeIn)
 	// Ensure it has a default MIDI channel configuration
 	ValueTree channelProperties = defaultSessionNode.getOrCreateChildWithName(TuneUpIDs::channelPropertiesNodeId, nullptr);
 
-	// Ensure there are exactly 16 channel node children
-	if (channelProperties.getNumChildren() != 16)
+	// Ensure there are exactly 16 channel node children and some channel properties
+	if (channelProperties.getNumChildren() != 16 || channelProperties.getNumProperties() == 0)
 		channelProperties.copyPropertiesAndChildrenFrom(factoryDefaultSessionNode.getChildWithName(TuneUpIDs::channelPropertiesNodeId), nullptr);
+
 }
 
 /*
@@ -367,7 +368,7 @@ void TuneUpMidiState::loadSessionNode(ValueTree nodeOptionsIn, bool callListener
 
 	nodeToUse = nodeOptionsIn;
 	ValueTree channelProperties = nodeToUse.getChildWithName(TuneUpIDs::channelPropertiesNodeId);
-	
+	setChannelConfiguration(channelProperties);
 
 	if (callListeners)
 		listeners.call(&TuneUpMidiState::Listener::optionsLoaded, sessionNode);
@@ -482,10 +483,10 @@ void TuneUpMidiState::setChannelMode(FreeChannelMode channelModeIn)
 
 void TuneUpMidiState::setChannelConfiguration(ValueTree channelPropertiesNodeIn)
 {
-	if (!channelPropertiesNodeIn.hasType(channelPropertiesNodeId) || channelPropertiesNodeIn.getNumChildren() != 16)
-		channelPropertiesNodeIn = defaultSessionNode;
+	if (!channelPropertiesNodeIn.hasType(TuneUpIDs::channelPropertiesNodeId) || channelPropertiesNodeIn.getNumChildren() != 16)
+		channelPropertiesNodeIn = defaultSessionNode.getChildWithName(TuneUpIDs::channelPropertiesNodeId).createCopy();
 
-	sessionNode.getOrCreateChildWithName(TuneUpIDs::channelPropertiesNodeId, nullptr).copyPropertiesAndChildrenFrom(channelPropertiesNodeIn, nullptr);
+	sessionNode.getChildWithName(TuneUpIDs::channelPropertiesNodeId) = channelPropertiesNodeIn;
 	midiProcessor->setChannelConfiguration(sessionNode.getChildWithName(TuneUpIDs::channelPropertiesNodeId));
 }
 

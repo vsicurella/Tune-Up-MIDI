@@ -20,7 +20,8 @@ class GeneralOptionsWindow :	public Component,
 								private Button::Listener,
 								private ComboBox::Listener,
 								private Slider::Listener,
-								private TextEditor::Listener
+								private TextEditor::Listener,
+								private ChangeListener
 {
 
 public:
@@ -41,6 +42,8 @@ public:
 	void sliderValueChanged(Slider* sliderThatChanged) override;
 
 	void textEditorReturnKeyPressed(TextEditor& source) override;
+
+	void changeListenerCallback(ChangeBroadcaster* source) override;
 
 	//================================================================================
 
@@ -112,7 +115,7 @@ public:
 
 		virtual void pitchbendRangeChanged(int pitchbendRangeIn) {};
 
-		virtual void channelPropertiesNodeChanged(/* TODO */) {};
+		virtual void channelConfigurationChanged(ValueTree channelPropertiesNode) {};
 
 		virtual void channelModeChanged(TuneUpMode::FreeChannelMode modeIn) {};
 

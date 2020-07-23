@@ -198,6 +198,7 @@ TuneupMidiAudioProcessorEditor::~TuneupMidiAudioProcessorEditor()
 	if (currentMode == NewTuningMode)
 		loadTuningOutIntoState(lastTuningDefinition);
 
+	pluginState.removeListener(this);
 	midiProcessor.removeChangeListener(this); // TEMP
 
 	mainWindow = nullptr;
@@ -282,7 +283,12 @@ void TuneupMidiAudioProcessorEditor::changeListenerCallback(ChangeBroadcaster* s
 	{
 		// TEMP
 		voiceLimitValue->setText(String(midiProcessor.getTuningNotesOn().size()), dontSendNotification);
-		channelsOnValue->setText(arrayToString(midiProcessor.getChannelsOn()), dontSendNotification);
+
+		Array<int> displayChannels;
+		for (auto ch : midiProcessor.getChannelsOn())
+			displayChannels.add(ch + 1);
+
+		channelsOnValue->setText(arrayToString(displayChannels), dontSendNotification);
 	}
 
 	else if (source == createTuningWindow.get())
@@ -412,6 +418,11 @@ void TuneupMidiAudioProcessorEditor::voiceLimitChanged(int limitIn)
 void TuneupMidiAudioProcessorEditor::channelModeChanged(FreeChannelMode channelModeIn)
 {
 	pluginState.setChannelMode(channelModeIn);
+}
+
+void TuneupMidiAudioProcessorEditor::channelConfigurationChanged(ValueTree channelPropertiesNode)
+{
+	pluginState.setChannelConfiguration(channelPropertiesNode);
 }
 
 void TuneupMidiAudioProcessorEditor::reuseChannelsChanged(bool reuseChannels)

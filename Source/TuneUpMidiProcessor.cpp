@@ -116,7 +116,7 @@ void TuneUpMidiProcessor::setChannelConfiguration(ValueTree channelPropertiesNod
 	{
 		if (ch.hasType(TuneUpIDs::channelNodeId) && (int)ch[TuneUpIDs::channelUsedId] == 0)
 		{
-			channelsToSkip.add((int)ch[TuneUpIDs::channelNumberId]);
+			channelsToSkip.add((int)ch[TuneUpIDs::channelNumberId] - 1);
 		}
 	}
 

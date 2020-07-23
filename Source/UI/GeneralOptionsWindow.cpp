@@ -121,8 +121,8 @@ GeneralOptionsWindow::GeneralOptionsWindow(ValueTree defaultOptionsNodeIn, Value
 
 	channelController.reset(new ChannelConfigureComponent());
 	addAndMakeVisible(channelController.get());
-	channelController->setLayout(ChannelConfigureComponent::Layout::Rectangle);
-	channelController->setLabelWidth(componentGap * 3);
+	channelController->setLabelWidth(componentGap * 2);
+	channelController->addChangeListener(this);
 
 	channelModeLabel.reset(new Label("channelModeLabel", "Free Channel Mode:"));
 	addAndMakeVisible(channelModeLabel.get());
@@ -323,6 +323,14 @@ void GeneralOptionsWindow::sliderValueChanged(Slider* sliderThatChanged)
 void GeneralOptionsWindow::textEditorReturnKeyPressed(TextEditor& source)
 {
 
+}
+
+void GeneralOptionsWindow::changeListenerCallback(ChangeBroadcaster* source)
+{
+	if (source == channelController.get())
+	{
+		setChannelProperties(channelController->getChannelPropertiesNode(), false);
+	}
 }
 
 void GeneralOptionsWindow::resetToDefaultOptions(bool notifyListeners)
@@ -557,7 +565,7 @@ void GeneralOptionsWindow::setChannelProperties(ValueTree channelPropertiesNodeI
 	}
 
 	if (notifyListeners)
-		listeners.call(&GeneralOptionsWindow::Listener::channelPropertiesNodeChanged);
+		listeners.call(&GeneralOptionsWindow::Listener::channelConfigurationChanged, channelPropertiesNodeIn);
 	
 }
 
