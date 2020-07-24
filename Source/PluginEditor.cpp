@@ -334,8 +334,10 @@ void TuneupMidiAudioProcessorEditor::buttonClicked(Button* buttonClicked)
 	{
 		FileChooser chooser(
 			"Select your tuning file", 
-			pluginState.getDefaultSessionNode()[TuneUpIDs::defaultTuningFilePathId].toString()
+			pluginState.getDefaultSessionNode()[TuneUpIDs::defaultTuningFilePathId].toString(),
+			supportedTuningFileTypes
 		);
+
 		chooser.browseForFileToOpen();
 		loadedFile = chooser.getResult();
 

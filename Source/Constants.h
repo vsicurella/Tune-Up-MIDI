@@ -17,3 +17,5 @@ static String applicationFolderPath = File::getSpecialLocation(File::userApplica
 static String defaultOptionsFilePath = File(applicationFolderPath).getChildFile(applicationName + ".default").getFullPathName();
 
 static ValueTree STD_TUNING; // Initialized in PluginState
+
+static String supportedTuningFileTypes = "*.scl; *.tun; *.mnlgtuns; *.mnlgtuno;";
