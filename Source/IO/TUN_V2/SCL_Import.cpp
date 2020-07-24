@@ -275,8 +275,17 @@ namespace TUN
 	{
 		// IMPORTANT: ResetTuning is expected to be called before calling this function!
 
+		// Grab the first line in stream as name
+		strparser.GetLineAndTrim(istr, m_lReadLineCount);
+		m_strTuningName = strparser.str();
+
+		// Strip unneeded bits
+		if (m_strTuningName.at(0) == '!')
+			m_strTuningName = m_strTuningName.substr(1, m_strTuningName.length());
+		m_strTuningName = TUN::strx::Trim(m_strTuningName);
+
 		// Read scale dataset from stream
-		bool	bNameRead = false;
+		bool	bDescRead = false;
 		long	lCurrNote = 0;
 		m_lScaleSize = -1;
 		while (true)
@@ -288,15 +297,15 @@ namespace TUN
 			if (strparser.str().empty() || (strparser.str().at(0) == '!'))
 				continue;
 
-			if (!bNameRead)
+			if (!bDescRead)
 			{
 				// Read Name of scala tune
-				bNameRead = true;
+				bDescRead = true;
 				// if line contains numbers only, there is no "Name line" or name is empty
 				if (strparser.str().find_first_not_of("0123456789") != std::string::npos)
 				{
 					// Name found
-					m_strTuningName = strparser.str();
+					m_strDescription = strparser.str();
 					continue; // Read next line
 				}
 			}
@@ -345,7 +354,7 @@ namespace TUN
 			}
 		} // while (true)
 
-		if ((!bNameRead) || (m_lScaleSize < 0))
+		if ((!bDescRead) || (m_lScaleSize < 0))
 			return m_err.SetError("No data in file.", m_lReadLineCount);
 		if (lCurrNote < m_lScaleSize)
 			return m_err.SetError("Less tuning entries found than expected.", m_lReadLineCount);
@@ -354,6 +363,20 @@ namespace TUN
 	}
 
 
+
+	int CSCL_Import::GetScaleSize() const
+	{
+		return m_lScaleSize;
+	}
+
+	std::string CSCL_Import::GetScaleDescription() const
+	{
+		return m_strDescription;
+	}
+	double	CSCL_Import::GetLineInCents(int lineNumber) const
+	{
+		return m_dblScaleCents[lineNumber];
+	}
 
 	void CSCL_Import::SetSingleScale(CSingleScale& SS)
 	{

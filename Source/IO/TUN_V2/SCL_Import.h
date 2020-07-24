@@ -66,7 +66,9 @@ namespace TUN
 		bool			ReadSCL(std::istream& istr, CStringParser& strparser);
 	public:
 
-
+		int				GetScaleSize() const;
+		std::string		GetScaleDescription() const;
+		double			GetLineInCents(int lineNumber) const;
 
 		// Export to CSingleScale
 		void			SetSingleScale(CSingleScale& SS);
@@ -86,6 +88,7 @@ namespace TUN
 		// ----------------------------------------------------------------------
 
 		std::string			m_strTuningName;
+		std::string			m_strDescription;
 		long				m_lScaleSize;
 		double				m_dblScaleCents[128];
 		// After applying the keyboard mapping:
