@@ -215,6 +215,14 @@ ValueTree TuningDefinition::createStaticTuningDefinition(
 	ValueTree definitionOut(tuningDefinitionId);
 	definitionOut.setProperty(functionalId, false, nullptr);
 	definitionOut.setProperty(rootMidiNoteId, midiRootNote, nullptr);
+
+	// Strip file directory and extension if in name
+
+	if (File::isAbsolutePath(nameIn))
+	{
+		nameIn = File(nameIn).getFileNameWithoutExtension();
+	}
+
 	definitionOut.setProperty(tuningNameId, nameIn, nullptr);
 	definitionOut.setProperty(tuningDescriptionId, descriptionIn, nullptr); // TODO: default description?
 
