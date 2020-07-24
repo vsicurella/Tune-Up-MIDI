@@ -75,11 +75,8 @@ int TuningFileParser::determineTuningType(const File& tuningFileIn)
 	else if (fileType == ".kbm")
 		type = TuningType::KBM;
 
-	else if (fileType == ".mnlgtuns")
-		type = TuningType::MNLGTUNS;
-
-	else if (fileType == ".mnlgtuno")
-		type = TuningType::MNLGTUNO;
+	else if (fileType == ".mnlgtuns" || fileType == ".mnlgtuno")
+		type = TuningType::MNLGTUN;
 
 
 	// TODO Double checking stuff
@@ -150,6 +147,24 @@ ValueTree TuningFileParser::parseTunFileDefinition(const File& tunFile)
 	return tuningDefinition;
 }
 
+ValueTree TuningFileParser::parseMnlgtunDefinition(const File& mngltunFile)
+{
+	ValueTree tuningDefinition;
+	MinilogueImporter mnlgTunImporter(mngltunFile.getFullPathName());
+	
+	if (mnlgTunImporter.getErrorMessage().length() == 0)
+	{
+		tuningDefinition = TuningDefinition::createStaticTuningDefinition(
+			mnlgTunImporter.getCentsTable(),
+			mnlgTunImporter.getBaseNote(),
+			mnlgTunImporter.getFileName(),
+			mnlgTunImporter.getComment()
+		);
+	}
+
+	return tuningDefinition;
+}
+
 void TuningFileParser::parseTuning()
 {
 	switch (type)
@@ -164,6 +179,10 @@ void TuningFileParser::parseTuning()
 
 	case TuningType::TUN:
 		tuningLoadedDefinition = parseTunFileDefinition(fileLoaded);
+		break;
+
+	case TuningType::MNLGTUN:
+		tuningLoadedDefinition = parseMnlgtunDefinition(fileLoaded);
 		break;
 
 	default: // DEFAULT TO STANDARD TUNING

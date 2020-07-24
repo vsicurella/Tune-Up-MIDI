@@ -14,14 +14,17 @@
 
 #include <JuceHeader.h>
 
+
+#include "../Tuning.h"
+#include "../TuningDefinition.h"
+
+#include "MinilogueImporter.h"
 #include "TUN_V2/SCL_Import.h"
 #include "TUN_V2/TUN_Scale.h"
 #include "TUN_V2/TUN_MultiScaleFile.h"
 #include "TUN_V2/TUN_Formula.h"
 #include "TUN_V2/TUN_EmbedHTML.h"
 
-#include "../Tuning.h"
-#include "../TuningDefinition.h"
 
 class TuningFileParser
 {
@@ -37,8 +40,7 @@ public:
 		SCL,		// Scala
 		KBM,		// Keyboard Mapping File
 		TUN,		// Anamark Tun 2.0
-		MNLGTUNS,	// Korg 'logue Scale Tuning
-		MNLGTUNO	// Korg 'logue Octave Tuning
+		MNLGTUN,	// Korg 'logue Tuning
 	};
 
 public:
@@ -66,6 +68,8 @@ public:
 	static ValueTree parseScalaFileDefinition(const File& scalaFile);
 
 	static ValueTree parseTunFileDefinition(const File& tunFile);
+
+	static ValueTree parseMnlgtunDefinition(const File& mngltunFile);
 
 private:
 

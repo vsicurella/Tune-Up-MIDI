@@ -29,6 +29,10 @@
           <FILE id="sbv2iK" name="TUN_StringTools.h" compile="0" resource="0"
                 file="Source/IO/TUN_V2/TUN_StringTools.h"/>
         </GROUP>
+        <FILE id="KdowI0" name="MinilogueImporter.cpp" compile="1" resource="0"
+              file="Source/IO/MinilogueImporter.cpp"/>
+        <FILE id="UFjf4g" name="MinilogueImporter.h" compile="0" resource="0"
+              file="Source/IO/MinilogueImporter.h"/>
         <FILE id="RQjvBN" name="TuningFileParser.cpp" compile="1" resource="0"
               file="Source/IO/TuningFileParser.cpp"/>
         <FILE id="i1kuSc" name="TuningFileParser.h" compile="0" resource="0"
