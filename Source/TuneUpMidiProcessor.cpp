@@ -20,10 +20,10 @@ TuneUpMidiProcessor::TuneUpMidiProcessor(const Tuning* originTuning, const Tunin
 	retuner.reset(new MidiNoteTuner(*tuningIn, *tuningOut));
 	retuner->setPitchbendRange(pitchbendRange);
 
-	midiInput = MidiInput::openDevice(inputDeviceInfo.name, this);
-	if (midiInput.get())
-		midiInput->start();
-	DBG("Midi Input opened: " + inputDeviceInfo.name);
+	//midiInput = MidiInput::openDevice(inputDeviceInfo.name, this);
+	//if (midiInput.get())
+	//	midiInput->start();
+	//DBG("Midi Input opened: " + inputDeviceInfo.name);
 
 	//midiOutput = MidiInput::openDevice(outputDeviceInfo.name, this);
 }

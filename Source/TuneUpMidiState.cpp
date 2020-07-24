@@ -24,8 +24,6 @@ TuneUpMidiState::TuneUpMidiState()
 	setDefaultSessionNode(defaultOptionsLoad);
 	DBG("Loaded these default options:\n" + defaultSessionNode.toXmlString());
 
-	sessionNode = ValueTree(TuneUpIDs::tuneUpMidiSessionId);
-
 	tuningInDefinition.setDefinition(defaultSessionNode.getChildWithName(TuneUpIDs::defaultTuningsListId).getChild(0));
 	tuningIn.reset(new Tuning(tuningInDefinition.render()));
 
@@ -34,6 +32,10 @@ TuneUpMidiState::TuneUpMidiState()
 
 	midiProcessor.reset(new TuneUpMidiProcessor(tuningIn.get(), tuningOut.get(), notesInOn));
 	midiProcessor->addControlListener(this);
+
+	sessionNode = ValueTree(TuneUpIDs::tuneUpMidiSessionId);
+	setPluginStateNode(defaultSessionNode.createCopy());
+	resetToPluginState(false);
 }
 
 TuneUpMidiState::~TuneUpMidiState()
@@ -316,7 +318,6 @@ void TuneUpMidiState::loadSessionNode(ValueTree nodeOptionsIn, bool callListener
 
 		else if (prop == TuneUpIDs::tuningsListId)
 		{
-			// TODO: Improve with default nodes
 			setTunings(nodeOptionsIn);
 		}
 
