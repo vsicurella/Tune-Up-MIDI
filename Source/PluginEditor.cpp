@@ -437,12 +437,18 @@ void TuneupMidiAudioProcessorEditor::resetChannelPitchbendChanged(bool resetPitc
 
 void TuneupMidiAudioProcessorEditor::onFileLoad()
 {
-	bool success = scalaFileReader.open(loadedFile);
+	tuningFileParser.loadNewFile(loadedFile.getFullPathName());
+	ValueTree definition = tuningFileParser.getTuningDefinition();
+
+	DBG("Loaded: " + loadedFile.getFullPathName());
+	DBG("Type: " + String((int)tuningFileParser.getTuningType()));
+	DBG("DEFINITION PARSED:\n" + definition.toXmlString());
+
+	bool success = definition.hasType(TuneUpIDs::tuningDefinitionId);
 
 	if (success)
 	{
-		ScalaFile file = scalaFileReader.getScalaFile();
-		loadTuningOutIntoState(TuningDefinition::createStaticTuningDefinition(file.cents, 60, file.name, file.description));
+		loadTuningOutIntoState(definition);
 	}
 	else
 	{

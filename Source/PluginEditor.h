@@ -12,7 +12,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "PluginProcessor.h"
-#include "ScalaFileReader.h"
+#include "IO/TuningFileParser.h"
 #include "UI/MainWindow.h"
 #include "UI/CreateScaleWindow.h"
 #include "UI/GeneralOptionsWindow.h"
@@ -122,7 +122,7 @@ private:
 	TuneUpMidiState& pluginState;
 
 	File loadedFile;
-	ScalaFileReader scalaFileReader;
+	TuningFileParser tuningFileParser;
 
 	ValueTree lastTuningDefinition;
 	ControlMode currentMode = MainWindowMode;
