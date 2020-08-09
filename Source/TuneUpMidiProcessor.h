@@ -38,6 +38,16 @@ public:
 
 	const Array<int>& getChannelsPitchbend() const;
 
+	/*
+		Returns the midi state of keyboard input, primarily for visualization
+	*/
+	MidiKeyboardState& getKeyboardStateIn();
+
+	/*
+		Returns the midi state of retuned midi output, primarily for visualization
+	*/
+	MidiKeyboardState& getKeyboardStateOut();
+
 	void setTuningIn(const Tuning* tuningInIn);
 	void setTuningOut(const Tuning* tuningOutIn);
 
@@ -104,6 +114,9 @@ private:
 	int ccSmpl = 0;
 
 	//std::unique_ptr<MPEInstrument> mpeInst;
+
+	MidiKeyboardState keyboardStateIn;
+	MidiKeyboardState keyboardStateOut;
 
 	Array<int> channelsToSkip;
 	

@@ -55,5 +55,14 @@ public:
 	String getName() const;
 	String getDescription() const;
 
+	/*
+		Returns the period-reduced scale degree of the note number passed in
+	*/
+	int getScaleDegree(int midiNoteIn) const;
+
+	/*
+		Returns the closest note number to the semitone value passed in, 
+		from reference of the root note
+	*/
 	int closestNoteToSemitone(double semitoneIn) const;
 };

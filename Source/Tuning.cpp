@@ -115,6 +115,11 @@ String Tuning::getDescription() const
 	return description;
 }
 
+int Tuning::getScaleDegree(int midiNoteIn) const
+{
+	return modulo(midiNoteIn - rootMidiNote, tuningSize);
+}
+
 int Tuning::closestNoteToSemitone(double semitoneIn) const
 {
 	if (tuningSize == 1)

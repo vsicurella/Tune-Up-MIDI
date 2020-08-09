@@ -53,6 +53,16 @@ const Array<int>& TuneUpMidiProcessor::getChannelsPitchbend() const
 	return channelAssigner.getChannelsPitchbend();
 }
 
+MidiKeyboardState& TuneUpMidiProcessor::getKeyboardStateIn()
+{
+	return keyboardStateIn;
+}
+
+MidiKeyboardState& TuneUpMidiProcessor::getKeyboardStateOut()
+{
+	return keyboardStateOut;
+}
+
 void TuneUpMidiProcessor::setTuningIn(const Tuning* tuningInIn)
 {
 	tuningIn = tuningInIn;
@@ -156,7 +166,7 @@ void TuneUpMidiProcessor::processMidi(MidiBuffer& bufferIn)
 		desc = msg.getDescription() + '\n';
 		midiInLog.append(desc, desc.length());
 		desc = "";
-
+		keyboardStateIn.processNextMidiEvent(msg);
 		// TODO: Put each case into separate function and set up so that interal note on and note offs can be processed properly
 		// no matter where/when the function is called
 
@@ -252,6 +262,7 @@ void TuneUpMidiProcessor::processMidi(MidiBuffer& bufferIn)
 
 		desc += msg.getDescription() + '\n';
 		midiOutLog.append(desc, desc.length());
+		keyboardStateOut.processNextMidiEvent(msg);
 	}
 
 	bufferIn = bufferOut;
