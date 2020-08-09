@@ -31,4 +31,11 @@ namespace TuneUpMode
 		RegularTemperament
 	};
 
+	enum ViewMode
+	{
+		NoView = 0,
+		IntervalList,
+		ToneCircle
+	};
+
 };

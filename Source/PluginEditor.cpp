@@ -180,15 +180,16 @@ TuneupMidiAudioProcessorEditor::TuneupMidiAudioProcessorEditor (
 		}
 	}
 
-    setSize (500, 200);
+    setSize (500, controlPanelHeight);
 	pluginState.addListener(this);
 	onNewOptionsNode(pluginState.getPluginStateNode());
 
 	setControlMode(MainWindowMode);
+	viewMode = ViewMode((int)pluginState.getPluginStateNode()[TuneUpIDs::viewModeNumber]);
+	viewModeChanged();
 
 	// TEMPORARY
 	dynamicToggleButton->setEnabled(false);
-	viewButton->setEnabled(false);
 	toolboxButton->setEnabled(false);
 }
 
@@ -227,12 +228,12 @@ void TuneupMidiAudioProcessorEditor::paint (Graphics& g)
 
 	// toolbar background
 	g.setColour(Colour(0xff323e44).darker(0.75f));
-	g.fillRect(0, controlWindows[currentMode]->getBottom() + componentGap, getWidth(), barHeight);
+	g.fillRect(0, getHeight() - barHeight, getWidth(), barHeight);
 }
 
 void TuneupMidiAudioProcessorEditor::resized()
 {
-	grid.setSize(getHeight());
+	grid.setSize(controlPanelHeight);
 	barHeight = grid.getUnit(3);
 
 	// Button Bar
@@ -268,10 +269,22 @@ void TuneupMidiAudioProcessorEditor::resized()
 
 	// Control Windows
 	BorderSize<int> controlBorder(bar.getBounds().getBottom() + componentGap, borderGap, barHeight + componentGap, borderGap);
+	
+	if (viewMode > ViewMode::NoView)
+	{
+		controlBorder.setBottom(barHeight + componentGap + viewPanelHeight);
+	}
+	
 	controlWindows[currentMode]->setBoundsInset(controlBorder);
 
+	if (viewMode > ViewMode::NoView)
+	{
+		BorderSize<int> viewBorder(controlWindows[currentMode]->getBottom() + componentGap, borderGap, barHeight + componentGap, borderGap);
+		viewPanel->setBoundsInset(viewBorder);
+	}
+
 	// TEMP
-	voiceLimitTitle->setBounds(0, controlWindows[currentMode]->getBottom() + componentGap, Font().getStringWidth(voiceLimitTitle->getText())+componentGap, barHeight);
+	voiceLimitTitle->setBounds(0, getHeight() - barHeight, Font().getStringWidth(voiceLimitTitle->getText())+componentGap, barHeight);
 	voiceLimitValue->setBounds(voiceLimitTitle->getRight(), voiceLimitTitle->getY(), Font().getStringWidth("16") + componentGap, barHeight);
 	channelsOnTitle->setBounds(voiceLimitValue->getRight(), voiceLimitTitle->getY(), Font().getStringWidth(channelsOnTitle->getText())+componentGap, barHeight);
 	channelsOnValue->setBounds(channelsOnTitle->getRight(), voiceLimitTitle->getY(), getWidth() - channelsOnTitle->getRight(), barHeight);
@@ -353,6 +366,28 @@ void TuneupMidiAudioProcessorEditor::buttonClicked(Button* buttonClicked)
 	{
 		setControlMode(DynamicOptions);
 	}
+
+	else if (buttonClicked == viewButton.get())
+	{
+		PopupMenu viewMenu;
+
+		viewMenu.addItem("Hide", true, false, [=]() {
+			viewMode = ViewMode::NoView;
+			viewModeChanged();
+		});
+
+		viewMenu.addItem("Interval List", true, viewMode == ViewMode::IntervalList, [=]() {
+			viewMode = ViewMode::IntervalList;
+			viewModeChanged();
+		});
+
+		viewMenu.addItem("Tone Circle", true, viewMode == ViewMode::ToneCircle, [=]() {
+			viewMode = ViewMode::ToneCircle;
+			viewModeChanged();
+		});
+
+		viewMenu.show();
+	}
 }
 
 void TuneupMidiAudioProcessorEditor::comboBoxChanged(ComboBox* comboBoxThatChanged)
@@ -383,6 +418,40 @@ void TuneupMidiAudioProcessorEditor::tuningOutLoaded(ValueTree tuningOutDef, Tun
 void TuneupMidiAudioProcessorEditor::dynamicTuningModeChanged(bool isDynamicTuning)
 {
 	// TODO
+}
+
+void TuneupMidiAudioProcessorEditor::viewModeChanged()
+{
+	switch (viewMode)
+	{
+	case ViewMode::IntervalList:
+	{
+		// TODO
+		break;
+	}
+
+	case ViewMode::ToneCircle:
+	{
+		viewPanel.reset(new ViewToneCircle(*pluginState.getTuningOut(), &midiProcessor.getKeyboardStateIn()));
+		break;
+	}
+
+	default:
+	{
+		viewPanel = nullptr;
+		break;
+	}
+	}
+
+	if (viewPanel.get())
+	{
+		addAndMakeVisible(viewPanel.get());
+		setSize(500, controlPanelHeight + viewPanelHeight);
+	}
+	else
+		setSize(500, controlPanelHeight);
+
+	pluginState.getPluginStateNode().setProperty(TuneUpIDs::viewModeNumber, viewMode, nullptr);
 }
 
 //==============================================================================

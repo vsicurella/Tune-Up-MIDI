@@ -19,6 +19,7 @@
 #include "UI/DynamicOptionsWindow.h"
 #include "UI/ButtonBar.h"
 #include "UI/UnitGrid.h"
+#include "UI/Views/ViewToneCircle.h"
 
 
 //==============================================================================
@@ -67,6 +68,8 @@ public:
 	void tuningOutLoaded(ValueTree tuningOutDef, Tuning* tuningOutPtr) override;
 
 	void dynamicTuningModeChanged(bool isDynamicTuning) override;
+
+	void viewModeChanged();
 
 	//==============================================================================
 
@@ -126,6 +129,10 @@ private:
 
 	ValueTree lastTuningDefinition;
 	ControlMode currentMode = MainWindowMode;
+	ViewMode viewMode = ViewMode::NoView;
+
+	const int controlPanelHeight = 200;
+	const int viewPanelHeight = 300;
 
 	// Control windows
 	std::unique_ptr<TuneUpWindow> mainWindow;
@@ -136,6 +143,8 @@ private:
 	std::unique_ptr<DynamicOptionsWindow> dynamicOptionsWindow;
 
 	Array<Component*> controlWindows;
+
+	std::unique_ptr<TuneUpMidiView> viewPanel;
 
 	// Button Bar
 	// Main Window

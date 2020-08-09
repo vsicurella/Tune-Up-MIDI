@@ -77,6 +77,9 @@ namespace TuneUpIDs
 	static Identifier dynamicGenRangeId("DynamicRangeId");
 	static Identifier dynamicGenCCNumId("DynamicCCNumber");
 
+	// Views
+	static Identifier viewModeNumber("ViewModeNumber");
+
 	// TUNE-UP MAIN OPTIONS
 	static Array<Identifier> tuneUpOptionIds =
 	{
