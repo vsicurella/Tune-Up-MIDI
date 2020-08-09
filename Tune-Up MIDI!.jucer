@@ -39,6 +39,14 @@
               file="Source/IO/TuningFileParser.h"/>
       </GROUP>
       <GROUP id="{A64A6C41-3A46-2909-27EC-14AB349A9B53}" name="UI">
+        <GROUP id="{1D36898C-ED6E-AE28-9F0B-3E8472334D8D}" name="Views">
+          <FILE id="RQ0vxD" name="ViewBase.cpp" compile="1" resource="0" file="Source/UI/Views/ViewBase.cpp"/>
+          <FILE id="vAY3ng" name="ViewBase.h" compile="0" resource="0" file="Source/UI/Views/ViewBase.h"/>
+          <FILE id="MnkBoU" name="ViewToneCircle.cpp" compile="1" resource="0"
+                file="Source/UI/Views/ViewToneCircle.cpp"/>
+          <FILE id="qOMzLm" name="ViewToneCircle.h" compile="0" resource="0"
+                file="Source/UI/Views/ViewToneCircle.h"/>
+        </GROUP>
         <FILE id="uduSLI" name="ChannelConfigureComponent.cpp" compile="1"
               resource="0" file="Source/UI/ChannelConfigureComponent.cpp"/>
         <FILE id="eATMqU" name="ChannelConfigureComponent.h" compile="0" resource="0"
