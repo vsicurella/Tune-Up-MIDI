@@ -26,6 +26,8 @@ ViewToneCircle::ViewToneCircle(const Tuning& tuningIn, MidiKeyboardState* keyboa
 	{
 		degreeAngles.add(scaleDegreeToAngle(i));
 	}
+
+	DBGArray(degreeAngles, "ToneCircle Angles");
 }
 
 ViewToneCircle::~ViewToneCircle()
@@ -54,14 +56,14 @@ void ViewToneCircle::paint(juce::Graphics& g)
 		true
 	);
 
-	for (int deg = 0; deg < tuning.getTuningSize(); deg++)
+	for (int i = 0; i < degreeAngles.size(); i++)
 	{
-		Point<float> circleCoord = degreePoints[deg];
-		Colour intervalColour = intervalTextGradient.getColourAtPosition(degreeAngles[deg] / float_Pi * 2);
+		float ang = degreeAngles[i];
+		Point<float> circleCoord = degreePoints[i];
 
-		g.setColour(intervalColour);
-		g.drawEllipse(circleCoord.getX() - 2, +circleCoord.getY() - 2, 4, 4, 2);
-	}
+		g.setColour(circleColour);
+		g.fillEllipse(circleCoord.getX() - noteMarkerRadius / 2, +circleCoord.getY() - noteMarkerRadius / 2, noteMarkerRadius, noteMarkerRadius);
+	} 
 
 	for (auto noteNum : notesOn)
 	{
@@ -70,7 +72,7 @@ void ViewToneCircle::paint(juce::Graphics& g)
 		Colour intervalColour = intervalTextGradient.getColourAtPosition(degreeAngles[degree] / float_Pi * 2);
 
 		g.setColour(intervalColour.brighter().withAlpha(0.9f));
-		g.drawEllipse(circleCoord.getX() - 2, +circleCoord.getY() - 2, 4, 4, 2);
+		g.fillEllipse(circleCoord.getX() - noteMarkerRadius / 2, +circleCoord.getY() - noteMarkerRadius / 2, noteMarkerRadius, noteMarkerRadius);
 	}
 }
 
@@ -79,19 +81,11 @@ void ViewToneCircle::resized()
 	center = { getWidth() / 2.0f, getHeight() / 2.0f };
 	circleRadius = jmin(getWidth(), getHeight()) * (1 - margin) / 2.0f;
 	circleBounds = { center.getX() - circleRadius, center.getY() - circleRadius, circleRadius * 2, circleRadius * 2};
-}
 
-void ViewToneCircle::updateNotesCache()
-{
-	TuneUpMidiView::updateNotesCache();
-
-	degreeAngles.clear();
 	degreePoints.clear();
-
-	for (auto noteNum : notesOn)
+	for (auto ang : degreeAngles)
 	{
-		int degree = tuning.getScaleDegree(noteNum);
-		degreePoints.add(center.getPointOnCircumference(circleRadius, degreeAngles[degree]));
+		degreePoints.add(center.getPointOnCircumference(circleRadius, ang));
 	}
 }
 

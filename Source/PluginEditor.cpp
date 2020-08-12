@@ -538,6 +538,12 @@ void TuneupMidiAudioProcessorEditor::onNewTuningOut(ValueTree tuningOutDef, Tuni
 	mainWindow->updateTuningOutProperties();
 	autoToggleDynamicOptions(tuningOutDef);
 
+	if (viewPanel.get())
+	{
+		// Reinstantiate with new tuning
+		viewModeChanged();
+	}
+
 	DBG("GUI updated for new Tuning Out: \n" + tuningOutDef.toXmlString());
 }
 

@@ -37,8 +37,6 @@ public:
     void paint (juce::Graphics&) override;
     void resized() override;
 
-	void updateNotesCache() override;
-
 //==============================================================================
 private:
 
@@ -53,12 +51,13 @@ private:
 	ColourGradient intervalTextGradient;
 	
 	// Drawing helpers
-
 	Point<float> center;
 	
 	float margin = 1.0f / 8.0f;
 	float circleRadius;
 	Rectangle<float> circleBounds;
+
+	float noteMarkerRadius = 6.0f;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ViewToneCircle)
 };
