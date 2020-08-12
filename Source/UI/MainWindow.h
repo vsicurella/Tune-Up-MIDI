@@ -27,8 +27,8 @@ public:
 	void updateTuningOutProperties();
 
 	void setTuningNameLabel(String nameIn);
-	void setTuningSizeLabel(int numNotesIn);
-	void setTuningPeriodLabel(double periodIn);
+	void setTuningSizeLabel(String numNotesIn);
+	void setTuningPeriodLabel(String periodIn);
 	void setDescriptionText(String descIn);
 
 	//==============================================================================

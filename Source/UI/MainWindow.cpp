@@ -100,10 +100,8 @@ void TuneUpWindow::updateTuningOutProperties()
 	ValueTree tuningOutDefinition = optionsNode.getChildWithName(TuneUpIDs::tuningsListId).getChild(1);
 	DBG("MAINWINDOW:\n" + optionsNode.toXmlString());
 	setTuningNameLabel(tuningOutDefinition[TuneUpIDs::tuningNameId]);
-	setTuningSizeLabel(tuningOutDefinition[TuneUpIDs::tuningSizeId]);
 	setDescriptionText(tuningOutDefinition[TuneUpIDs::tuningDescriptionId]);
 
-	// TODO: Add tuningPeriodId or abstract function
 	double period = 0;
 	if (tuningOutDefinition[TuneUpIDs::functionalId])
 	{
@@ -114,8 +112,20 @@ void TuneUpWindow::updateTuningOutProperties()
 		ValueTree intervalList = tuningOutDefinition.getChild(0);
 		period = intervalList.getChild(intervalList.getNumChildren() - 1)[TuneUpIDs::intervalValueId];
 	}
-	
-	setTuningPeriodLabel(period);
+
+	String size = tuningOutDefinition[TuneUpIDs::tuningSizeId].toString();
+	String periodDisplay = String(period) + " cents";
+	double virtualPeriod = tuningOutDefinition[TuneUpIDs::virtualPeriodId];
+
+	if (period != virtualPeriod && virtualPeriod > 0)
+	{
+		int virtualSize = round(virtualPeriod / period);
+		size += " (" + String(virtualSize) + ")";
+		periodDisplay += " (" + String(virtualPeriod) + ")";
+	}
+
+	setTuningSizeLabel(size);
+	setTuningPeriodLabel(periodDisplay);
 }
 
 void TuneUpWindow::setTuningNameLabel(String nameIn)
@@ -123,14 +133,14 @@ void TuneUpWindow::setTuningNameLabel(String nameIn)
 	tuningNameBox->setText(nameIn, dontSendNotification);
 }
 
-void TuneUpWindow::setTuningSizeLabel(int numNotesIn)
+void TuneUpWindow::setTuningSizeLabel(String numNotesIn)
 {
-	tuningSizeBox->setText(String(numNotesIn), dontSendNotification);
+	tuningSizeBox->setText(numNotesIn, dontSendNotification);
 }
 
-void TuneUpWindow::setTuningPeriodLabel(double periodIn)
+void TuneUpWindow::setTuningPeriodLabel(String periodIn)
 {
-	tuningPeriodBox->setText(String(periodIn), dontSendNotification);
+	tuningPeriodBox->setText(periodIn, dontSendNotification);
 }
 
 void TuneUpWindow::setDescriptionText(String descIn)
