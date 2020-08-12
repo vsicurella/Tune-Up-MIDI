@@ -359,7 +359,11 @@ ValueTree TuningDefinition::createRegularTemperamentDefinition(
 
 	definitionOut.appendChild(generatorList, nullptr);
 
-	definitionOut.setProperty(virtualPeriodId, generatorList.getChild(0)[generatorValueId], nullptr);
+	double virtualPeriod = generatorList.getChild(0)[generatorValueId];
+	if (generatorList.getNumChildren() == 1)
+		virtualPeriod *= (int) generatorList.getChild(0)[generatorAmountId];
+
+	definitionOut.setProperty(virtualPeriodId, virtualPeriod, nullptr);
 
 	// TODO: do this without packing into ValueTree?
 	int tuningSize = determineTuningDefinitionSize(definitionOut);
