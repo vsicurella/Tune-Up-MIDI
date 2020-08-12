@@ -10,8 +10,8 @@
 
 #include "ViewBase.h"
 
-TuneUpMidiView::TuneUpMidiView(const Tuning& tuningIn, MidiKeyboardState* inputStateIn)
-	: tuning(tuningIn), midiInputState(inputStateIn)
+TuneUpMidiView::TuneUpMidiView(const Tuning& tuningIn, ValueTree tuningDefinitionIn, MidiKeyboardState* inputStateIn)
+	: tuning(tuningIn), tuningDefinition(tuningDefinitionIn), midiInputState(inputStateIn)
 {
 	setColour(ColourIds::backgroundColourId, Colours::darkslategrey.darker(0.8f));
 	setColour(ColourIds::textDefaultColourId, Colours::lightgoldenrodyellow);

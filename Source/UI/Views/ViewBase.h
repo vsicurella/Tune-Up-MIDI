@@ -24,7 +24,7 @@ public:
 
 public:
 
-	TuneUpMidiView(const Tuning& tuningIn, MidiKeyboardState* inputStateIn);
+	TuneUpMidiView(const Tuning& tuningIn, ValueTree tuningDefinitionIn, MidiKeyboardState* inputStateIn);
 	virtual ~TuneUpMidiView();
 
 	virtual void paint(Graphics&) = 0;
@@ -46,5 +46,6 @@ protected:
 	Array<int> notesOn;
 
 	const Tuning& tuning;
+	ValueTree tuningDefinition;
 	MidiKeyboardState* midiInputState;
 };
