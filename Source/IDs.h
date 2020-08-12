@@ -58,6 +58,7 @@ namespace TuneUpIDs
 	static Identifier functionalId("TuningIsFunctional");
 	static Identifier tuningSizeId("TuningSize");
 	static Identifier rootMidiNoteId("RootNote");
+	static Identifier virtualPeriodId("VirtualPeriod");
 	static Identifier generatorListId("GeneratorList");
 	static Identifier generatorNodeId("GeneratorNode");
 	static Identifier generatorOffsetId("GeneratorOffset");

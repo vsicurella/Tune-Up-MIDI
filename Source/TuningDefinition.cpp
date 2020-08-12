@@ -217,7 +217,6 @@ ValueTree TuningDefinition::createStaticTuningDefinition(
 	definitionOut.setProperty(rootMidiNoteId, midiRootNote, nullptr);
 
 	// Strip file directory and extension if in name
-
 	if (File::isAbsolutePath(nameIn))
 	{
 		nameIn = File(nameIn).getFileNameWithoutExtension();
@@ -226,11 +225,10 @@ ValueTree TuningDefinition::createStaticTuningDefinition(
 	definitionOut.setProperty(tuningNameId, nameIn, nullptr);
 	definitionOut.setProperty(tuningDescriptionId, descriptionIn, nullptr); // TODO: default description?
 
-	definitionOut.addChild(
-		arrayToTree(centsTable, centsTableId, intervalNodeId, intervalValueId),
-		-1, nullptr
-	);
+	ValueTree table = arrayToTree(centsTable, centsTableId, intervalNodeId, intervalValueId);
+	definitionOut.appendChild(table, nullptr);
 
+	definitionOut.setProperty(virtualPeriodId, table.getChild(table.getNumChildren() - 1)[intervalValueId], nullptr);
 	definitionOut.setProperty(tuningSizeId, determineTuningDefinitionSize(definitionOut), nullptr);
 
 	return definitionOut;
@@ -264,6 +262,7 @@ ValueTree TuningDefinition::createEqualTemperamentDefinition(
 		
 		definitionOut.setProperty(tuningDescriptionId, description, nullptr);
 		definitionOut.setProperty(tuningSizeId, 1, nullptr);
+		definitionOut.setProperty(virtualPeriodId, periodInCents, nullptr);
 
 		ValueTree generatorList(generatorListId);
 		ValueTree node(generatorNodeId);
@@ -272,8 +271,8 @@ ValueTree TuningDefinition::createEqualTemperamentDefinition(
 		node.setProperty(generatorAmountId, 1, nullptr);
 		node.setProperty(generatorOffsetId, 0, nullptr);
 
-		generatorList.addChild(node, 0, nullptr);
-		definitionOut.addChild(generatorList, 0, nullptr);
+		generatorList.appendChild(node, nullptr);
+		definitionOut.appendChild(generatorList, nullptr);
 	}
 
 	return definitionOut;
@@ -355,10 +354,12 @@ ValueTree TuningDefinition::createRegularTemperamentDefinition(
 		node.setProperty(generatorAmountId, generatorAmounts[i], nullptr);
 		node.setProperty(generatorOffsetId, generatorsDown[i], nullptr);
 
-		generatorList.addChild(node, i, nullptr);
+		generatorList.appendChild(node, nullptr);
 	}
 
-	definitionOut.addChild(generatorList, 0, nullptr);
+	definitionOut.appendChild(generatorList, nullptr);
+
+	definitionOut.setProperty(virtualPeriodId, generatorList.getChild(0)[generatorValueId], nullptr);
 
 	// TODO: do this without packing into ValueTree?
 	int tuningSize = determineTuningDefinitionSize(definitionOut);
