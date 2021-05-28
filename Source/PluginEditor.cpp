@@ -371,17 +371,17 @@ void TuneupMidiAudioProcessorEditor::buttonClicked(Button* buttonClicked)
 	{
 		PopupMenu viewMenu;
 
-		viewMenu.addItem("Hide", true, false, [=]() {
+		viewMenu.addItem("Hide", true, false, [&]() {
 			viewMode = ViewMode::NoView;
 			viewModeChanged();
 		});
 
-		viewMenu.addItem("Interval List", true, viewMode == ViewMode::IntervalList, [=]() {
+		viewMenu.addItem("Interval List", true, viewMode == ViewMode::IntervalList, [&]() {
 			viewMode = ViewMode::IntervalList;
 			viewModeChanged();
 		});
 
-		viewMenu.addItem("Tone Circle", true, viewMode == ViewMode::ToneCircle, [=]() {
+		viewMenu.addItem("Tone Circle", true, viewMode == ViewMode::ToneCircle, [&]() {
 			viewMode = ViewMode::ToneCircle;
 			viewModeChanged();
 		});
@@ -422,6 +422,8 @@ void TuneupMidiAudioProcessorEditor::dynamicTuningModeChanged(bool isDynamicTuni
 
 void TuneupMidiAudioProcessorEditor::viewModeChanged()
 {
+	removeChildComponent(viewPanel.get());
+
 	switch (viewMode)
 	{
 	case ViewMode::IntervalList:
@@ -432,7 +434,7 @@ void TuneupMidiAudioProcessorEditor::viewModeChanged()
 
 	case ViewMode::ToneCircle:
 	{
-		viewPanel.reset(new ViewToneCircle(*pluginState.getTuningOut(), &midiProcessor.getKeyboardStateIn()));
+		viewPanel.reset(new ViewToneCircle(*pluginState.getTuningOut(), pluginState.getTuningOutDefinition(), &midiProcessor.getKeyboardStateIn()));
 		break;
 	}
 
@@ -443,15 +445,20 @@ void TuneupMidiAudioProcessorEditor::viewModeChanged()
 	}
 	}
 
+	pluginState.getPluginStateNode().setProperty(TuneUpIDs::viewModeNumber, viewMode, nullptr);
+
+	int windowHeight = controlPanelHeight;
+
 	if (viewPanel.get())
 	{
 		addAndMakeVisible(viewPanel.get());
-		setSize(500, controlPanelHeight + viewPanelHeight);
+		windowHeight += viewPanelHeight;
 	}
+	
+	if (getHeight() != windowHeight)
+		setSize(500, windowHeight);
 	else
-		setSize(500, controlPanelHeight);
-
-	pluginState.getPluginStateNode().setProperty(TuneUpIDs::viewModeNumber, viewMode, nullptr);
+		resized();
 }
 
 //==============================================================================
@@ -538,11 +545,9 @@ void TuneupMidiAudioProcessorEditor::onNewTuningOut(ValueTree tuningOutDef, Tuni
 	mainWindow->updateTuningOutProperties();
 	autoToggleDynamicOptions(tuningOutDef);
 
-	if (viewPanel.get())
-	{
-		// Reinstantiate with new tuning
-		viewModeChanged();
-	}
+	// Reinstantiate with new tuning
+	viewModeChanged();
+	
 
 	DBG("GUI updated for new Tuning Out: \n" + tuningOutDef.toXmlString());
 }

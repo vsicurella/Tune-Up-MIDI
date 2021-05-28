@@ -261,7 +261,7 @@ ValueTree TuningDefinition::createEqualTemperamentDefinition(
 			description = String(numberOfDivisions) + " equal divisions of " + String(periodInCents) + " cents.";
 		
 		definitionOut.setProperty(tuningDescriptionId, description, nullptr);
-		definitionOut.setProperty(tuningSizeId, 1, nullptr);
+		definitionOut.setProperty(tuningSizeId, numberOfDivisions, nullptr);
 		definitionOut.setProperty(virtualPeriodId, periodInCents, nullptr);
 
 		ValueTree generatorList(generatorListId);

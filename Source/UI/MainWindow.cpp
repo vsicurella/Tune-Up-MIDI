@@ -101,6 +101,7 @@ void TuneUpWindow::updateTuningOutProperties()
 	DBG("MAINWINDOW:\n" + optionsNode.toXmlString());
 	setTuningNameLabel(tuningOutDefinition[TuneUpIDs::tuningNameId]);
 	setDescriptionText(tuningOutDefinition[TuneUpIDs::tuningDescriptionId]);
+	setTuningSizeLabel(tuningOutDefinition[TuneUpIDs::tuningSizeId].toString());
 
 	double period = 0;
 	if (tuningOutDefinition[TuneUpIDs::functionalId])
@@ -113,18 +114,12 @@ void TuneUpWindow::updateTuningOutProperties()
 		period = intervalList.getChild(intervalList.getNumChildren() - 1)[TuneUpIDs::intervalValueId];
 	}
 
-	String size = tuningOutDefinition[TuneUpIDs::tuningSizeId].toString();
 	String periodDisplay = String(period) + " cents";
 	double virtualPeriod = tuningOutDefinition[TuneUpIDs::virtualPeriodId];
 
-	if (period != virtualPeriod && virtualPeriod > 0)
-	{
-		int virtualSize = round(virtualPeriod / period);
-		size += " (" + String(virtualSize) + ")";
+	if (period != virtualPeriod)
 		periodDisplay += " (" + String(virtualPeriod) + ")";
-	}
-
-	setTuningSizeLabel(size);
+	
 	setTuningPeriodLabel(periodDisplay);
 }
 

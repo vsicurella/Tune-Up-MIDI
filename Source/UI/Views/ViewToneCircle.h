@@ -13,7 +13,6 @@
 #include <JuceHeader.h>
 
 #include "ViewBase.h"
-#include "../../Tuning.h"
 
 //==============================================================================
 /*
@@ -31,7 +30,7 @@ public:
 	};
 
 public:
-    ViewToneCircle(const Tuning& tuningIn, MidiKeyboardState* keyboardInputIn);
+    ViewToneCircle(const Tuning& tuningIn, ValueTree tuningDefinitionIn, MidiKeyboardState* keyboardInputIn);
     ~ViewToneCircle() override;
 
     void paint (juce::Graphics&) override;
@@ -49,7 +48,10 @@ private:
 	Array<float> degreeAngles;
 	Array<Point<float>> degreePoints;
 	ColourGradient intervalTextGradient;
-	
+
+	int tuningSize = 1;
+	double centsPeriod = 1200;
+
 	// Drawing helpers
 	Point<float> center;
 	

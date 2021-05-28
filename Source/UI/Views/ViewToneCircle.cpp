@@ -12,8 +12,8 @@
 #include "ViewToneCircle.h"
 
 //==============================================================================
-ViewToneCircle::ViewToneCircle(const Tuning& tuningIn, MidiKeyboardState* keyboardInputIn)
-	: TuneUpMidiView(tuningIn, keyboardInputIn)
+ViewToneCircle::ViewToneCircle(const Tuning& tuningIn, ValueTree tuningDefinitionIn, MidiKeyboardState* keyboardInputIn)
+	: TuneUpMidiView(tuningIn, tuningDefinitionIn, keyboardInputIn)
 {
 	// Set Default Colours
 	setColour(circleOutlineColourId, Colours::whitesmoke);
@@ -21,11 +21,20 @@ ViewToneCircle::ViewToneCircle(const Tuning& tuningIn, MidiKeyboardState* keyboa
 	setColour(intervalMiddleColourId, Colours::red);
 	setColour(intervalEndColourId, Colours::red);
 
+	tuningSize = tuningDefinition[TuneUpIDs::tuningSizeId];
+
+	DBG("ToneCircle: Size: " + String(tuningSize));
+
 	// Calculate interval angles
-	for (int i = 0; i < tuning.getTuningSize(); i++)
+	for (int i = 0; i < tuningSize; i++)
 	{
 		degreeAngles.add(scaleDegreeToAngle(i));
 	}
+
+	if ((double)tuningDefinition[TuneUpIDs::virtualPeriodId] > 0)
+		centsPeriod = tuningDefinition[TuneUpIDs::virtualPeriodId];
+
+	DBG("ToneCircle: Period: " + String(centsPeriod));
 
 	DBGArray(degreeAngles, "ToneCircle Angles");
 }
@@ -91,5 +100,5 @@ void ViewToneCircle::resized()
 
 float ViewToneCircle::scaleDegreeToAngle(int scaleDegreeIn) const
 {
-	return 2.0f * float_Pi * tuning.getNoteInCents(scaleDegreeIn + tuning.getRootNote()) / tuning.getPeriodCents();
+	return 2.0f * float_Pi * tuning.getNoteInCents(scaleDegreeIn + tuning.getRootNote()) / centsPeriod;
 }
