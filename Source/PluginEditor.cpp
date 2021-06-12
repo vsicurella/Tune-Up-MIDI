@@ -550,6 +550,7 @@ void TuneupMidiAudioProcessorEditor::onNewTuningOut(ValueTree tuningOutDef, Tuni
 	
 
 	DBG("GUI updated for new Tuning Out: \n" + tuningOutDef.toXmlString());
+	DBG(tuningPtr->toString());
 }
 
 void TuneupMidiAudioProcessorEditor::onNewOptionsNode(ValueTree optionsNodeIn)

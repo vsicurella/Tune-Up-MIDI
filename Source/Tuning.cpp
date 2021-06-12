@@ -115,6 +115,15 @@ String Tuning::getDescription() const
 	return description;
 }
 
+String Tuning::toString() const
+{
+	String tableStr = "";
+	for (auto cents : intervalCents)
+		tableStr << String(cents) << newLine;
+
+	return tableStr;
+}
+
 int Tuning::getScaleDegree(int midiNoteIn) const
 {
 	return modulo(midiNoteIn - rootMidiNote, tuningSize);

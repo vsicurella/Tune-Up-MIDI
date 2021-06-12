@@ -54,6 +54,7 @@ public:
 
 	String getName() const;
 	String getDescription() const;
+	String toString() const;
 
 	/*
 		Returns the period-reduced scale degree of the note number passed in
